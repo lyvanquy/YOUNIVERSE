@@ -24,6 +24,7 @@
 - `backend/07_EMAIL_SPEC.md`
 - `backend/08_SEED_DATA.md`
 - `backend/09_ENV_EXAMPLE.md`
+- `backend/10_BACKEND_IMPLEMENTATION_PLAN.md`
 - `frontend/01_FRONTEND_STRUCTURE.md`
 - `frontend/02_UI_STYLE_GUIDE.md`
 - `frontend/03_ROUTES_AND_SCREENS.md`
