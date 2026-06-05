@@ -114,20 +114,29 @@ Ghi chú kiểm tra:
 
 ## Phase 5 - Cart And Coupon Calculation
 
-- [ ] Tạo module `cart`.
-- [ ] Hỗ trợ guest cart bằng `x-session-id`.
-- [ ] Hỗ trợ user cart bằng JWT.
-- [ ] Add/update/remove cart item.
-- [ ] Validate product active và stock đủ.
-- [ ] Tính subtotal, discount, shippingFee, total.
-- [ ] Apply coupon chỉ validate/tính discount, chưa tăng `usedCount`.
-- [ ] Merge guest cart vào user cart sau login.
+- [x] Tạo module `cart`.
+- [x] Hỗ trợ guest cart bằng `x-session-id`.
+- [x] Hỗ trợ user cart bằng JWT.
+- [x] Add/update/remove cart item.
+- [x] Validate product active và stock đủ.
+- [x] Tính subtotal, discount, shippingFee, total.
+- [x] Apply coupon chỉ validate/tính discount, chưa tăng `usedCount`.
+- [x] Merge guest cart vào user cart sau login.
 
 Tiêu chí hoàn thành:
 
 - Không thêm được sản phẩm hết hàng/inactive.
 - Không update quantity vượt stock.
 - Coupon hợp lệ trả discount đúng.
+
+Ghi chú kiểm tra:
+
+- Đã code đầy đủ Phase 5.
+- Cart endpoints: `GET /api/v1/cart`, `POST /api/v1/cart/items`, `PATCH /api/v1/cart/items/:itemId`, `DELETE /api/v1/cart/items/:itemId`, `POST /api/v1/cart/apply-coupon`, `POST /api/v1/cart/merge`.
+- Guest cart dùng header `x-session-id`.
+- User cart dùng `Authorization: Bearer <token>`.
+- `apply-coupon` chỉ validate và trả tổng tiền đã tính lại, chưa tăng `Coupon.usedCount`.
+- Chưa chạy typecheck/API test trong môi trường hiện tại theo yêu cầu của user. User sẽ tự chạy các lệnh kiểm tra.
 
 ## Phase 6 - Checkout And Orders
 
@@ -250,5 +259,6 @@ Tiêu chí hoàn thành:
 - Phase 2 Prisma Database đã được code.
 - Phase 3 Auth And RBAC đã được code.
 - Phase 4 Products And Categories đã được code.
-- Chưa có Cart, Checkout hoặc Admin APIs đầy đủ.
-- Lần code tiếp theo nên bắt đầu từ Phase 5 - Cart And Coupon Calculation.
+- Phase 5 Cart And Coupon Calculation đã được code.
+- Chưa có Checkout hoặc Admin APIs đầy đủ.
+- Lần code tiếp theo nên bắt đầu từ Phase 6 - Checkout And Orders.

@@ -7,6 +7,7 @@ import { errorMiddleware, notFoundMiddleware } from "./common/middlewares/error.
 import { requestLogger } from "./common/middlewares/request-logger.middleware";
 import adminRoutes from "./modules/admin/admin.routes";
 import authRoutes from "./modules/auth/auth.routes";
+import cartRoutes from "./modules/cart/cart.routes";
 import categoryRoutes from "./modules/categories/category.routes";
 import healthRoutes from "./modules/health/health.routes";
 import productRoutes from "./modules/products/product.routes";
@@ -21,6 +22,7 @@ app.use(requestLogger);
 
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/categories", categoryRoutes);
 app.use("/api/v1/health", healthRoutes);
 app.use("/api/v1/products", productRoutes);

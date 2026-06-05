@@ -31,3 +31,30 @@ export const authMiddleware: RequestHandler = (req, _res, next) => {
     next(error);
   }
 };
+
+export const optionalAuthMiddleware: RequestHandler = (req, _res, next) => {
+  const header = req.headers.authorization;
+  const token = header?.startsWith("Bearer ") ? header.slice("Bearer ".length).trim() : undefined;
+
+  if (!token) {
+    next();
+    return;
+  }
+
+  try {
+    req.user = verifyAccessToken(token);
+    next();
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      next(new AppError("Token expired", HTTP_STATUS.UNAUTHORIZED));
+      return;
+    }
+
+    if (error instanceof JsonWebTokenError || error instanceof Error) {
+      next(new AppError("Invalid authentication token", HTTP_STATUS.UNAUTHORIZED));
+      return;
+    }
+
+    next(error);
+  }
+};
