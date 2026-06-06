@@ -25,7 +25,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
             ABOUT YOUNIVERSE
           </h1>
           <p className="font-sans text-stone-500 text-sm max-w-xl mx-auto leading-relaxed">
-            Dự án dệt nên vẻ đẹp cá tính độc bản từ UEH.ISB. Tạo dựng quyền được là chính mình cho tất cả mọi người.
+            A project weaving unique identity and aesthetics from UEH.ISB. Championing the right to be yourself for everyone.
           </p>
         </div>
       </section>
@@ -37,10 +37,10 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
           {/* Left info box (Big Headline) */}
           <div className="lg:col-span-5 space-y-4 text-left lg:sticky lg:top-28">
             <span className="text-[10px] font-mono font-black uppercase text-amber-500 tracking-widest block">
-              01 / Khơi Nguồn Cảm Hứng
+              01 / The Inspiration
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-black uppercase tracking-tight leading-tight">
-              Từ những cá tính bị rập khuôn đến một vũ trụ tự do.
+              From cookie-cutter molds to a free universe.
             </h2>
             <div className="h-1 w-20 bg-black mt-4" />
             
@@ -49,7 +49,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
               <div className="p-4 border-2 border-stone-200 border-dashed rounded-2xl bg-stone-50 flex items-center space-x-3 text-stone-500">
                 <Quote className="h-8 w-8 text-amber-500 shrink-0" />
                 <p className="text-[11px] font-mono leading-relaxed">
-                  &ldquo;Chúng mình khát khao phá vỡ chiếc khuôn cứng nhắc để đưa Gen Z bộc lộ con người chân thật nhất.&rdquo;
+                  &ldquo;We long to break rigid stereotypes, allowing Gen Z to express their truest, most authentic selves.&rdquo;
                 </p>
               </div>
             </div>
@@ -65,15 +65,15 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
               
               <div className="space-y-6 text-stone-600 text-sm leading-relaxed font-sans">
                 <p className="first-letter:text-4xl first-letter:font-extrabold first-letter:text-black first-letter:mr-2 first-letter:float-left">
-                  Khởi nguồn từ những mảnh ghép đầy cá tính tại <strong className="text-black font-semibold">UEH.ISB</strong>, YOUniverse bắt nguồn từ một sự thật khiến chúng mình trăn trở: Thế giới nội tâm của Gen Z vốn đa sắc, cớ sao chúng ta lại phải thu mình trong những món phụ kiện rập khuôn phổ thông?
+                  Originating from a passionate team at <strong className="text-black font-semibold">UEH.ISB</strong>, YOUniverse was born out of a question that kept us restless: Gen Z's inner world is vibrant and multi-faceted, so why do we have to constrain ourselves to generic, mass-produced accessories?
                 </p>
                 
                 <p>
-                  YOUniverse ra đời để phá vỡ hoàn toàn giới hạn đó. Chúng mình trao gửi cho bạn một không gian sáng tạo vô tận: một &quot;vũ trụ&quot; thu nhỏ, nơi từng chiếc charm tinh tú lấp lánh sẽ thay bạn kể câu chuyện của riêng mình một cách tự nhiên nhất.
+                  YOUniverse was created to completely break those boundaries. We present you with an infinite space for creativity: a miniature &quot;universe&quot; where each sparkling, starry charm speaks for you in the most authentic way possible.
                 </p>
                 
                 <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 font-mono text-xs text-stone-800">
-                  ⚡ Không cần phải cất lời lên tiếng, thế giới xung quanh vẫn sẽ nhận biết rõ bạn là ai, bạn mang những đam mê đặc biệt gì, và mang bản sắc độc đáo đến nhường nào.
+                  ⚡ Without saying a single word, the world around you will immediately know who you are, what passions you carry, and how unique your identity truly is.
                 </div>
               </div>
 
@@ -101,7 +101,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
             </div>
             
             <p className="font-sans text-stone-700 text-sm leading-relaxed">
-              Nhiệm vụ của YOUniverse không phải là bán phụ kiện thông thường. Chúng mình bán <strong className="text-black font-bold">&ldquo;quyền được là chính mình&rdquo;</strong>. Bằng việc kiến tạo các dòng charm mang tính biểu tượng cao độ, chúng mình giúp bạn mang theo những sở thích bình dị, những điểm tựa tinh thần vững vàng đi khắp mọi nơi.
+              The mission of YOUniverse is not just to sell standard accessories. We sell <strong className="text-black font-bold">&ldquo;the right to be yourself&rdquo;</strong>. By creating highly symbolic charm lines, we help you carry your simple hobbies and reliable spiritual anchors wherever you go.
             </p>
           </div>
 
@@ -119,7 +119,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
             </div>
 
             <p className="font-sans text-stone-700 text-sm leading-relaxed">
-              Chúng mình mong muốn trở thành thương hiệu phụ kiện cá nhân hóa hàng đầu của Gen Z do chính <strong className="text-black font-bold">UEH.ISB-ers</strong> sáng lập và làm chủ. Là thương hiệu quà tặng truyền cảm hứng phong cách quý giá, giúp mỗi khách hàng tự tin vẽ nên bức tranh dấu ấn cá thể độc lập.
+              We aim to become the leading personalized accessory brand for Gen Z, founded and owned by <strong className="text-black font-bold">UEH.ISB-ers</strong>. We aspire to be an inspiring lifestyle gift brand, empowering every customer to confidently depict their independent individual signature.
             </p>
           </div>
 
@@ -131,13 +131,13 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
         
         <div className="text-center space-y-2">
           <span className="text-[10px] font-mono font-black uppercase text-amber-500 tracking-widest block">
-            02 / Triết Lý Hoạt Động
+            02 / Core Philosophy
           </span>
           <h2 className="font-display text-3xl font-extrabold text-black uppercase tracking-tight">
             Our Core Values (Y.O.U)
           </h2>
           <p className="font-sans text-stone-500 text-xs max-w-sm mx-auto">
-            Giá trị cốt lõi làm nên linh hồn phong cách thời trang hạt ngọc vũ trụ.
+            Core values that construct the soul of our cosmic jewelry styling.
           </p>
         </div>
 
@@ -209,10 +209,10 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
               Make Your Own Set
             </span>
             <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-black text-white uppercase leading-tight max-w-xl mx-auto">
-              Vậy bạn đã sẵn sàng để tạo ra vũ trụ cho riêng mình chưa?
+              So are you ready to create your own universe?
             </h3>
             <p className="font-sans text-stone-400 text-xs max-w-sm mx-auto">
-              Click ngay phía dưới để du ngoạn trang danh mục sản phẩm, xem trước các charm đặc chế tinh xảo của chúng mình!
+              Click below to explore our products catalog and check out our custom-crafted charms!
             </p>
           </div>
 
@@ -222,7 +222,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
             onClick={() => onNavigate('products')}
             className="relative z-10 w-full sm:w-auto rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-black tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95 text-center flex items-center justify-center space-x-2 cursor-pointer"
           >
-            <span>Khám Phá Sản Phẩm Ngay</span>
+            <span>Explore Products Now</span>
             <Sparkles className="h-4 w-4 text-amber-500 animate-twinkle" />
           </button>
 

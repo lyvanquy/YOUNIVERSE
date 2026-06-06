@@ -131,7 +131,7 @@ body {
 }
 
 .animate-marquee-ltr {
-  animation: marquee-ltr 25s linear infinite;
+  animation: marquee-ltr 45s linear infinite;
 }
 
 .animate-marquee-single {
@@ -231,5 +231,13 @@ body {
 
 .group:hover .animate-wiggle {
   animation: wiggle 0.3s ease-in-out;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 

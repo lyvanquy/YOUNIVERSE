@@ -30,13 +30,13 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
           <div className="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
             <div className="space-y-1">
               <h2 className="font-display text-lg font-extrabold text-black uppercase tracking-tight flex items-center space-x-1.5">
-                <span>Giỏ Hàng Thiết Kế</span>
+                <span>Custom Designs Cart</span>
                 <span className="text-[10px] font-mono font-black py-0.5 px-2 bg-stone-100 rounded text-stone-500">
                   {cartItems.length}
                 </span>
               </h2>
               <p className="font-sans text-[11px] text-stone-400">
-                Lưu trữ các phác thảo trang sức YOUniverse tùy chọn của bạn
+                Storing your custom YOUniverse jewelry drafts
               </p>
             </div>
 
@@ -59,10 +59,10 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                 
                 <div className="space-y-1">
                   <h3 className="font-display text-sm font-bold text-stone-800 uppercase">
-                    Chưa có thiết kế nào
+                    No custom designs yet
                   </h3>
                   <p className="font-sans text-xs text-stone-400 max-w-xs mx-auto">
-                    Hãy trải nghiệm &ldquo;Khóa Thiết Kế YOUniverse&rdquo; 3 bước ở trang chủ để tự tay đúc nên chiếc bùa may mắn của riêng mình!
+                    Experience our 3-step "How to Build Your YOUniverse" customizer on the homepage to handcraft your own lucky charm!
                   </p>
                 </div>
               </div>
@@ -141,7 +141,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
               <div className="flex items-start space-x-2 text-left">
                 <Shield className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                 <p className="font-sans text-[11px] text-stone-500 leading-normal">
-                  Hệ thống thiết kế độc bản trực quan hỗ trợ lưu trữ cục bộ. Gửi yêu cầu đặt cọc cho ISB Event Team để đặt lịch gia công.
+                  Visual design customizer supports local draft saving. Submit your design query to the ISB Event Team to schedule physical handcrafting.
                 </p>
               </div>
 
@@ -149,7 +149,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                 onClick={onCheckout}
                 className="w-full rounded-2xl bg-black hover:bg-stone-900 border-2 border-black text-white py-4 font-display text-xs font-bold tracking-widest uppercase transition-all duration-300"
               >
-                Gửi Đơn Đặt Hàng Phác Thảo
+                Submit Custom Design Order
               </button>
             </div>
           )}

@@ -171,25 +171,25 @@ export default function App() {
               <div className="flex items-center space-x-2 text-amber-500">
                 <Bell className="h-5 w-5 animate-bounce" />
                 <h3 className="font-display text-xl font-extrabold text-stone-900 uppercase tracking-tight">
-                  Đăng Ký Sở Hữu {activeNotificationCharm}
+                  Register Interest for {activeNotificationCharm}
                 </h3>
               </div>
               
               <p className="font-sans text-xs text-stone-500 leading-relaxed">
-                Tác phẩm <strong className="text-black font-semibold">{activeNotificationCharm}</strong> đang trong công đoạn xúc tiến gia công tinh xảo bởi ISB Event Team. Để lại email để nhận thông báo khánh thành sớm nhất và nhận được phiếu ưu đãi 10% đặc thù!
+                The <strong className="text-black font-semibold">{activeNotificationCharm}</strong> charm is currently being crafted by the ISB Event Team. Leave your email to receive early notifications and unlock an exclusive 10% discount code!
               </p>
             </div>
 
             {registrationSuccess ? (
               <div className="bg-emerald-500 text-white rounded-xl p-4 flex items-center space-x-3 text-xs md:text-sm shadow-inner transition-all">
                 <Check className="h-5 w-5 shrink-0 animate-bounce" />
-                <span className="font-semibold">Bạn đã đăng ký nhận tin tức thành công! Hẹn gặp lại bạn tại ngày phóng hành tinh sớm nhất!</span>
+                <span className="font-semibold">Successfully registered! We will contact you immediately upon launch!</span>
               </div>
             ) : (
               <form onSubmit={handleSubmitEmailNotification} className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="notif-email">
-                    Địa chỉ Email nhận đặc quyền:
+                    Email address for exclusive benefits:
                   </label>
                   <input
                     id="notif-email"
@@ -207,13 +207,13 @@ export default function App() {
                   className="w-full rounded-2xl bg-black hover:bg-stone-900 border-2 border-black text-white py-3.5 px-4 font-display text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow flex items-center justify-center space-x-2"
                 >
                   <Send className="h-4 w-4" />
-                  <span>Xác nhận thông báo sớm</span>
+                  <span>Confirm Early Notification</span>
                 </button>
               </form>
             )}
 
             <div className="text-center font-mono text-[9px] text-stone-400">
-              * Bảo mật thông tin tuyệt đối bởi YOUniverse ISB.
+              * Data strictly secured by YOUniverse ISB.
             </div>
 
           </div>
@@ -226,19 +226,19 @@ export default function App() {
           <div className="flex items-center space-x-2.5 text-amber-400">
             <Sparkles className="h-5 w-5 animate-twinkle" />
             <h4 className="font-display text-sm font-black uppercase tracking-widest">
-              Đơn hàng phác thảo được đặt!
+              Draft Order Placed!
             </h4>
           </div>
 
           <p className="font-sans text-xs text-stone-300 leading-relaxed">
-            Phác thảo trang sức YOUniverse của bạn đã được lưu lại thành công. Hãy liên hệ với ISB Event Team để nhận lịch hẹn xem demo phụ kiện thực tế sớm nhất.
+            Your customized YOUniverse jewelry design draft has been saved. Please contact the ISB Event Team to review the physical accessory prototypes.
           </p>
 
           <button
             onClick={() => setOrderPlacedSuccess(false)}
             className="w-full rounded-xl bg-white hover:bg-stone-100 text-black py-2 text-xs font-display font-extrabold uppercase tracking-wide transition-colors"
           >
-            Đồng Ý
+            Got It
           </button>
         </div>
       )}

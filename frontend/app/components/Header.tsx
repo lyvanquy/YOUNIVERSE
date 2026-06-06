@@ -22,18 +22,26 @@ export default function Header({ currentPage, onNavigate, cartCount, onOpenCart 
   }, []);
 
   const navItems = [
-    { id: 'home' as PageType, label: 'Home', hoverClass: 'hover:text-blue-500 hover:scale-105 active:scale-95 transition-all duration-300 brand-glow-blue cursor-pointer', dotColor: 'bg-blue-500' },
-    { id: 'products' as PageType, label: 'Our YOUniverse', hoverClass: 'hover:text-amber-500 hover:scale-105 active:scale-95 transition-all duration-300 brand-glow-yellow cursor-pointer', dotColor: 'bg-yellow-500' },
-    { id: 'about-us' as PageType, label: 'About us', hoverClass: 'hover:text-red-500 hover:scale-105 active:scale-95 transition-all duration-300 brand-glow-red cursor-pointer', dotColor: 'bg-red-500' },
+    { id: 'home' as PageType, label: 'Home', hoverClass: 'hover:text-blue-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-blue cursor-pointer', dotColor: 'bg-blue-500' },
+    { id: 'products' as PageType, label: 'Our YOUniverse', hoverClass: 'hover:text-amber-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-yellow cursor-pointer', dotColor: 'bg-yellow-500' },
+    { id: 'about-us' as PageType, label: 'About us', hoverClass: 'hover:text-red-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-red cursor-pointer', dotColor: 'bg-red-500' },
   ];
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b transition-all duration-300 ${
+    <header className={`sticky top-0 z-50 w-full border-b transition-all duration-350 ease-in-out ${
       isScrolled 
-        ? 'border-stone-200/50 bg-white/70 backdrop-blur-lg shadow-sm' 
-        : 'border-stone-100 bg-white/80 backdrop-blur-md'
+        ? 'border-stone-200/40 bg-gradient-to-r from-white/70 via-white/85 to-white/70 backdrop-blur-lg shadow-sm' 
+        : 'border-stone-100 bg-gradient-to-r from-stone-50/50 via-white/90 to-stone-50/50 backdrop-blur-md'
     }`}>
-      <div className={`mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+      {/* Cosmic background decorative stars (satisfying blink-blink theme) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-45">
+        <div className="absolute top-3 left-12 text-sm text-blue-400 animate-twinkle select-none">✦</div>
+        <div className="absolute bottom-2 left-1/3 text-base text-stone-400/70 animate-twinkle duration-2000 select-none">✦</div>
+        <div className="absolute top-2 right-1/4 text-base text-amber-400/80 animate-twinkle duration-1000 select-none">✦</div>
+        <div className="absolute bottom-3 right-20 text-sm text-red-400 animate-twinkle duration-1500 select-none">✦</div>
+      </div>
+
+      <div className={`relative mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
         isScrolled ? 'h-16' : 'h-20'
       }`}>
         
@@ -46,10 +54,10 @@ export default function Header({ currentPage, onNavigate, cartCount, onOpenCart 
                 key={item.id}
                 id={`nav-${item.id}`}
                 onClick={() => onNavigate(item.id)}
-                className={`group relative py-2 font-display text-base font-semibold tracking-wide text-stone-700 transition-colors ${item.hoverClass}`}
+                className={`group relative py-2 font-display text-base font-semibold tracking-wide text-stone-700 transition-all duration-500 ease-out ${item.hoverClass}`}
               >
                 {item.label}
-                <span className={`absolute -bottom-1 left-0 right-0 h-[2px] ${item.dotColor} rounded-full transition-transform duration-300 transform scale-x-0 group-hover:scale-x-100 origin-center ${isActive ? 'scale-x-100' : ''}`} />
+                <span className={`absolute -bottom-1 left-0 right-0 h-[2px] ${item.dotColor} rounded-full transition-transform duration-500 ease-out transform scale-x-0 group-hover:scale-x-100 origin-center ${isActive ? 'scale-x-100' : ''}`} />
               </button>
             );
           })}

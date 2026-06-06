@@ -24,7 +24,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
             OUR UNIVERSE
           </h1>
           <p className="font-sans text-stone-500 text-sm max-w-md mx-auto leading-relaxed">
-            Nơi hội tụ những chòm sao bản chất cá nhân hóa. Mỗi tác phẩm được chạm khắc tỉ mỉ nhằm đưa bạn tiếp xúc sâu đậm nhất với chòm sao nội tâm của mình.
+            The gathering place of personalized starry designs. Each piece is meticulously crafted to connect you deeply with your inner universe.
           </p>
         </div>
       </section>
@@ -120,7 +120,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     {/* In-depth features */}
                     <div className="border-t border-stone-200/50 pt-4 space-y-2">
                       <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400 block">
-                        Đặc trưng nổi bật:
+                        Key Features:
                       </span>
                       <p className="font-sans text-[11px] text-stone-500 leading-normal">
                         {prod.extendedDesc}
@@ -140,7 +140,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     <span>&lt; Coming soon &gt;</span>
                   </button>
                   <p className="text-center text-[9px] font-mono text-stone-400 mt-2">
-                    Lên kệ chính thức vào mùa hè này
+                    Launching officially this summer
                   </p>
                 </div>
               </div>
@@ -156,13 +156,13 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
         <div className="bg-stone-50 border-2 border-black rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between text-left gap-6">
           <div className="space-y-1 max-w-xl">
             <span className="text-[10px] font-mono font-bold text-amber-500 uppercase tracking-widest">
-              Ý nghĩa cốt lõi
+              Core Significance
             </span>
             <h4 className="font-display text-sm font-extrabold uppercase text-stone-900 tracking-wider">
-              Khắc Ghi Câu Chuyện Của Riêng Bạn
+              Engrave Your Own Personal Narrative
             </h4>
             <p className="font-sans text-xs text-stone-500 leading-relaxed">
-              Bạn có thể dễ dàng liên hệ với ISB Event Team để nhận thông tin đặt cọc trước dòng charm để sở hữu bộ sticker đặc quyền từ chúng tôi.
+              Reach out to the ISB Event Team to place a pre-order on our custom charms and receive an exclusive sticker set.
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
             href="mailto:youniverse_ueh.isb@gmail.com"
             className="rounded-full bg-black hover:bg-stone-900 text-white font-mono text-xs font-bold tracking-widest uppercase px-6 py-3 transition-colors shrink-0"
           >
-            Liên Hệ Đặt Trước
+            Contact to Pre-order
           </a>
         </div>
       </section>

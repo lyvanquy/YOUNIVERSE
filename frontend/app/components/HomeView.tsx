@@ -30,6 +30,14 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
   const [customName, setCustomName] = useState<string>('UNI');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // Dynamic glow border/shadow based on selected atmosphere
+  const glowShadows = {
+    blue: 'shadow-[0_20px_50px_rgba(59,130,246,0.06)] border-blue-200/50',
+    yellow: 'shadow-[0_20px_50px_rgba(245,158,11,0.06)] border-amber-200/50',
+    red: 'shadow-[0_20px_50px_rgba(239,68,68,0.06)] border-rose-200/50',
+    indigo: 'shadow-[0_20px_50px_rgba(99,102,241,0.06)] border-indigo-200/50',
+  }[vibeColor] || 'shadow-[0_20px_50px_rgba(0,0,0,0.04)] border-stone-200';
+
   // Vibe options mapping
   const vibeOptions = [
     { id: 'blue', label: 'Azure Nebula', colorClass: 'bg-blue-400 ring-blue-500/30 text-blue-600', glow: 'shadow-blue-500/10' },
@@ -71,7 +79,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
     };
     onAddCustomToCart(creation);
     
-    setSuccessMessage(`Đã thêm thiết kế cá nhân hóa "${customName}" của bạn vào giỏ hàng thành công!`);
+    setSuccessMessage(`Successfully added your custom design "${customName}" to your cart!`);
     setTimeout(() => {
       setSuccessMessage(null);
     }, 4500);
@@ -100,29 +108,29 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                 <span>Launch Edition 2026</span>
               </div>
               
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-black leading-none">
-                BẢN SẮC <br className="hidden sm:inline" />
-                <span className="text-stroke-accent tracking-widest">ĐỘC BẢN</span> <br />
-                VŨ TRỤ RIÊNG BIỆT
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-black leading-none uppercase">
+                CREATE YOUR <br className="hidden sm:inline" />
+                <span className="text-stroke-accent tracking-widest">OWN TINY</span> <br />
+                UNIVERSE.
               </h1>
               
               <p className="font-sans text-stone-600 text-base md:text-lg leading-relaxed max-w-lg">
-                Thế giới nội tâm của bạn vốn đa sắc màu. Đừng bó hẹp cá tính tinh tế của bản thân trong những chiếc phụ kiện rập khuôn. Hãy cùng <strong className="text-black font-semibold">YOUniverse</strong> đeo chiếc bùa thiên vân may mắn và dệt nên câu chuyện vũ trụ của riêng bạn.
+                Your inner world is colorful and vibrant. Do not limit your unique personality to cookie-cutter mass-produced accessories. Wear your stellar lucky charm with <strong className="text-black font-semibold">YOUniverse</strong> and weave the cosmic story that only you can tell.
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <button
                   id="hero-go-products"
                   onClick={() => onNavigate('products')}
-                  className="rounded-full bg-black hover:bg-stone-900 border-2 border-black text-white font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] active:translate-y-[0] text-center"
+                  className="rounded-full bg-black hover:bg-stone-900 border-2 border-black text-white font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] active:translate-y-[0] text-center cursor-pointer"
                 >
-                  Our UNIverse Charms
+                  Explore Our UNIverse
                 </button>
                 <a
                   href="#customizer-workshop"
                   className="rounded-full bg-transparent hover:bg-stone-100 border-2 border-stone-800 text-stone-800 font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-2px] active:translate-y-[0] text-center"
                 >
-                  Tự Thiết Kế 3 Bước ↓
+                  Build Yours 3 Steps ↓
                 </a>
               </div>
             </div>
@@ -200,18 +208,18 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
         
         <div className="text-center space-y-3">
           <h2 className="font-display text-xs font-black tracking-widest text-amber-500 uppercase">
-            Khám phá các hành tinh
+            Product Line
           </h2>
-          <h3 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-stone-900 uppercase">
-            Bộ Sưu Tập Charm Đặc Biệt
+          <h3 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
+            Explore the Planets
           </h3>
-          <p className="font-sans text-stone-500 text-sm max-w-xl mx-auto">
-            Hành trình du ngoạn các chòm sao, mang theo những nét đặc trưng độc bản của dòng Charm Astra, Sirius và Polaris. Di chuột qua thẻ để đọc lời tuyên ngôn.
+          <p className="font-sans text-stone-500 text-xs tracking-wider max-w-lg mx-auto">
+            Embark on a celestial journey through our Astra, Sirius, and Polaris charm collections.
           </p>
         </div>
 
-        {/* Carousel of 3 Images (PDF page 5 description: "Cho hiệu ứng carousel 3 khối hình ảnh giới thiệu 3 dòng charm. Hiệu ứng hover vào thì hiện chữ lên cho 3 dòng charm") */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Carousel of 3 Images (Responsive swipeable carousel on mobile, 3-column grid on desktop) */}
+        <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory pb-6 md:pb-0 scrollbar-none scroll-smooth">
           
           {CHARM_PRODUCTS.map((charm, index) => {
             const isHovered = activeCharmIndex === index;
@@ -242,7 +250,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                 onMouseEnter={() => setActiveCharmIndex(index)}
                 onMouseLeave={() => setActiveCharmIndex(null)}
                 onClick={() => onNavigate('products')}
-                className={`relative h-96 rounded-2xl border-2 border-stone-200 bg-gradient-to-b ${bgGlows} p-8 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 cursor-pointer shadow-sm ${borderColors}`}
+                className={`group shrink-0 w-[88%] md:w-auto snap-center md:snap-align-none relative h-[420px] rounded-3xl border-2 border-stone-200 bg-gradient-to-b ${bgGlows} p-6 flex flex-col justify-between transition-all duration-500 hover:-translate-y-2 cursor-pointer shadow-sm ${borderColors}`}
               >
                 {/* Card Icon & Top indicator */}
                 <div className="flex justify-between items-start">
@@ -262,7 +270,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                 <div className="relative mx-auto w-32 h-32 flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full border border-dashed border-stone-200 animate-spin-slow opacity-60" />
                   <div className="text-stone-300 font-display text-[9px] font-bold uppercase tracking-widest mt-12 text-center select-none">
-                    [ Hình ảnh {charm.name} ]
+                    [ {charm.name} Image ]
                   </div>
                   {/* Decorative orbital stars blinking */}
                   <span className={`absolute top-4 right-4 ${textColors} text-lg animate-twinkle`}>✦</span>
@@ -270,7 +278,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                 </div>
 
                 {/* Content: sliding reveal on hover, cleanly handled via CSS transitions */}
-                <div className="space-y-2 text-left relative z-10 bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-stone-100">
+                <div className="space-y-1 text-left relative z-10 bg-white/90 backdrop-blur-sm p-4 rounded-2xl border border-stone-100">
                   <div className="flex items-center space-x-2">
                     <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                     <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-stone-400">
@@ -278,16 +286,16 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                     </span>
                   </div>
                   
-                  <h4 className="font-display text-xl font-extrabold text-black uppercase tracking-tight">
+                  <h4 className="font-display text-lg font-black text-black uppercase tracking-tight">
                     {charm.name}
                   </h4>
                   
-                  {/* Hover effect text reveal */}
-                  <div className="transition-all duration-500 overflow-hidden">
-                    <p className={`font-mono text-xs italic font-medium leading-relaxed ${textColors} mb-1`}>
+                  {/* Hover effect text reveal - collapsed initially on desktop, visible by default on mobile */}
+                  <div className="max-h-48 opacity-100 md:max-h-0 md:opacity-0 md:group-hover:max-h-48 md:group-hover:opacity-100 transition-all duration-500 ease-in-out overflow-hidden">
+                    <p className={`font-mono text-xs italic font-semibold leading-relaxed ${textColors} mt-2 mb-1`}>
                       &ldquo;{charm.tagline}&rdquo;
                     </p>
-                    <p className="font-sans text-stone-500 text-xs line-clamp-2 md:line-clamp-none">
+                    <p className="font-sans text-stone-500 text-[11px] leading-relaxed">
                       {charm.description}
                     </p>
                   </div>
@@ -295,8 +303,8 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
 
                 {/* Bottom line decorator */}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-stone-100 text-xs font-mono font-medium text-stone-400">
-                  <span>Xem Chi Tiết</span>
-                  <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
+                  <span>Explore Details</span>
+                  <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1.5 transition-transform duration-300" />
                 </div>
               </div>
             );
@@ -309,42 +317,98 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
       {/* 3. How to Build Your YOUniverse (Hướng dẫn 3 bước - Customized Workshop) */}
       <section 
         id="customizer-workshop" 
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-16"
       >
         
         {/* Header segment of workshop instructions */}
         <div className="text-center space-y-3">
           <h2 className="font-display text-xs font-black tracking-widest text-blue-500 uppercase">
-            3 bước tạo vũ trụ riêng
+            Interactive Customizer
           </h2>
-          <h3 className="font-display text-3xl font-extrabold text-stone-900 uppercase">
-            Khóa Thiết Kế YOUniverse
+          <h3 className="font-display text-3xl font-extrabold text-stone-900 uppercase tracking-tight">
+            How to Build Your YOUniverse
           </h3>
-          <p className="font-sans text-stone-500 text-sm max-w-xl mx-auto">
-            Học thiết kế thông minh 3 bước tự chọn. Tạo nên nét đẹp thẩm mỹ riêng bản và cảm quan vũ trụ có một không hai.
+          <p className="font-sans text-stone-500 text-xs tracking-wider max-w-xl mx-auto">
+            Learn smart design with a 3-step personalization. Create your own distinct aesthetic and a one-of-a-kind cosmic vibe.
           </p>
         </div>
 
-        {/* Dynamic Interactive Workshop Widget */}
-        <div className="bg-white rounded-3xl border-2 border-black p-6 md:p-10 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* Orbit Timeline (5A: Visual 3 steps planets flow) */}
+        <div className="relative py-4">
+          {/* Dashed Orbit Line (Desktop only) */}
+          <div className="absolute top-1/2 left-[15%] right-[15%] h-[2px] border-t-2 border-dashed border-stone-200 -translate-y-1/2 hidden md:block z-0" />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+            {/* Step 1 Card */}
+            <div className="group flex flex-col items-center text-center space-y-4 bg-white/40 backdrop-blur-sm border border-stone-150 p-6 rounded-3xl hover:border-blue-400 hover:shadow-[0_15px_30px_-10px_rgba(59,130,246,0.1)] transition-all duration-500 hover:-translate-y-1.5">
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-blue-100/40 border border-blue-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
+                {/* Orbiting halo effect */}
+                <div className="absolute inset-[-4px] rounded-full border border-dashed border-blue-400/30 animate-spin-slow group-hover:border-blue-400/80 transition-colors duration-500" />
+                <Sparkles className="h-7 w-7 text-blue-500 animate-twinkle" />
+                <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white shadow-md">1</span>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900">1. Set Your Vibe</h4>
+                <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
+                  Start with your mood, your energy, and the little details that make you feel like you.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 Card */}
+            <div className="group flex flex-col items-center text-center space-y-4 bg-white/40 backdrop-blur-sm border border-stone-150 p-6 rounded-3xl hover:border-amber-400 hover:shadow-[0_15px_30px_-10px_rgba(245,158,11,0.1)] transition-all duration-500 hover:-translate-y-1.5">
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-amber-50 to-amber-100/40 border border-amber-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
+                {/* Orbiting halo effect */}
+                <div className="absolute inset-[-4px] rounded-full border border-dashed border-amber-400/30 animate-spin-slow group-hover:border-amber-400/80 transition-colors duration-500" style={{ animationDirection: 'reverse' }} />
+                <Heart className="h-7 w-7 text-amber-500 animate-float" />
+                <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-white shadow-md">2</span>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900">2. Mix & match Astra, Sirius, Polaris</h4>
+                <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
+                  Choose the charm line that speaks for your name, your passion, or your guiding quote.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 Card */}
+            <div className="group flex flex-col items-center text-center space-y-4 bg-white/40 backdrop-blur-sm border border-stone-150 p-6 rounded-3xl hover:border-rose-400 hover:shadow-[0_15px_30px_-10px_rgba(244,63,94,0.1)] transition-all duration-500 hover:-translate-y-1.5">
+              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-rose-50 to-rose-100/40 border border-rose-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
+                {/* Orbiting halo effect */}
+                <div className="absolute inset-[-4px] rounded-full border border-dashed border-rose-400/30 animate-spin-slow group-hover:border-rose-400/80 transition-colors duration-500" />
+                <Compass className="h-7 w-7 text-rose-500 animate-spin-slow" />
+                <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-md">3</span>
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900">3. Tell Your Story</h4>
+                <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
+                  Carry your tiny universe with you and let it say what words sometimes cannot.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Interactive Workshop Widget (5B: Glassmorphism Customizer UI) */}
+        <div className={`bg-white/40 backdrop-blur-xl border p-6 md:p-10 rounded-[32px] transition-all duration-700 grid grid-cols-1 lg:grid-cols-12 gap-10 relative overflow-hidden ${glowShadows}`}>
           
           {/* LEFT 5 columns: Interactive controls structured inside 3 standard steps */}
-          <div className="lg:col-span-5 space-y-8 flex flex-col justify-between">
+          <div className="lg:col-span-5 space-y-8 flex flex-col justify-between order-2 lg:order-1">
             
             <div className="space-y-6">
               {/* Step 1: Set Your Vibe */}
-              <div className="border-l-4 border-blue-500 pl-4 space-y-3">
+              <div className="border-l-4 border-blue-500/70 pl-4 space-y-3">
                 <div className="flex items-center space-x-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white shrink-0">
                     1
                   </span>
                   <h4 className="font-display text-sm font-extrabold uppercase tracking-widest text-stone-800">
-                    Set Your Vibe (Chọn Khí Quyển)
+                    Set Your Vibe
                   </h4>
                 </div>
                 
                 <p className="font-sans text-xs text-stone-500">
-                  Chọn tông ánh sáng cho khí quyển vũ trụ của bạn:
+                  Select the light aura for your cosmic atmosphere:
                 </p>
 
                 {/* Vibe selection swatches */}
@@ -353,10 +417,10 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                     <button
                       key={v.id}
                       onClick={() => setVibeColor(v.id)}
-                      className={`flex items-center space-x-1.5 px-3 py-2 rounded-full border text-xs font-mono font-medium transition-all ${
+                      className={`flex items-center space-x-1.5 px-3 py-2 rounded-full border text-xs font-mono font-semibold transition-all duration-300 ${
                         vibeColor === v.id
-                          ? 'border-black bg-stone-50 ring-2 ring-black font-bold text-black'
-                          : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50'
+                          ? 'border-stone-900 bg-stone-900 text-white shadow-md shadow-stone-900/10'
+                          : 'border-stone-200 bg-white/60 text-stone-600 hover:border-stone-400 hover:bg-stone-50'
                       }`}
                     >
                       <span className={`h-3.5 w-3.5 rounded-full ${v.colorClass}`} />
@@ -367,18 +431,18 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
               </div>
 
               {/* Step 2: Mix & Match Astra, Sirius, Polaris */}
-              <div className="border-l-4 border-amber-500 pl-4 space-y-3">
+              <div className="border-l-4 border-amber-500/70 pl-4 space-y-3">
                 <div className="flex items-center space-x-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white shrink-0">
                     2
                   </span>
                   <h4 className="font-display text-sm font-extrabold uppercase tracking-widest text-stone-800">
-                    Mix & Match Charms (Đính Bùa Sao)
+                    Mix & Match Charms
                   </h4>
                 </div>
                 
                 <p className="font-sans text-xs text-stone-500">
-                  Click để ghép tối đa 6 charm đặc trưng độc đáo lên chuỗi:
+                  Click to add up to 6 unique charms to your chain:
                 </p>
 
                 <div className="flex gap-2 pt-1 flex-wrap">
@@ -386,7 +450,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                     <button
                       key={c.id}
                       onClick={() => handleAddCharm(c.id)}
-                      className="group flex items-center space-x-1.5 border border-stone-300 bg-white hover:border-black p-2 rounded-xl text-xs font-medium transition-all hover:bg-stone-50"
+                      className="group flex items-center space-x-1.5 border border-stone-200 bg-white/70 hover:border-stone-900 hover:bg-white p-2 rounded-xl text-xs font-semibold transition-all shadow-sm cursor-pointer"
                       title={`Add ${c.label}`}
                     >
                       <c.icon className={`h-4 w-4 ${c.color}`} />
@@ -398,18 +462,18 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
               </div>
 
               {/* Step 3: Tell your story */}
-              <div className="border-l-4 border-rose-500 pl-4 space-y-3">
+              <div className="border-l-4 border-rose-500/70 pl-4 space-y-3">
                 <div className="flex items-center space-x-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white shrink-0">
                     3
                   </span>
                   <h4 className="font-display text-sm font-extrabold uppercase tracking-widest text-stone-800">
-                    Tell Your Story (Chạm Khắc Chữ)
+                    Tell Your Story
                   </h4>
                 </div>
                 
                 <p className="font-sans text-xs text-stone-500">
-                  Nhập kí tự tên viết tắt của bạn (Sao Astra) để hệ thống hiển thị:
+                  Enter your initials (engraved on Astra charm) to preview:
                 </p>
 
                 <div className="relative">
@@ -418,10 +482,10 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                     maxLength={10}
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
-                    className="w-full border-2 border-stone-300 rounded-xl px-4 py-2 text-sm font-mono tracking-widest font-extrabold text-black focus:border-black focus:outline-none placeholder-stone-400 bg-stone-50/50"
-                    placeholder="E.g. ANA / MINH..."
+                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm font-mono tracking-widest font-extrabold text-black focus:border-stone-900 focus:ring-1 focus:ring-stone-900 focus:outline-none placeholder-stone-400 bg-white/60 transition-all"
+                    placeholder="E.g. ANA / ALEX..."
                   />
-                  <span className="absolute right-3 top-2.5 text-[10px] text-stone-400 font-mono">
+                  <span className="absolute right-3 top-3 text-[10px] text-stone-400 font-mono">
                     {customName.length}/10
                   </span>
                 </div>
@@ -429,13 +493,13 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
             </div>
 
             {/* Actions Panel */}
-            <div className="pt-4 border-t border-stone-100 space-y-3 text-left">
+            <div className="pt-4 border-t border-stone-150 space-y-3 text-left">
               <button
                 onClick={handleCreateAndAdd}
-                className="w-full rounded-2xl bg-black hover:bg-stone-900 border-2 border-black text-white px-6 py-4 font-display text-sm font-bold tracking-widest uppercase transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
+                className="w-full rounded-2xl bg-black hover:bg-stone-900 border border-black text-white py-4 px-6 font-display text-sm font-bold tracking-widest uppercase transition-all duration-300 hover:shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
               >
                 <Gem className="h-4 w-4 text-yellow-300 animate-spin-slow" />
-                <span>Thêm Thiết Kế Vào Giỏ Hàng</span>
+                <span>Add Custom Design to Cart</span>
               </button>
 
               <button
@@ -449,10 +513,10 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
           </div>
 
           {/* RIGHT 7 columns: High-performance live rendering preview box */}
-          <div className="lg:col-span-7 flex flex-col justify-between">
+          <div className="lg:col-span-7 flex flex-col justify-between order-1 lg:order-2">
             
             {/* Live Preview Display Box */}
-            <div className={`flex-1 min-h-[300px] border-2 border-black rounded-2xl p-6 relative flex flex-col justify-between overflow-hidden transition-colors duration-700 bg-white`}>
+            <div className="flex-1 min-h-[300px] border border-stone-200 bg-white/70 backdrop-blur-sm rounded-3xl p-6 relative flex flex-col justify-between overflow-hidden shadow-sm">
               
               {/* Background ambient lighting based on selected pulse vibe color */}
               <div 
@@ -478,7 +542,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                   } animate-ping`} />
                   <span>Interactive preview</span>
                 </span>
-                <span className="uppercase bg-stone-100 py-0.5 px-2 rounded text-stone-600 font-bold">
+                <span className="uppercase bg-stone-100/80 py-0.5 px-2 rounded text-stone-600 font-bold">
                   Atmosphere: {vibeColor}
                 </span>
               </div>
@@ -514,7 +578,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                         No charms on chain. Choose charms above!
                       </span>
                     ) : (
-                      <div className="absolute inset-x-8 flex justify-center items-center gap-2">
+                      <div className="absolute inset-x-4 sm:inset-x-8 flex justify-center items-center gap-1.5 sm:gap-2">
                         {selectedCharms.map((charmId, charmIdx) => {
                           const matchingCharm = CHARM_PRODUCTS.find((cp) => cp.id === charmId);
                           const isAstra = charmId === 'astra';
@@ -533,7 +597,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                           return (
                             <div 
                               key={charmIdx}
-                              className={`group/charm relative flex flex-col items-center bg-white border ${charmBgColor} p-2 rounded-xl shadow-md cursor-pointer hover:scale-110 active:scale-95 transition-all text-center animate-float`}
+                              className={`group/charm relative flex flex-col items-center bg-white border ${charmBgColor} p-1.5 sm:p-2 rounded-lg sm:rounded-xl shadow-md cursor-pointer hover:scale-110 active:scale-95 transition-all text-center animate-float`}
                               style={{ animationDelay: `${charmIdx * 0.4}s` }}
                             >
                               <button 
@@ -580,12 +644,12 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
               )}
 
               {/* Mini visual summary of custom options */}
-              <div className="pt-4 border-t border-stone-100 flex flex-wrap justify-between items-center text-[10px] font-mono text-stone-500 relative z-10 gap-2">
+              <div className="pt-4 border-t border-stone-150 flex flex-wrap justify-between items-center text-[10px] font-mono text-stone-500 relative z-10 gap-2">
                 <div className="flex gap-2">
-                  <span className="bg-stone-100 py-0.5 px-2 rounded">
+                  <span className="bg-stone-100/80 py-0.5 px-2 rounded">
                     Charms: {selectedCharms.length}/6
                   </span>
-                  <span className="bg-stone-100 py-0.5 px-2 rounded">
+                  <span className="bg-stone-100/80 py-0.5 px-2 rounded">
                     Engraving: &ldquo;{customName || 'None'}&rdquo;
                   </span>
                 </div>
@@ -598,31 +662,31 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
             </div>
 
             {/* Selector of Jewelry Core Type */}
-            <div className="mt-6 bg-stone-50 border border-stone-200 p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 text-left">
+            <div className="mt-6 bg-white/50 border border-stone-200/60 p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 text-left shadow-sm backdrop-blur">
               <div>
                 <h5 className="font-display text-xs font-bold text-stone-700 uppercase tracking-widest flex items-center space-x-1">
                   <Paintbrush className="h-3.5 w-3.5 text-stone-500" />
-                  <span>Chọn Core Jewelry</span>
+                  <span>Select Core Jewelry</span>
                 </h5>
                 <p className="font-sans text-[11px] text-stone-400">
-                  Bộ nền chuỗi xâu hạt (Classy Silver Bracelet, Orbit Necklace, Cord):
+                  Base chain or cord (Classy Silver Bracelet, Orbit Necklace, Cord):
                 </p>
               </div>
 
-              <div className="flex gap-2 bg-white p-1 rounded-xl border border-stone-200">
+              <div className="flex gap-2 bg-white/80 p-1 rounded-xl border border-stone-150 shadow-inner">
                 {(['bracelet', 'necklace', 'cord'] as const).map((type) => (
                   <button
                     key={type}
                     onClick={() => setJewelryType(type)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-display font-black tracking-wide uppercase transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-display font-extrabold tracking-wide uppercase transition-all ${
                       jewelryType === type
-                        ? 'bg-black text-white'
+                        ? 'bg-black text-white shadow-sm'
                         : 'text-stone-500 hover:text-stone-900'
                     }`}
                   >
-                    {type === 'bracelet' && 'Vòng Tay'}
-                    {type === 'necklace' && 'Dây Chuyền'}
-                    {type === 'cord' && 'Dây Vải'}
+                    {type === 'bracelet' && 'Bracelet'}
+                    {type === 'necklace' && 'Necklace'}
+                    {type === 'cord' && 'Cord'}
                   </button>
                 ))}
               </div>
