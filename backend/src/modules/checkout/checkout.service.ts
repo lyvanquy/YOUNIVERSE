@@ -12,6 +12,8 @@ import {
 import { AppError } from "../../common/errors/AppError";
 import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { prisma } from "../../config/prisma";
+import * as emailService from "../emails/email.service";
+import * as paymentService from "../payments/payment.service";
 import type { CheckoutInput } from "./checkout.validation";
 
 type CheckoutIdentity = {
@@ -301,12 +303,102 @@ export const validateCheckout = async (input: CheckoutInput, identity: CheckoutI
 };
 
 export const createOrder = async (input: CheckoutInput, identity: CheckoutIdentity) => {
-  if (input.paymentProvider !== PaymentProvider.COD) {
-    throw new AppError("Online payment providers will be implemented in Phase 7", HTTP_STATUS.BAD_REQUEST);
-  }
-
   const preview = await buildCheckoutPreview(input, identity);
   let orderCode = createOrderCode();
+
+  if (input.paymentProvider !== PaymentProvider.COD) {
+    paymentService.ensurePaymentProviderCanCreate(input.paymentProvider);
+
+    const order = await prisma.$transaction(async (tx) => {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const exists = await tx.order.findUnique({
+          where: {
+            orderCode,
+          },
+        });
+
+        if (!exists) {
+          break;
+        }
+
+        orderCode = createOrderCode();
+      }
+
+      const savedOrder = await tx.order.create({
+        data: {
+          orderCode,
+          userId: identity.userId ?? null,
+          couponId: preview.coupon?.id ?? null,
+          customerName: preview.customer.fullName,
+          customerEmail: preview.customer.email,
+          customerPhone: preview.customer.phone,
+          shippingAddress: preview.shippingAddress,
+          note: preview.note,
+          subtotalAmount: preview.subtotalAmount,
+          discountAmount: preview.discountAmount,
+          shippingFee: preview.shippingFee,
+          totalAmount: preview.totalAmount,
+          status: OrderStatus.PENDING_PAYMENT,
+          items: {
+            create: preview.items.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              productName: item.productName,
+              variantName: item.variantName,
+              sku: item.sku,
+              imageUrl: item.imageUrl,
+              unitPrice: item.unitPrice,
+              quantity: item.quantity,
+              totalPrice: item.totalPrice,
+              customText: item.customText,
+              customData: item.customData === null ? undefined : (item.customData as Prisma.InputJsonValue),
+            })),
+          },
+          payments: {
+            create: {
+              provider: input.paymentProvider,
+              status: PaymentStatus.PENDING,
+              amount: preview.totalAmount,
+              currency: "VND",
+            },
+          },
+        },
+        include: {
+          payments: true,
+        },
+      });
+
+      await tx.cart.update({
+        where: {
+          id: preview.cart.id,
+        },
+        data: {
+          status: CartStatus.CHECKED_OUT,
+        },
+      });
+
+      return savedOrder;
+    });
+
+    const payment = order.payments[0];
+
+    if (!payment) {
+      throw new AppError("Payment transaction was not created", HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }
+
+    const createdPayment = await paymentService.createPaymentForOrder({
+      orderId: order.id,
+      paymentId: payment.id,
+      provider: input.paymentProvider,
+    });
+
+    return {
+      orderCode: order.orderCode,
+      orderId: order.id,
+      paymentProvider: input.paymentProvider,
+      paymentUrl: createdPayment.paymentUrl,
+    };
+  }
 
   const order = await prisma.$transaction(async (tx) => {
     for (const item of preview.items) {
@@ -455,6 +547,8 @@ export const createOrder = async (input: CheckoutInput, identity: CheckoutIdenti
 
     return savedOrder;
   });
+
+  await emailService.sendOrderConfirmationEmail(order.id);
 
   return {
     orderCode: order.orderCode,

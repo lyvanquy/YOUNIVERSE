@@ -10,6 +10,7 @@ export interface CharmProduct {
   color: string;
   brandColor: 'blue' | 'yellow' | 'red';
   iconName: string;
+  price?: number;
 }
 
 export interface TeamMember {

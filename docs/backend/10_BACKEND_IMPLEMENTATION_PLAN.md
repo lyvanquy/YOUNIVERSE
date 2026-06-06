@@ -171,15 +171,15 @@ Ghi chú kiểm tra:
 
 ## Phase 7 - Payment Providers
 
-- [ ] Tạo module `payments`.
-- [ ] Tạo interface payment provider.
-- [ ] Tạo `cod.provider.ts`.
-- [ ] Tạo `mock-online.provider.ts` cho development.
-- [ ] Tạo skeleton `vnpay`, `momo`, `stripe`.
-- [ ] Callback/webhook endpoint theo provider.
-- [ ] Verify callback/mock signature.
-- [ ] Payment success idempotent.
-- [ ] Verify amount khớp order total.
+- [x] Tạo module `payments`.
+- [x] Tạo interface payment provider.
+- [x] Tạo `cod.provider.ts`.
+- [x] Tạo `mock-online.provider.ts` cho development.
+- [x] Tạo skeleton `vnpay`, `momo`, `stripe`.
+- [x] Callback/webhook endpoint theo provider.
+- [x] Verify callback/mock signature.
+- [x] Payment success idempotent.
+- [x] Verify amount khớp order total.
 
 Tiêu chí hoàn thành:
 
@@ -187,40 +187,59 @@ Tiêu chí hoàn thành:
 - Callback success mark payment `PAID`.
 - Callback lặp lại không trừ kho/email/coupon thêm lần nữa.
 
+Ghi chú kiểm tra:
+
+- Đã code đầy đủ Phase 7.
+- Thêm enum Prisma `MOCK_ONLINE` và migration `20260606000000_add_mock_online_payment_provider`.
+- Payment endpoints: `GET /api/v1/payments/callback/:provider`, `POST /api/v1/payments/webhook/:provider`.
+- Mock provider dùng provider param `mock-online` hoặc `MOCK_ONLINE`, ký HMAC bằng `PAYMENT_WEBHOOK_SECRET`.
+- `POST /api/v1/checkout/create-order` với `paymentProvider = "MOCK_ONLINE"` tạo order `PENDING_PAYMENT`, payment `PENDING`, trả `paymentUrl`.
+- Callback success verify chữ ký + amount, mark payment `PAID`, order `PAID`, trừ kho, ghi `InventoryLog`, tăng coupon usage trong transaction.
+- Callback lặp lại với payment đã `PAID` trả success và không chạy lại side effects.
+
 ## Phase 8 - Emails
 
-- [ ] Tạo module `emails`.
-- [ ] Email service không nằm trong controller.
-- [ ] Order confirmation template.
-- [ ] Payment success template.
-- [ ] Order status updated template.
-- [ ] Ghi `EmailLog` cho SENT/FAILED.
-- [ ] Development fallback console log khi chưa cấu hình SMTP.
-- [ ] Checkout không fail nếu email fail.
+- [x] Tạo module `emails`.
+- [x] Email service không nằm trong controller.
+- [x] Order confirmation template.
+- [x] Payment success template.
+- [x] Order status updated template.
+- [x] Ghi `EmailLog` cho SENT/FAILED.
+- [x] Development fallback console log khi chưa cấu hình SMTP.
+- [x] Checkout không fail nếu email fail.
 
 Tiêu chí hoàn thành:
 
 - Order confirmation có order code, items, total, address, payment status.
 - SMTP lỗi vẫn tạo order thành công và lưu EmailLog FAILED.
 
+Ghi chú kiểm tra:
+
+- Đã code đầy đủ Phase 8.
+- Email module nằm tại `backend/src/modules/emails`.
+- COD checkout gọi `sendOrderConfirmationEmail(order.id)` sau khi tạo order thành công.
+- Online payment success gọi `sendPaymentSuccessEmail(order.id)` sau khi payment callback mark `PAID`; callback lặp lại không gửi lại.
+- Nếu SMTP chưa cấu hình, development fallback in nội dung email ra console và ghi `EmailLog` status `SENT`.
+- Nếu SMTP lỗi, service ghi `EmailLog` status `FAILED` và không throw ra checkout/payment callback.
+
 ## Phase 9 - Admin APIs
 
-- [ ] `GET /admin/dashboard`.
-- [ ] `GET /admin/products`.
-- [ ] `POST /admin/products`.
-- [ ] `GET /admin/products/:id`.
-- [ ] `PATCH /admin/products/:id`.
-- [ ] `DELETE /admin/products/:id` archive product.
-- [ ] `GET /admin/orders`.
-- [ ] `GET /admin/orders/:id`.
-- [ ] `PATCH /admin/orders/:id/status`.
-- [ ] `GET /admin/inventory`.
-- [ ] `PATCH /admin/inventory/:productId/adjust`.
-- [ ] `GET /admin/coupons`.
-- [ ] `POST /admin/coupons`.
-- [ ] `PATCH /admin/coupons/:id`.
-- [ ] `DELETE /admin/coupons/:id` disable coupon.
-- [ ] `GET /admin/users`.
+- [x] `GET /admin/dashboard`.
+- [x] `GET /admin/products`.
+- [x] `POST /admin/products`.
+- [x] `GET /admin/products/:id`.
+- [x] `PATCH /admin/products/:id`.
+- [x] `DELETE /admin/products/:id` archive product.
+- [x] `GET /admin/orders`.
+- [x] `GET /admin/orders/:id`.
+- [x] `PATCH /admin/orders/:id/status`.
+- [x] `GET /admin/inventory`.
+- [x] `PATCH /admin/inventory/:productId/adjust`.
+- [x] `GET /admin/coupons`.
+- [x] `POST /admin/coupons`.
+- [x] `PATCH /admin/coupons/:id`.
+- [x] `DELETE /admin/coupons/:id` disable coupon.
+- [x] `GET /admin/users`.
 
 Tiêu chí hoàn thành:
 
@@ -228,6 +247,16 @@ Tiêu chí hoàn thành:
 - Customer không truy cập được admin routes.
 - Inventory adjustment tạo `InventoryLog`.
 - Coupon delete chỉ disable, không hard delete.
+
+Ghi chú kiểm tra:
+
+- Đã code đầy đủ Phase 9.
+- Existing admin product routes vẫn dùng module `products/product.admin.routes.ts`.
+- Các API dashboard/orders/inventory/coupons/users nằm trong `backend/src/modules/admin`.
+- `PATCH /admin/orders/:id/status` restore stock nếu chuyển sang `CANCELLED` sau khi stock đã bị trừ và chưa restore.
+- `PATCH /admin/inventory/:productId/adjust` hỗ trợ `IMPORT`, `EXPORT`, `ADJUSTMENT` và tạo `InventoryLog`.
+- `DELETE /admin/coupons/:id` chỉ set `isActive = false`.
+- `GET /admin/users` không trả `passwordHash`.
 
 ## Phase 10 - Tests And Hardening
 
@@ -269,5 +298,7 @@ Tiêu chí hoàn thành:
 - Phase 4 Products And Categories đã được code.
 - Phase 5 Cart And Coupon Calculation đã được code.
 - Phase 6 Checkout And Orders đã được code.
-- Chưa có Online Payment Providers hoặc Admin APIs đầy đủ.
-- Lần code tiếp theo nên bắt đầu từ Phase 7 - Payment Providers.
+- Phase 7 Payment Providers đã được code.
+- Phase 8 Emails đã được code.
+- Phase 9 Admin APIs đã được code.
+- Lần code tiếp theo nên bắt đầu từ Phase 10 - Tests And Hardening.

@@ -11,6 +11,7 @@ export const CHARM_PRODUCTS: CharmProduct[] = [
     color: '#3b82f6', // blue
     brandColor: 'blue',
     iconName: 'Sparkles',
+    price: 129000,
   },
   {
     id: 'sirius',
@@ -22,6 +23,7 @@ export const CHARM_PRODUCTS: CharmProduct[] = [
     color: '#eab308', // yellow
     brandColor: 'yellow',
     iconName: 'Heart',
+    price: 119000,
   },
   {
     id: 'polaris',
@@ -33,6 +35,7 @@ export const CHARM_PRODUCTS: CharmProduct[] = [
     color: '#ef4444', // red
     brandColor: 'red',
     iconName: 'Compass',
+    price: 139000,
   }
 ];
 

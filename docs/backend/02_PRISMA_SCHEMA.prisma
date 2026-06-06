@@ -52,6 +52,7 @@ enum OrderStatus {
 
 enum PaymentProvider {
   COD
+  MOCK_ONLINE
   VNPAY
   MOMO
   STRIPE

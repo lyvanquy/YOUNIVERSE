@@ -237,6 +237,14 @@ Response for COD:
 
 ## 6. Payment API
 
+Development online provider:
+
+```txt
+MOCK_ONLINE
+```
+
+Use `MOCK_ONLINE` in checkout to test online payment without real VNPay/MoMo/Stripe credentials.
+
 ### POST `/payments/create`
 
 Usually called internally from checkout, but can expose for retry payment.
@@ -245,15 +253,28 @@ Usually called internally from checkout, but can expose for retry payment.
 
 For redirect callback if provider uses GET.
 
+Mock provider callback path:
+
+```txt
+GET /payments/callback/mock-online
+```
+
 ### POST `/payments/webhook/:provider`
 
 For server webhook.
+
+Mock provider webhook path:
+
+```txt
+POST /payments/webhook/mock-online
+```
 
 Rules:
 
 - Must verify provider signature.
 - Must be idempotent.
 - Same callback repeated should not duplicate email/inventory deduction.
+- Amount from provider must match order total.
 
 ## 7. Orders API for customer
 
