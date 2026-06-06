@@ -224,22 +224,22 @@ Ghi chú kiểm tra:
 
 ## Phase 9 - Admin APIs
 
-- [ ] `GET /admin/dashboard`.
-- [ ] `GET /admin/products`.
-- [ ] `POST /admin/products`.
-- [ ] `GET /admin/products/:id`.
-- [ ] `PATCH /admin/products/:id`.
-- [ ] `DELETE /admin/products/:id` archive product.
-- [ ] `GET /admin/orders`.
-- [ ] `GET /admin/orders/:id`.
-- [ ] `PATCH /admin/orders/:id/status`.
-- [ ] `GET /admin/inventory`.
-- [ ] `PATCH /admin/inventory/:productId/adjust`.
-- [ ] `GET /admin/coupons`.
-- [ ] `POST /admin/coupons`.
-- [ ] `PATCH /admin/coupons/:id`.
-- [ ] `DELETE /admin/coupons/:id` disable coupon.
-- [ ] `GET /admin/users`.
+- [x] `GET /admin/dashboard`.
+- [x] `GET /admin/products`.
+- [x] `POST /admin/products`.
+- [x] `GET /admin/products/:id`.
+- [x] `PATCH /admin/products/:id`.
+- [x] `DELETE /admin/products/:id` archive product.
+- [x] `GET /admin/orders`.
+- [x] `GET /admin/orders/:id`.
+- [x] `PATCH /admin/orders/:id/status`.
+- [x] `GET /admin/inventory`.
+- [x] `PATCH /admin/inventory/:productId/adjust`.
+- [x] `GET /admin/coupons`.
+- [x] `POST /admin/coupons`.
+- [x] `PATCH /admin/coupons/:id`.
+- [x] `DELETE /admin/coupons/:id` disable coupon.
+- [x] `GET /admin/users`.
 
 Tiêu chí hoàn thành:
 
@@ -247,6 +247,16 @@ Tiêu chí hoàn thành:
 - Customer không truy cập được admin routes.
 - Inventory adjustment tạo `InventoryLog`.
 - Coupon delete chỉ disable, không hard delete.
+
+Ghi chú kiểm tra:
+
+- Đã code đầy đủ Phase 9.
+- Existing admin product routes vẫn dùng module `products/product.admin.routes.ts`.
+- Các API dashboard/orders/inventory/coupons/users nằm trong `backend/src/modules/admin`.
+- `PATCH /admin/orders/:id/status` restore stock nếu chuyển sang `CANCELLED` sau khi stock đã bị trừ và chưa restore.
+- `PATCH /admin/inventory/:productId/adjust` hỗ trợ `IMPORT`, `EXPORT`, `ADJUSTMENT` và tạo `InventoryLog`.
+- `DELETE /admin/coupons/:id` chỉ set `isActive = false`.
+- `GET /admin/users` không trả `passwordHash`.
 
 ## Phase 10 - Tests And Hardening
 
@@ -290,5 +300,5 @@ Tiêu chí hoàn thành:
 - Phase 6 Checkout And Orders đã được code.
 - Phase 7 Payment Providers đã được code.
 - Phase 8 Emails đã được code.
-- Chưa có Admin APIs đầy đủ.
-- Lần code tiếp theo nên bắt đầu từ Phase 9 - Admin APIs.
+- Phase 9 Admin APIs đã được code.
+- Lần code tiếp theo nên bắt đầu từ Phase 10 - Tests And Hardening.
