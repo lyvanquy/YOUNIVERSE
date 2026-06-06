@@ -113,3 +113,15 @@ In development:
 - Log email preview to console if SMTP not configured.
 - Do not crash checkout if email fails.
 - Save EmailLog failed status.
+
+## 8. Implementation notes
+
+Current backend implementation:
+
+- Email service lives in `backend/src/modules/emails`.
+- COD checkout sends `ORDER_CONFIRMATION`.
+- Online payment success sends `PAYMENT_SUCCESS`.
+- `ORDER_STATUS_UPDATED` template/service is available for admin status update APIs.
+- Development/test without SMTP uses console fallback and writes `EmailLog` as `SENT`.
+- Production without SMTP writes `EmailLog` as `FAILED`.
+- Email send failures are caught inside the email service and do not fail checkout or payment callback.

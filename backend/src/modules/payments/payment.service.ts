@@ -10,6 +10,7 @@ import { AppError } from "../../common/errors/AppError";
 import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { env } from "../../config/env";
 import { prisma } from "../../config/prisma";
+import * as emailService from "../emails/email.service";
 import { getPaymentProvider, normalizeProviderParam } from "./providers";
 import type { VerifyPaymentResult } from "./providers/payment-provider.interface";
 
@@ -382,5 +383,11 @@ export const handlePaymentCallback = async (providerParam: string, payload: unkn
     return handleFailedPayment(payment, verified);
   }
 
-  return markPaymentSucceeded(payment.id, verified);
+  const result = await markPaymentSucceeded(payment.id, verified);
+
+  if (!result.alreadyProcessed) {
+    await emailService.sendPaymentSuccessEmail(payment.orderId);
+  }
+
+  return result;
 };

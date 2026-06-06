@@ -12,6 +12,7 @@ import {
 import { AppError } from "../../common/errors/AppError";
 import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { prisma } from "../../config/prisma";
+import * as emailService from "../emails/email.service";
 import * as paymentService from "../payments/payment.service";
 import type { CheckoutInput } from "./checkout.validation";
 
@@ -546,6 +547,8 @@ export const createOrder = async (input: CheckoutInput, identity: CheckoutIdenti
 
     return savedOrder;
   });
+
+  await emailService.sendOrderConfirmationEmail(order.id);
 
   return {
     orderCode: order.orderCode,

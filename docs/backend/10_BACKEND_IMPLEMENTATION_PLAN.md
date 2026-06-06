@@ -199,19 +199,28 @@ Ghi chú kiểm tra:
 
 ## Phase 8 - Emails
 
-- [ ] Tạo module `emails`.
-- [ ] Email service không nằm trong controller.
-- [ ] Order confirmation template.
-- [ ] Payment success template.
-- [ ] Order status updated template.
-- [ ] Ghi `EmailLog` cho SENT/FAILED.
-- [ ] Development fallback console log khi chưa cấu hình SMTP.
-- [ ] Checkout không fail nếu email fail.
+- [x] Tạo module `emails`.
+- [x] Email service không nằm trong controller.
+- [x] Order confirmation template.
+- [x] Payment success template.
+- [x] Order status updated template.
+- [x] Ghi `EmailLog` cho SENT/FAILED.
+- [x] Development fallback console log khi chưa cấu hình SMTP.
+- [x] Checkout không fail nếu email fail.
 
 Tiêu chí hoàn thành:
 
 - Order confirmation có order code, items, total, address, payment status.
 - SMTP lỗi vẫn tạo order thành công và lưu EmailLog FAILED.
+
+Ghi chú kiểm tra:
+
+- Đã code đầy đủ Phase 8.
+- Email module nằm tại `backend/src/modules/emails`.
+- COD checkout gọi `sendOrderConfirmationEmail(order.id)` sau khi tạo order thành công.
+- Online payment success gọi `sendPaymentSuccessEmail(order.id)` sau khi payment callback mark `PAID`; callback lặp lại không gửi lại.
+- Nếu SMTP chưa cấu hình, development fallback in nội dung email ra console và ghi `EmailLog` status `SENT`.
+- Nếu SMTP lỗi, service ghi `EmailLog` status `FAILED` và không throw ra checkout/payment callback.
 
 ## Phase 9 - Admin APIs
 
@@ -280,5 +289,6 @@ Tiêu chí hoàn thành:
 - Phase 5 Cart And Coupon Calculation đã được code.
 - Phase 6 Checkout And Orders đã được code.
 - Phase 7 Payment Providers đã được code.
-- Chưa có Email module hoặc Admin APIs đầy đủ.
-- Lần code tiếp theo nên bắt đầu từ Phase 8 - Emails.
+- Phase 8 Emails đã được code.
+- Chưa có Admin APIs đầy đủ.
+- Lần code tiếp theo nên bắt đầu từ Phase 9 - Admin APIs.
