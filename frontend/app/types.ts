@@ -1,5 +1,3 @@
-export type PageType = 'home' | 'products' | 'about-us';
-
 export interface CharmProduct {
   id: string;
   name: string;

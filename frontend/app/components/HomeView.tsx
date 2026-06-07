@@ -10,17 +10,18 @@ import {
   Bookmark, 
   Gem,
 } from 'lucide-react';
-import { PageType, CustomJewelry } from '../types';
+import { CustomJewelry } from '../types';
 import { CHARM_PRODUCTS } from '../data';
 import MarqueeSlogan from './MarqueeSlogan';
 import { CORE_VALUES } from '../data';
 
 interface HomeViewProps {
-  onNavigate: (page: PageType) => void;
+  onGoAbout: () => void;
+  onGoProducts: () => void;
   onAddCustomToCart: (jewelry: CustomJewelry) => void;
 }
 
-export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProps) {
+export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }: HomeViewProps) {
   // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
   const glowRef = useRef<HTMLDivElement>(null);
 
@@ -231,7 +232,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
                 <button
                   id="hero-go-products"
-                  onClick={() => onNavigate('products')}
+                  onClick={onGoProducts}
                   className="rounded-full bg-white hover:bg-stone-100 border-2 border-white text-black font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] active:translate-y-[0] text-center cursor-pointer"
                 >
                   Explore Our UNIverse
@@ -357,7 +358,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
       </section>
 
       {/* Slogan marquee right below Hero Banner */}
-      <MarqueeSlogan onSloganClick={() => onNavigate('about-us')} />
+      <MarqueeSlogan onSloganClick={onGoAbout} />
 
       {/* 2. Khám Phá Các Hành Tinh: Charm Lines Products Showcase */}
       <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-20 md:mt-28 space-y-10" id="charm-lines-section">
@@ -408,7 +409,7 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
                 id={`charm-card-${charm.id}`}
                 onMouseEnter={() => setActiveCharmIndex(index)}
                 onMouseLeave={() => setActiveCharmIndex(null)}
-                onClick={() => onNavigate('products')}
+                onClick={onGoProducts}
                 className={`group shrink-0 w-[88%] md:w-auto snap-center md:snap-align-none relative h-[420px] rounded-[32px] transition-all duration-500 hover:-translate-y-1.5 cursor-pointer shadow-sm ${borderColors}`}
               >
                 {/* Flowing Gradient Border (on hover) */}

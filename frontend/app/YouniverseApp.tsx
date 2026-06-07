@@ -1,18 +1,34 @@
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
+import { createContext, useContext, useState, useEffect, type FormEvent, type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Sparkles, Bell, Send, Check } from 'lucide-react';
-import { PageType, CustomJewelry } from './types';
+import { CustomJewelry } from './types';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import MarqueeSlogan from './components/MarqueeSlogan';
-import HomeView from './components/HomeView';
-import ProductsView from './components/ProductsView';
-import AboutView from './components/AboutView';
 import CartDrawer from './components/CartDrawer';
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>('home');
+type YouniverseAppContextValue = {
+  addCustomToCart: (item: CustomJewelry) => void;
+  notifySoon: (charmName: string) => void;
+};
+
+const YouniverseAppContext = createContext<YouniverseAppContextValue | null>(null);
+
+export const useYouniverseApp = () => {
+  const context = useContext(YouniverseAppContext);
+
+  if (!context) {
+    throw new Error('useYouniverseApp must be used inside YouniverseApp');
+  }
+
+  return context;
+};
+
+export default function YouniverseApp({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const [cart, setCart] = useState<CustomJewelry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   
@@ -55,8 +71,7 @@ export default function App() {
   };
 
   const handleSloganClick = () => {
-    setCurrentPage('about-us');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    router.push('/about');
   };
 
   const triggerNotifySoon = (charmName: string) => {
@@ -85,59 +100,34 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 font-sans text-stone-800 antialiased flex flex-col justify-between" id="app-root-container">
-      
-      {/* 1. Header Navigation Area */}
-      <Header 
-        currentPage={currentPage}
-        onNavigate={(page) => {
-          setCurrentPage(page);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }}
-        cartCount={cart.length}
-        onOpenCart={() => setCartOpen(true)}
-      />
-
-      {/* 2. Primary Page Content Switcher */}
-      <main className="flex-grow">
+    <YouniverseAppContext.Provider
+      value={{
+        addCustomToCart: handleAddCustomToCart,
+        notifySoon: triggerNotifySoon,
+      }}
+    >
+      <div className="min-h-screen bg-stone-50 font-sans text-stone-800 antialiased flex flex-col justify-between" id="app-root-container">
         
-        {/* Banner Area display conditional logic based on pages (Page 4 requested banner update later, we provide elegant slots) */}
-        {currentPage === 'home' && (
-          <HomeView 
-            onNavigate={(page) => {
-              setCurrentPage(page);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            onAddCustomToCart={handleAddCustomToCart}
-          />
-        )}
+        {/* 1. Header Navigation Area */}
+        <Header 
+          cartCount={cart.length}
+          onOpenCart={() => setCartOpen(true)}
+        />
 
-        {currentPage === 'products' && (
-          <ProductsView 
-            onNotifySoon={triggerNotifySoon}
-          />
-        )}
+        {/* 2. Primary Page Content */}
+        <main className="flex-grow">
+          {children}
 
-        {currentPage === 'about-us' && (
-          <AboutView 
-            onNavigate={(page) => {
-              setCurrentPage(page);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        )}
+          {/* Dynamic Running text slogan after banner or pages as requested (Page 4 & 7) */}
+          {pathname !== '/' && (
+            <section className="my-6">
+              <MarqueeSlogan onSloganClick={handleSloganClick} />
+            </section>
+          )}
+        </main>
 
-        {/* Dynamic Running text slogan after banner or pages as requested (Page 4 & 7) */}
-        {currentPage !== 'home' && (
-          <section className="my-6">
-            <MarqueeSlogan onSloganClick={handleSloganClick} />
-          </section>
-        )}
-
-      </main>
-
-      {/* 3. Footer Segment */}
-      <Footer />
+        {/* 3. Footer Segment */}
+        <Footer />
 
       {/* 4. Sliding personalized configured jewels list lookbook */}
       <CartDrawer 
@@ -250,6 +240,7 @@ export default function App() {
         </div>
       )}
 
-    </div>
+      </div>
+    </YouniverseAppContext.Provider>
   );
 }
