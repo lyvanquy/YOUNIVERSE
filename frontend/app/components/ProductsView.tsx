@@ -370,9 +370,9 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
               const stockQuantity = prod.inventory?.quantity ?? 0;
               const productCode = prod.sku ?? prod.slug.toUpperCase();
 
-              const translatedBadge = prod.id === 'astra' ? t.charmAstraBadge : prod.id === 'sirius' ? t.charmSiriusBadge : t.charmPolarisBadge;
-              const translatedTagline = prod.id === 'astra' ? t.charmAstraTagline : prod.id === 'sirius' ? t.charmSiriusTagline : t.charmPolarisTagline;
-              const translatedDescription = prod.id === 'astra' ? t.charmAstraDesc : prod.id === 'sirius' ? t.charmSiriusDesc : t.charmPolarisDesc;
+              const translatedBadge = isAstra ? t.charmAstraBadge : isSirius ? t.charmSiriusBadge : t.charmPolarisBadge;
+              const translatedTagline = isAstra ? t.charmAstraTagline : isSirius ? t.charmSiriusTagline : t.charmPolarisTagline;
+              const translatedDescription = isAstra ? t.charmAstraDesc : isSirius ? t.charmSiriusDesc : t.charmPolarisDesc;
 
               return (
                 <div
@@ -424,11 +424,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     
                     {/* Orange micro-badge label */}
                     <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-amber-600">
-<<<<<<< HEAD
                       {translatedBadge}
-=======
-                      {prod.badge ?? prod.productLine}
->>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                     </span>
                     
                     {/* Heading title */}
@@ -437,22 +433,13 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     </h3>
                     
                     {/* Tagline */}
-<<<<<<< HEAD
                     <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs font-semibold text-stone-500 italic max-w-xs px-2 text-center`}>
                       &ldquo;{translatedTagline}&rdquo;
-=======
-                    <p className="font-mono text-xs font-semibold text-stone-500 italic max-w-xs px-2 text-center">
-                      &ldquo;{lineTaglines[prod.productLine]}&rdquo;
->>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                     </p>
 
                     {/* Short Description */}
                     <p className="font-sans text-stone-500 text-xs leading-relaxed max-w-xs px-2 line-clamp-3 text-center">
-<<<<<<< HEAD
-                      {translatedDescription}
-=======
-                      {prod.shortDescription || prod.description}
->>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
+                      {translatedDescription || prod.shortDescription || prod.description}
                     </p>
 
                     <div className="flex items-center gap-2 pt-1">
@@ -486,13 +473,8 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                   </div>
 
                   {/* Small launching footer text */}
-<<<<<<< HEAD
                   <p className={`text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} text-stone-400`}>
                     {language === 'vi' ? 'Chính thức ra mắt mùa hè này' : 'Launching officially this summer'}
-=======
-                  <p className="text-[9px] font-mono text-stone-400">
-                    Synced from backend API
->>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                   </p>
                 </div>
               );
