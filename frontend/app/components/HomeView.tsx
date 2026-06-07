@@ -515,7 +515,6 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
 
               {/* Content Wrapper */}
               <div className="relative z-20 p-6 flex flex-col items-center space-y-4">
-                <span className="text-[9px] font-mono tracking-widest text-stone-400 font-bold uppercase group-hover:text-blue-500 transition-colors duration-300">[ SYS_CORE // 01 ]</span>
                 <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-50/50 to-blue-100/30 border border-blue-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
                   {/* Orbiting halo effect */}
                   <div className="absolute inset-[-4px] rounded-full border border-dashed border-blue-400/30 animate-spin-slow group-hover:border-blue-400/80 transition-colors duration-500" />
@@ -543,7 +542,6 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
 
               {/* Content Wrapper */}
               <div className="relative z-20 p-6 flex flex-col items-center space-y-4">
-                <span className="text-[9px] font-mono tracking-widest text-stone-400 font-bold uppercase group-hover:text-amber-500 transition-colors duration-300">[ CHARM_CONFIG // 02 ]</span>
                 <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-amber-50/50 to-amber-100/30 border border-amber-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
                   {/* Orbiting halo effect */}
                   <div className="absolute inset-[-4px] rounded-full border border-dashed border-amber-400/30 animate-spin-slow group-hover:border-amber-400/80 transition-colors duration-500" style={{ animationDirection: 'reverse' }} />
@@ -571,7 +569,6 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
 
               {/* Content Wrapper */}
               <div className="relative z-20 p-6 flex flex-col items-center space-y-4">
-                <span className="text-[9px] font-mono tracking-widest text-stone-400 font-bold uppercase group-hover:text-rose-500 transition-colors duration-300">[ ENGRAVER_INIT // 03 ]</span>
                 <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-rose-50/50 to-rose-100/30 border border-rose-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
                   {/* Orbiting halo effect */}
                   <div className="absolute inset-[-4px] rounded-full border border-dashed border-rose-400/30 animate-spin-slow group-hover:border-rose-400/80 transition-colors duration-500" />

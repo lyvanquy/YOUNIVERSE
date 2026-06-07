@@ -323,6 +323,23 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
 
         {/* Desktop Layout: Overlapping Fan-Out Card Deck */}
         <div className="hidden md:flex flex-row items-stretch justify-center w-full max-w-6xl mx-auto h-[440px] py-6 relative z-20">
+          
+          {/* Cosmic background ornaments behind the cards deck */}
+          <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+            {/* Ambient soft glow */}
+            <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] rounded-full bg-gradient-to-r from-blue-400/5 via-amber-400/5 to-rose-400/5 blur-[90px] animate-pulse-glow" />
+            
+            {/* Orbit lines */}
+            <div className="absolute top-[75%] left-1/2 -translate-x-1/2 w-[950px] h-[320px] rounded-full border border-dashed border-stone-200/50 opacity-80" />
+            <div className="absolute top-[70%] left-1/2 -translate-x-1/2 w-[750px] h-[220px] rounded-full border border-dashed border-stone-200/35 opacity-60" />
+
+            {/* Twinkling background stars */}
+            <div className="absolute top-8 left-[8%] text-amber-400 animate-twinkle opacity-65"><Sparkles className="h-4 w-4" /></div>
+            <div className="absolute top-16 right-[10%] text-blue-400 animate-twinkle duration-2000 opacity-55"><Star className="h-3.5 w-3.5" /></div>
+            <div className="absolute bottom-20 left-[3%] text-rose-400 animate-twinkle duration-1500 opacity-45"><Sparkles className="h-3.5 w-3.5" /></div>
+            <div className="absolute bottom-10 right-[6%] text-purple-400 animate-twinkle duration-3000 opacity-65"><Star className="h-4 w-4" /></div>
+          </div>
+
           {TEAM_MEMBERS.map((member, index) => {
             const cleanName = member.name.replace(/^(Mr\.|Ms\.)\s+/i, '');
             const nameParts = cleanName.split(' ');
@@ -401,14 +418,22 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
                 <div className="absolute top-2.5 left-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
                 <div className="absolute top-2.5 right-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
 
+                {/* Decorative background stars inside the card */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-20 opacity-45 group-hover:opacity-100 transition-opacity duration-500">
+                  <div className="absolute top-7 left-5 text-[7px] text-stone-400 group-hover:text-amber-500 transition-colors animate-twinkle select-none">✦</div>
+                  <div className="absolute top-20 right-4 text-[6.5px] text-stone-400 group-hover:text-amber-400 transition-colors animate-twinkle duration-1000 select-none">✦</div>
+                  <div className="absolute bottom-24 left-3 text-[6px] text-stone-400 group-hover:text-purple-400 transition-colors animate-twinkle duration-3000 select-none">✦</div>
+                  <div className="absolute bottom-16 right-5 text-[6.5px] text-stone-400 group-hover:text-blue-500 transition-colors animate-twinkle duration-2000 select-none">✦</div>
+                  {isHovered && (
+                    <>
+                      <div className="absolute top-1/4 right-6 text-[8px] text-rose-500 animate-twinkle duration-1500 select-none">✦</div>
+                      <div className="absolute bottom-1/3 left-6 text-[7px] text-purple-500 animate-twinkle duration-2500 select-none">✦</div>
+                    </>
+                  )}
+                </div>
+
                 {/* Card Header Section */}
                 <div className="relative z-20 flex justify-end items-center w-full h-4">
-                  {isHovered && (
-                    <span className="font-mono text-[8px] text-emerald-500 flex items-center space-x-1 animate-pulse">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                      <span>ONLINE</span>
-                    </span>
-                  )}
                 </div>
 
                 {/* Card Body Section */}

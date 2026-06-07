@@ -52,17 +52,21 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             
             {cartItems.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-12">
-                <div className="h-16 w-16 rounded-full bg-stone-50 flex items-center justify-center border-2 border-dashed border-stone-300 text-stone-400">
-                  <Sparkles className="h-6 w-6 animate-twinkle" />
+              <div className="h-full flex flex-col items-center justify-center text-center space-y-6 py-20 relative overflow-hidden">
+                <div className="relative h-20 w-20 flex items-center justify-center">
+                  <div className="absolute inset-0 border border-dashed border-stone-200 rounded-full animate-spin-slow" />
+                  <div className="absolute w-14 h-14 rounded-full bg-amber-500/5 blur-md" />
+                  <div className="h-12 w-12 rounded-full bg-white flex items-center justify-center border border-stone-200 text-amber-500 shadow-sm z-10 animate-pulse">
+                    <Sparkles className="h-5 w-5 animate-twinkle" />
+                  </div>
                 </div>
                 
-                <div className="space-y-1">
-                  <h3 className="font-display text-sm font-bold text-stone-800 uppercase">
-                    No custom designs yet
+                <div className="space-y-2 relative z-10">
+                  <h3 className="font-display text-base font-black text-stone-900 uppercase tracking-wide">
+                    Your Galaxy is Empty
                   </h3>
-                  <p className="font-sans text-xs text-stone-400 max-w-xs mx-auto">
-                    Experience our 3-step "How to Build Your YOUniverse" customizer on the homepage to handcraft your own lucky charm!
+                  <p className="font-sans text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
+                    Craft your own custom jewelry draft in 3 steps on the home screen to place custom orders!
                   </p>
                 </div>
               </div>
@@ -72,45 +76,93 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                   
                   // Map custom colors with premium borders and glass styles
                   const accentColorClass = {
-                    blue: 'border-blue-200/60 bg-blue-50/20 text-blue-600 hover:border-blue-400/50',
-                    yellow: 'border-amber-200/60 bg-amber-50/20 text-amber-600 hover:border-amber-400/50',
-                    red: 'border-rose-200/60 bg-rose-50/20 text-rose-600 hover:border-rose-400/50',
-                    indigo: 'border-indigo-200/60 bg-indigo-50/20 text-indigo-600 hover:border-indigo-400/50'
+                    blue: 'border-blue-200/60 bg-blue-50/20 text-blue-600 hover:border-blue-400/50 hover:shadow-blue-500/5',
+                    yellow: 'border-amber-200/60 bg-amber-50/20 text-amber-600 hover:border-amber-400/50 hover:shadow-amber-500/5',
+                    red: 'border-rose-200/60 bg-rose-50/20 text-rose-600 hover:border-rose-400/50 hover:shadow-rose-500/5',
+                    indigo: 'border-indigo-200/60 bg-indigo-50/20 text-indigo-600 hover:border-indigo-400/50 hover:shadow-indigo-500/5'
                   }[item.vibeColor] || 'border-stone-200 bg-stone-50/30';
 
                   return (
                     <div 
                       key={index}
-                      className={`relative border rounded-2xl p-4 flex items-start justify-between gap-4 transition-all duration-300 shadow-sm ${accentColorClass}`}
+                      className={`relative border rounded-2xl p-4 flex items-center justify-between gap-4 transition-all duration-300 shadow-sm hover:-translate-y-0.5 hover:shadow-md ${accentColorClass}`}
                     >
                       
-                      <div className="space-y-2 text-left">
+                      {/* Mini visual mockup of the custom jewelry */}
+                      <div className="w-16 h-16 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-center shrink-0 relative overflow-hidden shadow-inner select-none">
+                        {/* Mesh grid */}
+                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:6px_6px] pointer-events-none" />
+                        
+                        {/* Vibe color glowing spot */}
+                        <div className={`absolute w-8 h-8 rounded-full blur-[8px] opacity-40 ${
+                          item.vibeColor === 'blue' ? 'bg-blue-500' :
+                          item.vibeColor === 'yellow' ? 'bg-amber-500' :
+                          item.vibeColor === 'red' ? 'bg-rose-500' : 'bg-indigo-500'
+                        }`} />
+
+                        {/* Visual base chain */}
+                        {item.baseType === 'necklace' && (
+                          <div className="absolute w-10 h-10 rounded-full border border-stone-700/80 top-3" />
+                        )}
+                        {item.baseType === 'bracelet' && (
+                          <div className="absolute w-9 h-9 rounded-full border border-dashed border-stone-650/70" />
+                        )}
+                        {item.baseType === 'cord' && (
+                          <div className="absolute w-11 h-0.5 bg-stone-700/80 rounded-full" />
+                        )}
+
+                        {/* Visual Charms hanging */}
+                        <div className="absolute bottom-4 flex justify-center -space-x-1 z-10">
+                          {item.selectedCharms.map((charm, cIdx) => (
+                            <div 
+                              key={cIdx}
+                              className={`w-3.5 h-3.5 rounded-full border border-white/30 shadow-md flex items-center justify-center text-[7px] leading-none ${
+                                charm === 'astra' ? 'bg-blue-500 text-white' :
+                                charm === 'sirius' ? 'bg-amber-500 text-stone-900' :
+                                'bg-rose-500 text-white'
+                              }`}
+                            >
+                              {charm === 'astra' && '✦'}
+                              {charm === 'sirius' && '♥'}
+                              {charm === 'polaris' && '☩'}
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Tiny engraved initial label */}
+                        <div className="absolute bottom-1 text-[6.5px] font-mono text-stone-300 font-bold tracking-tighter max-w-[50px] truncate uppercase bg-stone-900/90 px-1 py-0.5 rounded border border-stone-850 z-10">
+                          {item.customName}
+                        </div>
+                      </div>
+
+                      {/* Item details info column */}
+                      <div className="flex-1 space-y-1.5 text-left">
                         {/* Type card metadata banner */}
-                        <div className="flex items-center space-x-1">
-                          <span className="text-[9px] font-mono font-black uppercase text-stone-400 tracking-wider">
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-[8px] font-mono font-bold uppercase text-stone-400 tracking-wider">
                             Vibe: {item.vibeColor}
                           </span>
-                          <span className="text-stone-300">•</span>
-                          <span className="text-[9px] font-mono font-bold text-stone-500 block uppercase">
+                          <span className="text-stone-300 text-[8px]">•</span>
+                          <span className="text-[8px] font-mono font-bold text-stone-400 block uppercase">
                             Base: {item.baseType}
                           </span>
                         </div>
 
                         {/* ENGRAVED CHOSEN INSCRIPTION TITLE */}
-                        <h4 className="font-display text-base font-extrabold text-black uppercase tracking-wide">
-                          Engraved Core: &ldquo;<span className="underline decoration-2 decoration-amber-500">{item.customName}</span>&rdquo;
+                        <h4 className="font-display text-sm font-extrabold text-stone-900 uppercase tracking-wide">
+                          Core Engraved: &ldquo;<span className="underline decoration-2 decoration-amber-500">{item.customName}</span>&rdquo;
                         </h4>
 
                         {/* Active charms badges attached */}
-                        <div className="flex flex-wrap gap-1.5 pt-1">
+                        <div className="flex flex-wrap gap-1.5 pt-0.5">
                           {item.selectedCharms.map((charm, cIdx) => (
                             <span 
                               key={cIdx}
-                              className="inline-flex items-center gap-1 bg-white/95 border border-stone-150 px-2 py-0.5 rounded-full text-[10px] font-mono text-stone-600 shadow-sm"
+                              className="inline-flex items-center gap-1 bg-white/95 border border-stone-150 px-2 py-0.5 rounded-full text-[9px] font-mono text-stone-600 shadow-sm"
                             >
-                              {charm === 'astra' && <Sparkles className="h-3 w-3 text-blue-500" />}
-                              {charm === 'sirius' && <Heart className="h-3 w-3 text-amber-500" />}
-                              {charm === 'polaris' && <Compass className="h-3 w-3 text-red-500" />}
+                              {charm === 'astra' && <Sparkles className="h-2.5 w-2.5 text-blue-500" />}
+                              {charm === 'sirius' && <Heart className="h-2.5 w-2.5 text-amber-500" />}
+                              {charm === 'polaris' && <Compass className="h-2.5 w-2.5 text-red-500" />}
                               <span className="capitalize">{charm}</span>
                             </span>
                           ))}
@@ -145,12 +197,18 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                 </p>
               </div>
 
-              <button
-                onClick={onCheckout}
-                className="w-full rounded-full bg-stone-950 hover:bg-black text-white py-4 font-display text-xs font-bold tracking-widest uppercase transition-all duration-350 border border-stone-900 hover:shadow-[0_0_15px_rgba(0,0,0,0.15)] cursor-pointer animate-pulse-glow"
-              >
-                Submit Custom Design Order
-              </button>
+              <div className="group relative rounded-full overflow-hidden">
+                {/* Flowing Gradient background */}
+                <div className="absolute -inset-[1px] bg-gradient-to-r from-amber-400 via-rose-500 to-blue-500 opacity-90 transition-opacity duration-300 pointer-events-none z-0 animate-flow-gradient rounded-full" />
+                
+                <button
+                  onClick={onCheckout}
+                  className="relative w-full rounded-full bg-stone-950/95 hover:bg-black/90 text-white py-4 font-display text-xs font-black tracking-widest uppercase transition-all duration-350 border border-transparent cursor-pointer z-10 text-center flex items-center justify-center space-x-2"
+                >
+                  <span>Submit Custom Design Order</span>
+                  <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-twinkle" />
+                </button>
+              </div>
             </div>
           )}
 

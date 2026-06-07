@@ -263,3 +263,15 @@ body {
   animation: flow-gradient 6s ease infinite;
 }
 
+@keyframes wiggle-glow {
+  0%, 100% { transform: scale(1) rotate(0deg); box-shadow: 0 0 0 rgba(234, 179, 8, 0); }
+  15% { transform: scale(1.15) rotate(-10deg); box-shadow: 0 0 15px rgba(234, 179, 8, 0.45); }
+  30% { transform: scale(1.15) rotate(10deg); box-shadow: 0 0 20px rgba(234, 179, 8, 0.55); }
+  45% { transform: scale(1.1) rotate(-6deg); box-shadow: 0 0 15px rgba(234, 179, 8, 0.45); }
+  60% { transform: scale(1.1) rotate(6deg); box-shadow: 0 0 15px rgba(234, 179, 8, 0.35); }
+  75% { transform: scale(1.05) rotate(-3deg); box-shadow: 0 0 10px rgba(234, 179, 8, 0.25); }
+}
+.animate-wiggle-glow {
+  animation: wiggle-glow 0.8s ease-in-out both;
+}
+

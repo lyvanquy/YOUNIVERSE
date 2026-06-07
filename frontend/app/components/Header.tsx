@@ -12,6 +12,7 @@ interface HeaderProps {
 export default function Header({ currentPage, onNavigate, cartCount, onOpenCart }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [animateCart, setAnimateCart] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,6 +21,15 @@ export default function Header({ currentPage, onNavigate, cartCount, onOpenCart 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Trigger wiggle-glow when cart count increases
+  useEffect(() => {
+    if (cartCount > 0) {
+      setAnimateCart(true);
+      const timer = setTimeout(() => setAnimateCart(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
 
   const navItems = [
     { id: 'home' as PageType, label: 'Home', hoverClass: 'hover:text-blue-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-blue cursor-pointer', dotColor: 'bg-blue-500' },
@@ -101,11 +111,13 @@ export default function Header({ currentPage, onNavigate, cartCount, onOpenCart 
           <button
             id="cart-btn"
             onClick={onOpenCart}
-            className="group relative flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-900 hover:border-black hover:shadow-[0_0_12px_rgba(250,204,21,0.15)] focus:outline-none transition-all duration-300 shadow-sm"
+            className={`group relative flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-900 hover:border-black hover:shadow-[0_0_12px_rgba(250,204,21,0.15)] focus:outline-none transition-all duration-300 shadow-sm ${
+              animateCart ? 'animate-wiggle-glow border-amber-400 bg-amber-50/20' : ''
+            }`}
           >
             <ShoppingBag className="h-5 w-5 transition-transform group-hover:scale-105 animate-wiggle" />
             {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white animate-bounce">
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-rose-500 text-[10px] font-bold text-white ring-2 ring-white shadow-[0_0_8px_rgba(244,63,94,0.45)] animate-bounce">
                 {cartCount}
               </span>
             )}
