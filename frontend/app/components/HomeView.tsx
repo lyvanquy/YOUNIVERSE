@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Sparkles, 
   Heart, 
@@ -21,18 +21,18 @@ interface HomeViewProps {
 }
 
 export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProps) {
-  // Mouse position state for interactive cursor neon glow
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const container = document.getElementById('home-view');
-      if (container) {
+      if (container && glowRef.current) {
         const rect = container.getBoundingClientRect();
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        });
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // GPU-accelerated translate3d for smooth animations
+        glowRef.current.style.transform = `translate3d(${x - 175}px, ${y - 175}px, 0)`;
       }
     };
     window.addEventListener('mousemove', handleMouseMove);
@@ -184,10 +184,12 @@ export default function HomeView({ onNavigate, onAddCustomToCart }: HomeViewProp
 
       {/* Interactive Mouse-Follow Glow Halo */}
       <div 
-        className="absolute w-[350px] h-[350px] rounded-full pointer-events-none z-0 blur-[80px] opacity-40 transition-all duration-300 ease-out hidden md:block"
+        ref={glowRef}
+        className="absolute w-[350px] h-[350px] rounded-full pointer-events-none z-0 blur-[80px] opacity-40 hidden md:block will-change-transform transform-gpu"
         style={{
-          left: `${mousePos.x - 175}px`,
-          top: `${mousePos.y - 175}px`,
+          left: 0,
+          top: 0,
+          transform: 'translate3d(-999px, -999px, 0)',
           background: vibeColor === 'blue' 
             ? 'radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%)'
             : vibeColor === 'yellow'

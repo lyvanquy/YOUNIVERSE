@@ -17,6 +17,7 @@ export interface TeamMember {
   name: string;
   phone: string;
   role: string;
+  image?: string;
 }
 
 export interface ValueCard {

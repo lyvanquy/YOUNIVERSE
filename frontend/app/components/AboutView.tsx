@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Star, Quote, Eye, Flame, Sparkles, Phone } from 'lucide-react';
 import { CORE_VALUES, TEAM_MEMBERS } from '../data';
 import { PageType } from '../types';
@@ -8,18 +8,20 @@ interface AboutViewProps {
 }
 
 export default function AboutView({ onNavigate }: AboutViewProps) {
-  // Mouse position state for interactive cursor neon glow
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  
+  // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const container = document.getElementById('about-us-view');
-      if (container) {
+      if (container && glowRef.current) {
         const rect = container.getBoundingClientRect();
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top,
-        });
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // GPU-accelerated translate3d for smooth animations
+        glowRef.current.style.transform = `translate3d(${x - 175}px, ${y - 175}px, 0)`;
       }
     };
     window.addEventListener('mousemove', handleMouseMove);
@@ -38,10 +40,12 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
 
       {/* Interactive Mouse-Follow Glow Halo (Desktop only) */}
       <div 
-        className="absolute w-[350px] h-[350px] rounded-full pointer-events-none z-0 blur-[85px] opacity-35 transition-all duration-300 ease-out hidden md:block"
+        ref={glowRef}
+        className="absolute w-[350px] h-[350px] rounded-full pointer-events-none z-0 blur-[85px] opacity-35 hidden md:block will-change-transform transform-gpu"
         style={{
-          left: `${mousePos.x - 175}px`,
-          top: `${mousePos.y - 175}px`,
+          left: 0,
+          top: 0,
+          transform: 'translate3d(-999px, -999px, 0)',
           background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(59, 130, 246, 0.15) 50%, transparent 70%)',
         }}
       />
@@ -303,81 +307,259 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
         </div>
 
       </section>
-
-      {/* 5.5 Team Members Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
         
-        <div className="text-center space-y-2">
-          <span className="text-[10px] font-mono font-black uppercase text-amber-500 tracking-widest block">
-            03 / Team & Creators
-          </span>
-          <h2 className="font-display text-3xl font-extrabold text-black uppercase tracking-tight">
+        <div className="text-center space-y-3 relative max-w-md mx-auto py-4">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
+          
+          <h2 className="font-display text-3xl font-extrabold text-black uppercase tracking-tight relative inline-block">
             Meet Our Team
+            <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 rounded-full" />
           </h2>
-          <p className="font-sans text-stone-500 text-xs max-w-sm mx-auto">
+          <p className="font-sans text-stone-500 text-xs max-w-xs mx-auto leading-relaxed pt-1.5">
             The creative UEH.ISB team behind the YOUniverse brand concept.
           </p>
         </div>
 
-        {/* 4 Column Grid of Team Members */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {TEAM_MEMBERS.map((member) => {
-            // Helper to get initials from member name (e.g. "Nguyen Linh Chi" -> "LC", "Tran Ngoc Thu" -> "NT")
+        {/* Desktop Layout: Overlapping Fan-Out Card Deck */}
+        <div className="hidden md:flex flex-row items-stretch justify-center w-full max-w-6xl mx-auto h-[440px] py-6 relative z-20">
+          {TEAM_MEMBERS.map((member, index) => {
+            const cleanName = member.name.replace(/^(Mr\.|Ms\.)\s+/i, '');
+            const nameParts = cleanName.split(' ');
+            const initials = nameParts.length >= 2 
+              ? `${nameParts[nameParts.length - 2][0]}${nameParts[nameParts.length - 1][0]}` 
+              : nameParts[0].substring(0, 2);
+            const shortName = nameParts[nameParts.length - 1]; // e.g. "Chi", "Dang", "Thu"
+
+            const theme = [
+              {
+                text: 'text-blue-500',
+                gradient: 'from-blue-500 via-cyan-400 to-indigo-500',
+                badgeText: 'text-blue-600 bg-blue-500/10 border-blue-500/20',
+                bg: 'bg-blue-50/50 border border-blue-200/50'
+              },
+              {
+                text: 'text-amber-500',
+                gradient: 'from-amber-400 via-yellow-400 to-orange-500',
+                badgeText: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
+                bg: 'bg-amber-50/50 border border-amber-200/50'
+              },
+              {
+                text: 'text-rose-500',
+                gradient: 'from-rose-500 via-red-500 to-pink-550',
+                badgeText: 'text-rose-600 bg-rose-500/10 border-rose-500/20',
+                bg: 'bg-rose-50/50 border border-rose-200/50'
+              },
+              {
+                text: 'text-purple-500',
+                gradient: 'from-purple-500 via-fuchsia-400 to-violet-500',
+                badgeText: 'text-purple-600 bg-purple-500/10 border-purple-500/20',
+                bg: 'bg-purple-50/50 border border-purple-200/50'
+              }
+            ][index % 4];
+
+            const isHovered = hoveredIdx === index;
+            const isAnyHovered = hoveredIdx !== null;
+
+            // Calculate fan-out layout dynamic styles
+            const rotAngle = isHovered ? 0 : (index - 3.5) * 3;
+            const transY = isHovered ? -24 : 0;
+            const cardWidth = isHovered 
+              ? 'w-[310px] lg:w-[350px]' 
+              : isAnyHovered 
+              ? 'w-[75px] lg:w-[90px]' 
+              : 'w-[105px] lg:w-[125px]';
+            const cardMargin = isHovered 
+              ? 'mx-3 lg:mx-4' 
+              : '-mr-5 lg:-mr-7 last:mr-0';
+            
+            // Overlapping layering index
+            const baseZ = index <= 3 ? 10 + index : 10 + (7 - index);
+            const zIndex = isHovered ? 50 : baseZ;
+
+            return (
+              <div
+                key={member.name}
+                onMouseEnter={() => setHoveredIdx(index)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                style={{
+                  transform: `rotate(${rotAngle}deg) translateY(${transY}px)`,
+                  zIndex: zIndex,
+                }}
+                className={`group relative rounded-[28px] h-full transition-all duration-500 ease-out flex flex-col justify-between cursor-pointer backdrop-blur-md p-5 shadow-[0_12px_28px_rgba(0,0,0,0.04)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.12)] select-none origin-bottom ${theme.bg} ${cardWidth} ${cardMargin} overflow-hidden`}
+              >
+                {/* Flowing Gradient Border (on hover) */}
+                <div className={`absolute -inset-[1.5px] rounded-[29px] bg-gradient-to-r ${theme.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient`} />
+                
+                {/* Inner Card Background Mask */}
+                <div className={`absolute inset-0 rounded-[28px] ${theme.bg} group-hover:bg-white/95 group-hover:border-transparent z-10 pointer-events-none transition-all duration-500`} />
+
+                {/* Tech coordinates grid backdrop (reveals slightly on hover) */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:10px_10px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
+                
+                {/* Technical Corner Crosshairs */}
+                <div className="absolute top-2.5 left-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
+                <div className="absolute top-2.5 right-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
+
+                {/* Card Header Section */}
+                <div className="relative z-20 flex justify-end items-center w-full h-4">
+                  {isHovered && (
+                    <span className="font-mono text-[8px] text-emerald-500 flex items-center space-x-1 animate-pulse">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      <span>ONLINE</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Card Body Section */}
+                <div className="relative z-20 flex flex-col items-center justify-center flex-grow py-3 overflow-hidden">
+                  
+                  {isHovered ? (
+                    // Expanded Hover View
+                    <div className="flex flex-col items-center justify-between text-center animate-fade-in w-full h-full py-1">
+                      {/* Full-width avatar/photo container */}
+                      <div className="relative w-full h-[240px] rounded-2xl overflow-hidden shrink-0 border border-stone-200/50 shadow-sm">
+                        {member.image ? (
+                          <img 
+                            src={member.image} 
+                            alt={member.name} 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className={`w-full h-full bg-gradient-to-br ${theme.gradient} flex items-center justify-center relative`}>
+                            <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.15)_0%,transparent_75%)] animate-pulse-glow" />
+                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:16px_16px]" />
+                            <span className="font-display text-4xl lg:text-5xl font-black tracking-wider text-white select-none uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-10">
+                              {initials}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Name and Role Centered at the Bottom */}
+                      <div className="space-y-1.5 w-full mt-4 pb-2">
+                        <h3 className="font-display text-sm font-black text-stone-900 uppercase tracking-wide">
+                          {member.name}
+                        </h3>
+                        <div className="flex justify-center">
+                          <span className={`inline-block font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-md border ${theme.badgeText}`}>
+                            {member.role}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Collapsed Default View
+                    <div className="flex flex-col items-center justify-center space-y-4 h-full py-4 animate-fade-in">
+                      {/* Small Avatar Indicator */}
+                      <div className="relative w-12 h-12 rounded-full bg-stone-900 border border-stone-850 flex items-center justify-center shadow-inner shrink-0 group-hover:border-stone-700 transition-colors">
+                        <span className="font-display text-[10px] font-black text-stone-350 select-none uppercase">
+                          {initials}
+                        </span>
+                      </div>
+                      
+                      {/* Vertical Name */}
+                      <span className="font-display text-[9px] font-black text-stone-400 group-hover:text-stone-600 transition-colors uppercase tracking-widest leading-none [writing-mode:vertical-lr] rotate-180 select-none pt-2">
+                        {shortName}
+                      </span>
+                    </div>
+                  )}
+
+                </div>
+
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Mobile Layout: Responsive Vertical Accordion */}
+        <div className="flex md:hidden flex-col space-y-3 w-full max-w-md mx-auto px-4">
+          {TEAM_MEMBERS.map((member, index) => {
             const cleanName = member.name.replace(/^(Mr\.|Ms\.)\s+/i, '');
             const nameParts = cleanName.split(' ');
             const initials = nameParts.length >= 2 
               ? `${nameParts[nameParts.length - 2][0]}${nameParts[nameParts.length - 1][0]}` 
               : nameParts[0].substring(0, 2);
 
+            const theme = [
+              {
+                text: 'text-blue-500',
+                gradient: 'from-blue-500 via-cyan-400 to-indigo-500',
+                badgeText: 'text-blue-600 bg-blue-500/10 border-blue-500/20',
+                bg: 'bg-blue-50/50 border border-blue-200/50'
+              },
+              {
+                text: 'text-amber-500',
+                gradient: 'from-amber-400 via-yellow-400 to-orange-500',
+                badgeText: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
+                bg: 'bg-amber-50/50 border border-amber-200/50'
+              },
+              {
+                text: 'text-rose-500',
+                gradient: 'from-rose-500 via-red-500 to-pink-550',
+                badgeText: 'text-rose-600 bg-rose-500/10 border-rose-500/20',
+                bg: 'bg-rose-50/50 border border-rose-200/50'
+              },
+              {
+                text: 'text-purple-500',
+                gradient: 'from-purple-500 via-fuchsia-400 to-violet-500',
+                badgeText: 'text-purple-600 bg-purple-500/10 border-purple-500/20',
+                bg: 'bg-purple-50/50 border border-purple-200/50'
+              }
+            ][index % 4];
+
+            const isExpanded = hoveredIdx === index;
+
             return (
               <div
                 key={member.name}
-                className="group relative rounded-[28px] transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between cursor-default hover:shadow-[0_15px_30px_rgba(0,0,0,0.03)] border border-stone-200/60 bg-white/80 backdrop-blur-md p-6 overflow-hidden"
+                onClick={() => setHoveredIdx(isExpanded ? null : index)}
+                className={`group relative rounded-2xl transition-all duration-300 backdrop-blur-sm p-4 overflow-hidden flex flex-col justify-between cursor-pointer shadow-sm ${theme.bg} ${
+                  isExpanded ? 'h-[130px] border-stone-300' : 'h-[72px]'
+                }`}
               >
                 {/* Tech coordinates grid backdrop (reveals slightly on hover) */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808004_1px,transparent_1px)] bg-[size:12px_12px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:10px_10px] opacity-10 pointer-events-none z-0" />
                 
-                <div className="relative z-10 flex flex-col items-center">
-                  
-                  {/* Stellar Avatar frame representing the "introvert" theme (Star orbit placeholder) */}
-                  <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-stone-900 to-stone-950 flex items-center justify-center border border-stone-850 shadow-inner group-hover:border-amber-500/40 transition-colors duration-500 mb-4 overflow-hidden">
-                    
-                    {/* Pulsing star dust effect */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(245,158,11,0.06)_0%,transparent_70%)] animate-pulse-glow" />
-                    
-                    {/* Rotating coordinate lines */}
-                    <div className="absolute inset-1.5 rounded-full border border-dashed border-stone-800/80 animate-spin-slow group-hover:border-stone-750" />
-                    
-                    {/* Initials display */}
-                    <span className="font-display text-lg font-black tracking-wider text-stone-250 select-none uppercase">
-                      {initials}
-                    </span>
-
-                    {/* Subtle "Incognito/Private Core" visual marker */}
-                    <div className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full bg-stone-950 border border-stone-800 flex items-center justify-center text-[7px] font-mono text-stone-500" title="Introverted (Identity Hidden)">
-                      👤
+                {/* Header Row (Initials & Name/Role overview) */}
+                <div className="relative z-10 flex items-center justify-between w-full h-10">
+                  <div className="flex items-center space-x-3.5">
+                    {/* Small initials avatar */}
+                    <div className="w-10 h-10 rounded-full bg-stone-900 border border-stone-850 flex items-center justify-center shrink-0 shadow-inner">
+                      <span className="font-display text-[9px] font-black text-stone-300 select-none uppercase">
+                        {initials}
+                      </span>
+                    </div>
+                    <div className="text-left">
+                      <h3 className={`font-display text-xs font-black uppercase tracking-wide text-stone-900 group-hover:${theme.text} transition-colors`}>
+                        {member.name}
+                      </h3>
+                      {!isExpanded && (
+                        <p className="font-mono text-[7px] text-stone-400 uppercase tracking-widest leading-none">
+                          {member.role}
+                        </p>
+                      )}
                     </div>
                   </div>
-
-                  {/* Name and Role */}
-                  <div className="space-y-1 text-center">
-                    <h3 className="font-display text-sm font-black text-stone-900 uppercase tracking-wide group-hover:text-amber-500 transition-colors duration-300">
-                      {member.name}
-                    </h3>
-                    <p className="font-sans text-[10px] text-stone-400 font-bold uppercase tracking-widest leading-none">
-                      {member.role}
-                    </p>
-                  </div>
+                  <span className="text-[10px] font-mono text-stone-350 select-none font-bold">
+                    {isExpanded ? '✕' : ''}
+                  </span>
                 </div>
 
-                {/* Technical contact row */}
-                <a
-                  href={`tel:${member.phone}`}
-                  className="relative z-10 flex items-center justify-center space-x-1.5 pt-3 mt-4 border-t border-stone-100/60 font-mono text-[10px] text-stone-500 hover:text-stone-900 transition-colors"
-                >
-                  <Phone className="h-3 w-3 text-stone-400 group-hover:text-amber-500 transition-colors" />
-                  <span>{member.phone}</span>
-                </a>
+                {isExpanded && (
+                  // Expanded Details block
+                  <div className="relative z-10 flex flex-col items-stretch space-y-3 pt-3 border-t border-stone-100/60 animate-fade-in">
+                    <div className="flex justify-between items-center">
+                      <span className={`inline-block font-mono text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border ${theme.badgeText}`}>
+                        {member.role}
+                      </span>
+                      <span className="font-mono text-[8px] text-emerald-500 flex items-center space-x-1">
+                        <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                        <span>ONLINE</span>
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

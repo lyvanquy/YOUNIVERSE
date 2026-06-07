@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Sparkles } from 'lucide-react';
 
 interface MarqueeSloganProps {
@@ -10,21 +10,23 @@ export default function MarqueeSlogan({ onSloganClick }: MarqueeSloganProps) {
   const sloganText = "A galaxy to hold, a story to be told • 💫 • ";
   const repeats = Array(12).fill(sloganText).join(" ");
   
-  // States to track cursor coordinates and hover state
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  // Ref-based tooltip cursor following for zero React re-renders!
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    // Estimate tooltip width to prevent it from going off the screen edges
-    const estimatedTooltipHalfWidth = 120; // 240px total width / 2
-    const padding = 16; // Safety margin from screen edge
-    
-    // Clamp the X coordinate within the viewport boundaries
-    const minX = estimatedTooltipHalfWidth + padding;
-    const maxX = window.innerWidth - (estimatedTooltipHalfWidth + padding);
-    const clampedX = Math.max(minX, Math.min(maxX, e.clientX));
+    if (tooltipRef.current) {
+      // Estimate tooltip width to prevent it from going off the screen edges
+      const estimatedTooltipHalfWidth = 120; // 240px total width / 2
+      const padding = 16; // Safety margin from screen edge
+      
+      // Clamp the X coordinate within the viewport boundaries
+      const minX = estimatedTooltipHalfWidth + padding;
+      const maxX = window.innerWidth - (estimatedTooltipHalfWidth + padding);
+      const clampedX = Math.max(minX, Math.min(maxX, e.clientX));
 
-    setMousePos({ x: clampedX, y: e.clientY });
+      tooltipRef.current.style.transform = `translate3d(${clampedX}px, ${e.clientY + 18}px, 0) translate3d(-50%, 0, 0)`;
+    }
   };
 
   return (
@@ -52,10 +54,12 @@ export default function MarqueeSlogan({ onSloganClick }: MarqueeSloganProps) {
       {/* Premium custom tooltip that follows the mouse cursor (Desktop only) */}
       {isHovered && (
         <div
-          className="hidden md:flex fixed pointer-events-none bg-black text-white text-[10px] md:text-xs font-sans font-semibold px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl border border-stone-800 z-[9999] -translate-x-1/2 whitespace-nowrap"
+          ref={tooltipRef}
+          className="hidden md:flex fixed pointer-events-none bg-black text-white text-[10px] md:text-xs font-sans font-semibold px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl border border-stone-800 z-[9999] whitespace-nowrap will-change-transform transform-gpu"
           style={{
-            left: `${mousePos.x}px`,
-            top: `${mousePos.y + 18}px`,
+            left: 0,
+            top: 0,
+            transform: 'translate3d(-999px, -999px, 0) translate3d(-50%, 0, 0)',
           }}
         >
           <span>Discover our story!</span>
