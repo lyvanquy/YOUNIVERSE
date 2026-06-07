@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @font-face {
@@ -15,11 +14,15 @@
 }
 
 @theme {
-  --font-sans: "Montserrat", "Inter", sans-serif;
-  --font-display: "YOUTH", "Space Grotesk", sans-serif;
+  --font-sans: var(--font-montserrat), var(--font-inter), sans-serif;
+  --font-display: "YOUTH", var(--font-space-grotesk), sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+}
+
+.font-youth {
+  font-family: "YOUTH", sans-serif !important;
 }
 
 body {
@@ -273,5 +276,24 @@ body {
 }
 .animate-wiggle-glow {
   animation: wiggle-glow 0.8s ease-in-out both;
+}
+
+/* Vietnamese Font Overrides - Placed at the bottom for absolute specificity */
+html.lang-vi,
+.lang-vi {
+  --font-sans: var(--font-nunito), sans-serif !important;
+  --font-display: var(--font-nunito), sans-serif !important;
+  --font-mono: var(--font-nunito), sans-serif !important;
+}
+
+html.lang-vi *,
+.lang-vi * {
+  font-family: var(--font-nunito), sans-serif !important;
+}
+
+/* Explicitly override YOUTH custom font in Vietnamese to Nunito */
+html.lang-vi .font-youth,
+.lang-vi .font-youth {
+  font-family: var(--font-nunito), sans-serif !important;
 }
 

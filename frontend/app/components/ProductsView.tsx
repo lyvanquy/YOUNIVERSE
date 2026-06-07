@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Sparkles, Heart, Compass, Search } from 'lucide-react';
 import { CHARM_PRODUCTS } from '../data';
+import { useYouniverseApp } from '../YouniverseApp';
+import { translations } from '../locales';
 
 interface ProductsViewProps {
   onNotifySoon: (charmName: string) => void;
@@ -11,6 +13,9 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
   const [selectedLine, setSelectedLine] = useState<'all' | 'astra' | 'sirius' | 'polaris'>('all');
   const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
   const [sortOpen, setSortOpen] = useState(false);
+
+  const { language } = useYouniverseApp();
+  const t = translations[language];
 
   // Filter and sort products
   const filteredProducts = CHARM_PRODUCTS.filter((prod) => {
@@ -57,7 +62,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
         {/* Headline */}
         <div className="text-center">
           <h2 className="font-display text-3xl font-extrabold tracking-tight text-black uppercase" id="headline-our-products">
-            OUR PRODUCTS
+            {language === 'vi' ? 'SẢN PHẨM CỦA CHÚNG TÔI' : 'OUR PRODUCTS'}
           </h2>
           <div className="h-1 w-16 bg-amber-500 mx-auto mt-3 rounded" />
         </div>
@@ -70,7 +75,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
             <input
               type="text"
-              placeholder="Search charms (e.g. name, description)..."
+              placeholder={language === 'vi' ? "Tìm kiếm charm (ví dụ: tên, mô tả)..." : "Search charms (e.g. name, description)..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-10 py-2.5 text-xs font-sans rounded-full bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
@@ -80,7 +85,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 hover:text-black font-sans font-bold"
               >
-                ✕ Clear
+                ✕ {language === 'vi' ? 'Xóa' : 'Clear'}
               </button>
             )}
           </div>
@@ -89,7 +94,9 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
           <div className="flex flex-wrap items-center gap-1.5">
             {(['all', 'astra', 'sirius', 'polaris'] as const).map((line) => {
               const isActive = selectedLine === line;
-              const label = line === 'all' ? 'All Lines' : `Charm ${line.charAt(0).toUpperCase() + line.slice(1)}`;
+              const label = line === 'all' 
+                ? (language === 'vi' ? 'Tất cả các dòng' : 'All Lines') 
+                : `Charm ${line.charAt(0).toUpperCase() + line.slice(1)}`;
               
               const activeClass = 
                 line === 'all' ? 'bg-black text-white border-black' :
@@ -134,7 +141,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
 
           {/* Custom Dropdown Sorting Control */}
           <div className="relative flex items-center space-x-2 self-start lg:self-auto" id="sort-control-container">
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-400 shrink-0">Sort By:</span>
+            <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-bold uppercase tracking-wider text-stone-400 shrink-0`}>{language === 'vi' ? 'Sắp xếp:' : 'Sort By:'}</span>
             
             <div className="relative">
               {/* Dropdown Toggle Button */}
@@ -143,7 +150,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                 onClick={() => setSortOpen(!sortOpen)}
                 className="flex items-center justify-between space-x-3 bg-white border border-stone-200 hover:border-stone-400 rounded-full px-4.5 py-2 text-xs font-sans font-medium text-stone-700 hover:text-black transition-all cursor-pointer min-w-[160px]"
               >
-                <span>{sortBy === 'price-asc' ? 'Price: Low to High' : sortBy === 'price-desc' ? 'Price: High to Low' : 'Default Order'}</span>
+                <span>{sortBy === 'price-asc' ? (language === 'vi' ? 'Giá: Thấp đến Cao' : 'Price: Low to High') : sortBy === 'price-desc' ? (language === 'vi' ? 'Giá: Cao đến Thấp' : 'Price: High to Low') : (language === 'vi' ? 'Thứ tự mặc định' : 'Default Order')}</span>
                 <span className={`text-[8px] text-stone-400 transition-transform duration-350 ${sortOpen ? 'rotate-180 text-black' : 'rotate-0'}`}>
                   ▼
                 </span>
@@ -159,9 +166,9 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                   <div className="absolute right-0 mt-1.5 w-48 rounded-2xl bg-white border border-stone-200 shadow-lg p-1.5 z-30 space-y-1 animate-fade-in">
                     {(
                       [
-                        { value: 'newest', label: 'Default Order' },
-                        { value: 'price-asc', label: 'Price: Low to High' },
-                        { value: 'price-desc', label: 'Price: High to Low' }
+                        { value: 'newest', label: language === 'vi' ? 'Thứ tự mặc định' : 'Default Order' },
+                        { value: 'price-asc', label: language === 'vi' ? 'Giá: Thấp đến Cao' : 'Price: Low to High' },
+                        { value: 'price-desc', label: language === 'vi' ? 'Giá: Cao đến Thấp' : 'Price: High to Low' }
                       ] as const
                     ).map((opt) => {
                       const isSelected = opt.value === sortBy;
@@ -195,7 +202,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
         {/* 3 columns comparative list, staggered left-to-right, inspired by Apple comparative layouts */}
         {filteredProducts.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-3xl border border-stone-200/60 shadow-sm">
-            <p className="font-sans text-stone-400 text-sm">No products match your search/filter criteria.</p>
+            <p className="font-sans text-stone-400 text-sm">{language === 'vi' ? 'Không tìm thấy sản phẩm nào phù hợp với bộ lọc.' : 'No products match your search/filter criteria.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
@@ -203,6 +210,10 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
             {filteredProducts.map((prod) => {
               const isAstra = prod.id === 'astra';
               const isSirius = prod.id === 'sirius';
+
+              const translatedBadge = prod.id === 'astra' ? t.charmAstraBadge : prod.id === 'sirius' ? t.charmSiriusBadge : t.charmPolarisBadge;
+              const translatedTagline = prod.id === 'astra' ? t.charmAstraTagline : prod.id === 'sirius' ? t.charmSiriusTagline : t.charmPolarisTagline;
+              const translatedDescription = prod.id === 'astra' ? t.charmAstraDesc : prod.id === 'sirius' ? t.charmSiriusDesc : t.charmPolarisDesc;
 
               return (
                 <div
@@ -219,13 +230,13 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     {/* Floating absolute Sparkle in corner that appears on hover */}
                     <Sparkles className="absolute top-4 right-4 h-4 w-4 text-amber-500 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 group-hover:rotate-45 transition-all duration-500 ease-out pointer-events-none" />
 
-                    {/* Central big glowing ornament representing physical charm */}
-                    <div className="relative w-28 h-28 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-108">
-                      <div className="absolute inset-0 rounded-full border border-stone-100 animate-spin-slow opacity-40 group-hover:border-stone-200" />
-                      
-                      {isAstra && <Sparkles className="h-14 w-14 text-blue-500 animate-twinkle" />}
-                      {isSirius && <Heart className="h-14 w-14 text-amber-500 animate-float" />}
-                      {!isAstra && !isSirius && <Compass className="h-14 w-14 text-red-500 animate-spin-slow" />}
+                    {/* Central big physical charm image overlaying the box */}
+                    <div className="relative w-36 h-36 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-108">
+                      <img 
+                        src={prod.id === 'astra' ? '/images/astra-core.png' : prod.id === 'sirius' ? '/images/sirius-core.png' : '/images/polaris-core.png'} 
+                        alt={prod.name} 
+                        className="w-full h-full object-contain select-none"
+                      />
                     </div>
                   </div>
 
@@ -260,7 +271,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     
                     {/* Orange micro-badge label */}
                     <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-amber-600">
-                      {prod.badge}
+                      {translatedBadge}
                     </span>
                     
                     {/* Heading title */}
@@ -269,13 +280,13 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     </h3>
                     
                     {/* Tagline */}
-                    <p className="font-mono text-xs font-semibold text-stone-500 italic max-w-xs px-2 text-center">
-                      &ldquo;{prod.tagline}&rdquo;
+                    <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs font-semibold text-stone-500 italic max-w-xs px-2 text-center`}>
+                      &ldquo;{translatedTagline}&rdquo;
                     </p>
 
                     {/* Short Description */}
                     <p className="font-sans text-stone-500 text-xs leading-relaxed max-w-xs px-2 line-clamp-3 text-center">
-                      {prod.description}
+                      {translatedDescription}
                     </p>
 
 
@@ -287,20 +298,20 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                       onClick={() => onNotifySoon(prod.name)}
                       className="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-sans text-xs font-semibold px-5 py-2 rounded-full tracking-wide shadow-sm hover:shadow transition-all cursor-pointer"
                     >
-                      Notify Soon
+                      {language === 'vi' ? 'Nhận thông báo' : 'Notify Soon'}
                     </button>
                     <button
                       onClick={() => onNotifySoon(prod.name)}
                       className="text-blue-600 hover:text-blue-700 text-xs font-semibold font-sans flex items-center space-x-1 cursor-pointer ml-4 group/link"
                     >
-                      <span>Learn more</span>
+                      <span>{language === 'vi' ? 'Tìm hiểu thêm' : 'Learn more'}</span>
                       <span className="inline-block transform group-hover/link:translate-x-0.5 transition-transform">&gt;</span>
                     </button>
                   </div>
 
                   {/* Small launching footer text */}
-                  <p className="text-[9px] font-mono text-stone-400">
-                    Launching officially this summer
+                  <p className={`text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} text-stone-400`}>
+                    {language === 'vi' ? 'Chính thức ra mắt mùa hè này' : 'Launching officially this summer'}
                   </p>
                 </div>
               );

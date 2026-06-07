@@ -1,5 +1,7 @@
 import { X, Trash2, Shield, Heart, Sparkles, Compass } from 'lucide-react';
 import { CustomJewelry } from '../types';
+import { useYouniverseApp } from '../YouniverseApp';
+import { translations } from '../locales';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -10,6 +12,9 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, onCheckout }: CartDrawerProps) {
+  const { language } = useYouniverseApp();
+  const t = translations[language];
+
   if (!isOpen) return null;
 
   return (
@@ -30,13 +35,13 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
           <div className="px-6 py-5 border-b border-stone-100/60 flex items-center justify-between">
             <div className="space-y-1">
               <h2 className="font-display text-lg font-extrabold text-black uppercase tracking-tight flex items-center space-x-1.5">
-                <span>Custom Designs Cart</span>
+                <span>{t.cartTitle}</span>
                 <span className="text-[10px] font-mono font-black py-0.5 px-2 bg-stone-100 rounded text-stone-500">
                   {cartItems.length}
                 </span>
               </h2>
               <p className="font-sans text-[11px] text-stone-400">
-                Storing your custom YOUniverse jewelry drafts
+                {t.draftsText}
               </p>
             </div>
 
@@ -63,10 +68,10 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                 
                 <div className="space-y-2 relative z-10">
                   <h3 className="font-display text-base font-black text-stone-900 uppercase tracking-wide">
-                    Your Galaxy is Empty
+                    {language === 'vi' ? 'Vũ trụ của bạn đang trống' : 'Your Galaxy is Empty'}
                   </h3>
                   <p className="font-sans text-xs text-stone-400 max-w-xs mx-auto leading-relaxed">
-                    Craft your own custom jewelry draft in 3 steps on the home screen to place custom orders!
+                    {t.customizerTip}
                   </p>
                 </div>
               </div>
@@ -130,7 +135,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                         </div>
 
                         {/* Tiny engraved initial label */}
-                        <div className="absolute bottom-1 text-[6.5px] font-mono text-stone-300 font-bold tracking-tighter max-w-[50px] truncate uppercase bg-stone-900/90 px-1 py-0.5 rounded border border-stone-850 z-10">
+                        <div className={`absolute bottom-1 text-[6.5px] ${language === 'vi' ? 'font-sans' : 'font-mono'} text-stone-300 font-bold tracking-tighter max-w-[50px] truncate uppercase bg-stone-900/90 px-1 py-0.5 rounded border border-stone-850 z-10`}>
                           {item.customName}
                         </div>
                       </div>
@@ -139,18 +144,18 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                       <div className="flex-1 space-y-1.5 text-left">
                         {/* Type card metadata banner */}
                         <div className="flex items-center space-x-1.5">
-                          <span className="text-[8px] font-mono font-bold uppercase text-stone-400 tracking-wider">
-                            Vibe: {item.vibeColor}
+                          <span className={`text-[8px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-bold uppercase text-stone-400 tracking-wider`}>
+                            {t.vibe}: {item.vibeColor}
                           </span>
                           <span className="text-stone-300 text-[8px]">•</span>
-                          <span className="text-[8px] font-mono font-bold text-stone-400 block uppercase">
-                            Base: {item.baseType}
+                          <span className={`text-[8px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-bold text-stone-400 block uppercase`}>
+                            {t.base}: {item.baseType}
                           </span>
                         </div>
 
                         {/* ENGRAVED CHOSEN INSCRIPTION TITLE */}
                         <h4 className="font-display text-sm font-extrabold text-stone-900 uppercase tracking-wide">
-                          Core Engraved: &ldquo;<span className="underline decoration-2 decoration-amber-500">{item.customName}</span>&rdquo;
+                          {t.coreEngraved}: &ldquo;<span className="underline decoration-2 decoration-amber-500">{item.customName}</span>&rdquo;
                         </h4>
 
                         {/* Active charms badges attached */}
@@ -158,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                           {item.selectedCharms.map((charm, cIdx) => (
                             <span 
                               key={cIdx}
-                              className="inline-flex items-center gap-1 bg-white/95 border border-stone-150 px-2 py-0.5 rounded-full text-[9px] font-mono text-stone-600 shadow-sm"
+                              className={`inline-flex items-center gap-1 bg-white/95 border border-stone-150 px-2 py-0.5 rounded-full text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} text-stone-600 shadow-sm`}
                             >
                               {charm === 'astra' && <Sparkles className="h-2.5 w-2.5 text-blue-500" />}
                               {charm === 'sirius' && <Heart className="h-2.5 w-2.5 text-amber-500" />}
@@ -193,7 +198,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
               <div className="flex items-start space-x-2 text-left">
                 <Shield className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                 <p className="font-sans text-[11px] text-stone-500 leading-normal">
-                  Visual design customizer supports local draft saving. Submit your design query to the ISB Event Team to schedule physical handcrafting.
+                  {t.draftNotice}
                 </p>
               </div>
 
@@ -205,7 +210,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, onRemoveItem, o
                   onClick={onCheckout}
                   className="relative w-full rounded-full bg-stone-950/95 hover:bg-black/90 text-white py-4 font-display text-xs font-black tracking-widest uppercase transition-all duration-350 border border-transparent cursor-pointer z-10 text-center flex items-center justify-center space-x-2"
                 >
-                  <span>Submit Custom Design Order</span>
+                  <span>{t.submitOrder}</span>
                   <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-twinkle" />
                 </button>
               </div>

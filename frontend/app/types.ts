@@ -13,6 +13,7 @@ export interface CharmProduct {
 
 export interface TeamMember {
   name: string;
+  nameVi: string;
   phone: string;
   role: string;
   image?: string;

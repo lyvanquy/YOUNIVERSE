@@ -14,6 +14,8 @@ import { CustomJewelry } from '../types';
 import { CHARM_PRODUCTS } from '../data';
 import MarqueeSlogan from './MarqueeSlogan';
 import { CORE_VALUES } from '../data';
+import { useYouniverseApp } from '../YouniverseApp';
+import { translations } from '../locales';
 
 interface HomeViewProps {
   onGoAbout: () => void;
@@ -22,6 +24,8 @@ interface HomeViewProps {
 }
 
 export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }: HomeViewProps) {
+  const { language } = useYouniverseApp();
+  const t = translations[language];
   // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
   const glowRef = useRef<HTMLDivElement>(null);
 
@@ -48,10 +52,12 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
     {
       id: 'astra',
       title: 'ASTRA CORE',
-      tagline: 'Your Energy Spark',
-      footerTitle: 'CLASSIC ORBIT CORE',
-      footerDesc: 'Custom modular jewelry allows you to combine Star sign initials with sweet heart elements.',
-      badgeText: 'Blink Blink',
+      tagline: language === 'vi' ? 'Năng lượng bừng sáng' : 'Your Energy Spark',
+      footerTitle: language === 'vi' ? 'DÒNG ASTRA CƠ BẢN' : 'CLASSIC ORBIT CORE',
+      footerDesc: language === 'vi' 
+        ? 'Phụ kiện tùy chọn lắp ráp dạng mô-đun cho phép kết hợp ký tự tên viết tắt với các hạt charm trái tim.' 
+        : 'Custom modular jewelry allows you to combine Star sign initials with sweet heart elements.',
+      badgeText: language === 'vi' ? 'Lấp lánh' : 'Blink Blink',
       badgeClass: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
       gradientFrom: 'from-amber-200',
       glowColor: 'bg-stone-50/50 border-stone-100/85',
@@ -66,10 +72,12 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
     {
       id: 'sirius',
       title: 'SIRIUS CORE',
-      tagline: 'Deep Love Connection',
-      footerTitle: 'SIRIUS HEART CORE',
-      footerDesc: 'Connect your closest souls with warm customizable charms designed to capture true memories.',
-      badgeText: 'Deep Vibe',
+      tagline: language === 'vi' ? 'Kết nối tình yêu sâu sắc' : 'Deep Love Connection',
+      footerTitle: language === 'vi' ? 'DÒNG SIRIUS TRÁI TIM' : 'SIRIUS HEART CORE',
+      footerDesc: language === 'vi' 
+        ? 'Kết nối những tâm hồn đồng điệu với hạt charm thiết kế riêng lưu giữ ký ức ngọt ngào.' 
+        : 'Connect your closest souls with warm customizable charms designed to capture true memories.',
+      badgeText: language === 'vi' ? 'Năng lượng sâu lắng' : 'Deep Vibe',
       badgeClass: 'bg-rose-500/10 text-rose-700 border-rose-500/20',
       gradientFrom: 'from-rose-200',
       glowColor: 'bg-rose-50/40 border-rose-100/50',
@@ -84,10 +92,12 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
     {
       id: 'polaris',
       title: 'POLARIS CORE',
-      tagline: 'Guide Your Path',
-      footerTitle: 'POLARIS COMPASS CORE',
-      footerDesc: 'Set your own coordinates and guide your journey with high-end stellar coordinates engraving.',
-      badgeText: 'True North',
+      tagline: language === 'vi' ? 'Dẫn lối hành trình' : 'Guide Your Path',
+      footerTitle: language === 'vi' ? 'DÒNG POLARIS LA BÀN' : 'POLARIS COMPASS CORE',
+      footerDesc: language === 'vi' 
+        ? 'Xác định tọa độ của riêng bạn và định hướng hành trình với mặt la bàn khắc tên tinh xảo.' 
+        : 'Set your own coordinates and guide your journey with high-end stellar coordinates engraving.',
+      badgeText: language === 'vi' ? 'Hướng bắc thực sự' : 'True North',
       badgeClass: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
       gradientFrom: 'from-blue-200',
       glowColor: 'bg-blue-50/40 border-blue-100/50',
@@ -219,14 +229,12 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
             {/* Left intro text info */}
             <div className="space-y-6 text-left">
               
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-none uppercase">
-                CREATE YOUR <br className="hidden sm:inline" />
-                <span className="text-stroke-current text-stone-200/50 tracking-widest">OWN TINY</span> <br />
-                UNIVERSE.
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight uppercase">
+                {t.heroTitle}
               </h1>
               
-              <p className="font-sans text-stone-300 text-base md:text-lg leading-relaxed max-w-lg">
-                Personalized charms that carry your name, your passion, and the story only you can tell.
+              <p className="font-sans text-stone-300 text-sm md:text-base leading-relaxed max-w-lg">
+                {t.heroTagline}
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
@@ -235,13 +243,13 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   onClick={onGoProducts}
                   className="rounded-full bg-white hover:bg-stone-100 border-2 border-white text-black font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] active:translate-y-[0] text-center cursor-pointer"
                 >
-                  Explore Our UNIverse
+                  {language === 'vi' ? 'Khám phá Vũ trụ YOUniverse' : 'Explore Our UNIverse'}
                 </button>
                 <a
                   href="#customizer-workshop"
                   className="rounded-full bg-transparent hover:bg-white/10 border-2 border-stone-300 text-stone-200 font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-2px] active:translate-y-[0] text-center"
                 >
-                  Build Yours 3 Steps ↓
+                  {language === 'vi' ? 'Tự thiết kế 3 Bước ↓' : 'Build Yours 3 Steps ↓'}
                 </a>
               </div>
             </div>
@@ -286,17 +294,12 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                         <div className="font-mono text-[9px] text-stone-350 uppercase tracking-widest">
                           YOUniverse Accessory Co.
                         </div>
-                        <span className={`text-[9px] font-mono uppercase font-bold py-0.5 px-2.5 rounded-full border bg-white/10 text-white border-white/20`}>
+                        <span className={`text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} uppercase font-bold py-0.5 px-2.5 rounded-full border bg-white/10 text-white border-white/20`}>
                           {slide.badgeText}
                         </span>
                       </div>
 
-                      {/* Center Orbit Path / Space illustration removed since image is full size background */}
-                      <div className="my-auto flex flex-col items-center justify-center relative z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-505">
-                        <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 text-[9px] font-mono text-stone-300 uppercase tracking-widest">
-                          [ SYS_VISUAL // ONLINE ]
-                        </div>
-                      </div>
+                      {/* Center Orbit Path / Space illustration removed */}
 
                       {/* Visual Footer of Card */}
                       <div className="relative z-20 space-y-1 text-left">
@@ -365,10 +368,10 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
         
         <div className="text-center space-y-3">
           <h3 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
-            Explore the Planets
+            {t.planetTitle}
           </h3>
           <p className="font-sans text-stone-500 text-xs tracking-wider max-w-lg mx-auto">
-            Embark on a celestial journey through our Astra, Sirius, and Polaris charm collections.
+            {t.planetSubtitle}
           </p>
         </div>
 
@@ -403,6 +406,10 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               red: 'from-rose-400 via-red-500 to-pink-500',
             }[charm.brandColor] || 'from-blue-400 via-amber-400 to-rose-400';
 
+            const translatedBadge = charm.id === 'astra' ? t.charmAstraBadge : charm.id === 'sirius' ? t.charmSiriusBadge : t.charmPolarisBadge;
+            const translatedTagline = charm.id === 'astra' ? t.charmAstraTagline : charm.id === 'sirius' ? t.charmSiriusTagline : t.charmPolarisTagline;
+            const translatedDescription = charm.id === 'astra' ? t.charmAstraDesc : charm.id === 'sirius' ? t.charmSiriusDesc : t.charmPolarisDesc;
+
             return (
               <div
                 key={charm.id}
@@ -420,12 +427,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
                 {/* Card Content Wrapper */}
                 <div className="relative z-20 flex flex-col justify-between h-full w-full p-6">
-                  {/* Card Icon & Top indicator */}
-                  <div className="flex justify-between items-start">
-                    <span className="text-[9px] font-mono tracking-widest text-stone-400 font-bold uppercase">
-                      [ SYS_CLL_0{index + 1} ]
-                    </span>
-                    
+                  {/* Card Icon & Top indicator (aligned right) */}
+                  <div className="flex justify-end w-full">
                     {/* Icon mapped beautifully */}
                     <div className={`p-2.5 rounded-full bg-white/90 border border-stone-100 shadow-sm ${textColors}`}>
                       {charm.id === 'astra' && <Sparkles className="h-5 w-5 animate-twinkle" />}
@@ -438,7 +441,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   <div className="relative mx-auto w-32 h-32 flex items-center justify-center">
                     <div className="absolute inset-0 rounded-full border border-dashed border-stone-200 animate-spin-slow opacity-60 pointer-events-none" />
                     <div className="text-stone-300 font-display text-[9px] font-bold uppercase tracking-widest mt-12 text-center select-none">
-                      [ {charm.name} Image ]
+                      [ {language === 'vi' ? `Ảnh ${charm.name}` : `${charm.name} Image`} ]
                     </div>
                     {/* Decorative orbital stars blinking */}
                     <span className={`absolute top-4 right-4 ${textColors} text-lg animate-twinkle`}>✦</span>
@@ -449,8 +452,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   <div className="space-y-1 text-left relative z-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-stone-200/50 shadow-sm">
                     <div className="flex items-center space-x-2">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                      <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-stone-400">
-                        {charm.badge}
+                      <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-extrabold uppercase tracking-widest text-stone-400`}>
+                        {translatedBadge}
                       </span>
                     </div>
                     
@@ -460,18 +463,18 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                     
                     {/* Hover effect text reveal */}
                     <div className="max-h-48 opacity-100 md:max-h-0 md:opacity-0 md:group-hover:max-h-48 md:group-hover:opacity-100 transition-all duration-500 ease-in-out overflow-hidden">
-                      <p className={`font-mono text-xs italic font-semibold leading-relaxed ${textColors} mt-2 mb-1`}>
-                        &ldquo;{charm.tagline}&rdquo;
+                      <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs italic font-semibold leading-relaxed ${textColors} mt-2 mb-1`}>
+                        &ldquo;{translatedTagline}&rdquo;
                       </p>
                       <p className="font-sans text-stone-500 text-[11px] leading-relaxed">
-                        {charm.description}
+                        {translatedDescription}
                       </p>
                     </div>
                   </div>
 
                   {/* Bottom line decorator */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-stone-150/60 text-xs font-mono font-medium text-stone-400">
-                    <span>Explore Details</span>
+                  <div className={`flex items-center justify-between mt-2 pt-2 border-t border-stone-150/60 text-xs ${language === 'vi' ? 'font-sans' : 'font-mono'} font-medium text-stone-400`}>
+                    <span>{language === 'vi' ? 'Khám phá chi tiết' : 'Explore Details'}</span>
                     <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
                 </div>
@@ -492,10 +495,10 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
         {/* Header segment of workshop instructions */}
         <div className="text-center space-y-3">
           <h3 className="font-display text-3xl font-extrabold text-stone-900 uppercase tracking-tight">
-            How to Build Your YOUniverse
+            {t.howToTitle}
           </h3>
           <p className="font-sans text-stone-500 text-xs tracking-wider max-w-xl mx-auto">
-            Learn smart design with a 3-step personalization. Create your own distinct aesthetic and a one-of-a-kind cosmic vibe.
+            {t.howToSubtitle}
           </p>
         </div>
 
@@ -525,9 +528,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white shadow-md shadow-blue-500/20 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300">1</span>
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-blue-500 transition-colors">1. Set Your Vibe</h4>
+                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-blue-500 transition-colors">{t.step1Title}</h4>
                   <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
-                    Start with your mood, your energy, and the little details that make you feel like you.
+                    {t.step1Desc}
                   </p>
                 </div>
               </div>
@@ -552,9 +555,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-white shadow-md shadow-amber-500/20 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300">2</span>
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-amber-500 transition-colors">2. Mix & Match</h4>
+                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-amber-500 transition-colors">{t.step2Title}</h4>
                   <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
-                    Choose the charm line that speaks for your name, your passion, or your guiding quote.
+                    {t.step2Desc}
                   </p>
                 </div>
               </div>
@@ -579,9 +582,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-md shadow-rose-500/20 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300">3</span>
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-rose-500 transition-colors">3. Tell Your Story</h4>
+                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-rose-500 transition-colors">{t.step3Title}</h4>
                   <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
-                    Carry your tiny universe with you and let it say what words sometimes cannot.
+                    {t.step3Desc}
                   </p>
                 </div>
               </div>

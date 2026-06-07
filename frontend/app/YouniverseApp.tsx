@@ -8,8 +8,11 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import MarqueeSlogan from './components/MarqueeSlogan';
 import CartDrawer from './components/CartDrawer';
+import { translations } from './locales';
 
 type YouniverseAppContextValue = {
+  language: 'en' | 'vi';
+  setLanguage: (lang: 'en' | 'vi') => void;
   addCustomToCart: (item: CustomJewelry) => void;
   notifySoon: (charmName: string) => void;
 };
@@ -31,6 +34,45 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [cart, setCart] = useState<CustomJewelry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'vi'>('en');
+  const t = translations[language];
+
+  // Load language from local storage on mount
+  useEffect(() => {
+    try {
+      const storedLang = localStorage.getItem('youniverse_lang');
+      if (storedLang === 'en' || storedLang === 'vi') {
+        setLanguage(storedLang);
+      }
+    } catch (e) {
+      console.warn('Could not load language from localStorage', e);
+    }
+  }, []);
+
+  const updateLanguage = (lang: 'en' | 'vi') => {
+    setLanguage(lang);
+    try {
+      localStorage.setItem('youniverse_lang', lang);
+    } catch (e) {
+      console.warn('Could not save language to localStorage', e);
+    }
+  };
+
+  // Dynamic HTML lang attribute & font fallback toggle
+  useEffect(() => {
+    try {
+      const root = document.documentElement;
+      if (language === 'vi') {
+        root.classList.add('lang-vi');
+        root.setAttribute('lang', 'vi');
+      } else {
+        root.classList.remove('lang-vi');
+        root.setAttribute('lang', 'en');
+      }
+    } catch (e) {
+      console.warn('Could not set HTML lang attributes', e);
+    }
+  }, [language]);
   
   // Dialog modal states
   const [activeNotificationCharm, setActiveNotificationCharm] = useState<string | null>(null);
@@ -102,11 +144,13 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   return (
     <YouniverseAppContext.Provider
       value={{
+        language,
+        setLanguage: updateLanguage,
         addCustomToCart: handleAddCustomToCart,
         notifySoon: triggerNotifySoon,
       }}
     >
-      <div className="min-h-screen bg-stone-50 font-sans text-stone-800 antialiased flex flex-col justify-between" id="app-root-container">
+      <div className={`min-h-screen bg-stone-50 font-sans text-stone-800 antialiased flex flex-col justify-between ${language === 'vi' ? 'lang-vi' : ''}`} id="app-root-container">
         
         {/* 1. Header Navigation Area */}
         <Header 
@@ -150,13 +194,13 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
 
             <div className="flex justify-between items-start relative z-10">
               <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                Early Access Register
+                {t.earlyAccess}
               </span>
               <button 
                 onClick={() => setActiveNotificationCharm(null)}
                 className="text-stone-400 hover:text-black font-semibold font-mono transition-colors text-xs hover:underline cursor-pointer focus:outline-none"
               >
-                ✕ Close
+                {t.close}
               </button>
             </div>
 
@@ -164,25 +208,25 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
               <div className="flex items-center space-x-2 text-amber-500">
                 <Bell className="h-5 w-5 animate-bounce" />
                 <h3 className="font-display text-xl font-extrabold text-stone-900 uppercase tracking-tight">
-                  Register Interest for {activeNotificationCharm}
+                  {t.registerInterest.replace('{name}', activeNotificationCharm || '')}
                 </h3>
               </div>
               
-              <p className="font-sans text-xs text-stone-505 leading-relaxed">
-                The <strong className="text-black font-semibold">{activeNotificationCharm}</strong> charm is currently being crafted by the ISB Event Team. Leave your email to receive early notifications and unlock an exclusive 10% discount code!
+              <p className="font-sans text-xs text-stone-500 leading-relaxed">
+                {t.earlyAccessDesc.replace('{name}', activeNotificationCharm || '')}
               </p>
             </div>
 
             {registrationSuccess ? (
               <div className="bg-emerald-500 text-white rounded-xl p-4 flex items-center space-x-3 text-xs md:text-sm shadow-inner transition-all relative z-10">
                 <Check className="h-5 w-5 shrink-0 animate-bounce" />
-                <span className="font-semibold">Successfully registered! We will contact you immediately upon launch!</span>
+                <span className="font-semibold">{t.successRegister}</span>
               </div>
             ) : (
               <form onSubmit={handleSubmitEmailNotification} className="space-y-4 relative z-10">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase tracking-widest text-stone-450 font-bold block" htmlFor="notif-email">
-                    Email address for exclusive benefits:
+                  <label className="text-[10px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="notif-email">
+                    {t.emailLabel}
                   </label>
                   <input
                     id="notif-email"
@@ -200,13 +244,13 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
                   className="w-full rounded-full bg-stone-950 hover:bg-black text-white py-3.5 px-4 font-display text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,0,0,0.15)] flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Send className="h-4 w-4" />
-                  <span>Confirm Early Notification</span>
+                  <span>{t.confirmNotif}</span>
                 </button>
               </form>
             )}
 
             <div className="text-center font-mono text-[9px] text-stone-400 relative z-10">
-              * Data strictly secured by YOUniverse ISB.
+              {t.securedText}
             </div>
 
           </div>
@@ -223,19 +267,19 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
           <div className="flex items-center space-x-2.5 text-amber-400 relative z-10">
             <Sparkles className="h-5 w-5 animate-twinkle" />
             <h4 className="font-display text-sm font-black uppercase tracking-widest">
-              Draft Order Placed!
+              {t.orderPlaced}
             </h4>
           </div>
 
           <p className="font-sans text-xs text-stone-300 leading-relaxed relative z-10">
-            Your customized YOUniverse jewelry design draft has been saved. Please contact the ISB Event Team to review the physical accessory prototypes.
+            {t.orderPlacedText}
           </p>
 
           <button
             onClick={() => setOrderPlacedSuccess(false)}
             className="w-full rounded-full bg-white hover:bg-stone-100 text-black py-2.5 text-xs font-display font-extrabold uppercase tracking-widest transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,255,255,0.25)] relative z-10 cursor-pointer"
           >
-            Got It
+            {t.gotIt}
           </button>
         </div>
       )}

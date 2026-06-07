@@ -1,7 +1,12 @@
 import { Phone } from 'lucide-react';
 import { TEAM_MEMBERS } from '../data';
+import { useYouniverseApp } from '../YouniverseApp';
+import { translations } from '../locales';
 
 export default function Footer() {
+  const { language, setLanguage } = useYouniverseApp();
+  const t = translations[language];
+
   return (
     <footer className="bg-black text-stone-200" id="app-footer">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -12,11 +17,11 @@ export default function Footer() {
           {/* Col 1: YOUniverse Logo + Slogan */}
           <div className="space-y-6">
             <div className="flex items-center space-x-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-black font-extrabold text-xl font-display">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-black font-extrabold text-xl font-youth">
                 YO
               </div>
               <div>
-                <span className="font-display text-xl font-extrabold tracking-widest text-white uppercase block">
+                <span className="font-youth text-xl font-extrabold tracking-widest text-white uppercase block">
                   YOUniverse
                 </span>
                 <span className="text-[9px] font-mono tracking-widest text-stone-400 block uppercase">
@@ -26,7 +31,7 @@ export default function Footer() {
             </div>
             
             <p className="text-sm text-stone-400 leading-relaxed font-sans">
-              A place where everyone finds themselves in sparkling nebulae pieces. A custom accessory design project led by students from UEH.ISB.
+              {t.footerLogoDesc}
             </p>
           </div>
 
@@ -34,16 +39,16 @@ export default function Footer() {
           <div className="space-y-6">
             <div>
               <h3 className="font-display text-xs font-bold uppercase tracking-widest text-white border-b border-stone-800 pb-2 mb-3">
-                Address
+                {t.address}
               </h3>
               <p className="text-sm text-stone-300 leading-relaxed font-sans">
-                279 Nguyen Tri Phuong street, Vuon Lai Ward, HCMC
+                {t.addressText}
               </p>
             </div>
 
             <div className="space-y-4">
               <h4 className="font-display text-[11px] font-bold uppercase tracking-widest text-stone-400">
-                Contact Us
+                {t.contactUs}
               </h4>
               <div className="flex items-center space-x-3 pt-1">
                 {/* Tiktok Link */}
@@ -96,7 +101,7 @@ export default function Footer() {
           {/* Col 3: Main Contacts - Group 1 */}
           <div className="space-y-4">
             <h3 className="font-display text-xs font-bold uppercase tracking-widest text-white border-b border-stone-800 pb-2">
-              Contacts
+              {t.contacts}
             </h3>
             
             <div className="flex flex-col space-y-3">
@@ -106,7 +111,7 @@ export default function Footer() {
                   className="bg-stone-950 p-2.5 rounded-lg border border-stone-900 hover:border-stone-800 transition-colors space-y-1 text-left"
                 >
                   <p className="font-sans font-semibold text-white tracking-wide truncate">
-                    {member.name}
+                    {language === 'vi' ? member.nameVi : member.name}
                   </p>
                   <p className="font-sans text-[9px] text-amber-500 font-bold uppercase tracking-wider">
                     {member.role}
@@ -126,7 +131,7 @@ export default function Footer() {
           {/* Col 4: Main Contacts - Group 2 */}
           <div className="space-y-4">
             <h3 className="font-display text-xs font-bold uppercase tracking-widest text-white border-b border-stone-800 pb-2">
-              Contacts
+              {t.contacts}
             </h3>
             
             <div className="flex flex-col space-y-3">
@@ -136,7 +141,7 @@ export default function Footer() {
                   className="bg-stone-950 p-2.5 rounded-lg border border-stone-900 hover:border-stone-800 transition-colors space-y-1 text-left"
                 >
                   <p className="font-sans font-semibold text-white tracking-wide truncate">
-                    {member.name}
+                    {language === 'vi' ? member.nameVi : member.name}
                   </p>
                   <p className="font-sans text-[9px] text-amber-500 font-bold uppercase tracking-wider">
                     {member.role}
@@ -157,11 +162,11 @@ export default function Footer() {
 
         {/* Bottom copyright & attribution */}
         <div className="mt-12 border-t border-stone-900 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 font-sans">
-          <p>© 2026 YOUniverse. Designed with pride by YOUniverse_Group 3.</p>
+          <p>{t.footerAttribution}</p>
           <div className="flex space-x-4 mt-4 md:mt-0 font-sans text-stone-500">
-            <span>Class: DMK04_Wednesday shift 1_May2026</span>
+            <span>{t.classText}</span>
             <span>•</span>
-            <span>University of Economics HCMC, UEH.ISB Honours College</span>
+            <span>{t.universityText}</span>
           </div>
         </div>
 

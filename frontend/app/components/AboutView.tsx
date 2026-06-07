@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Star, Quote, Eye, Flame, Sparkles, Phone } from 'lucide-react';
 import { CORE_VALUES, TEAM_MEMBERS } from '../data';
+import { useYouniverseApp } from '../YouniverseApp';
+import { translations } from '../locales';
 
 interface AboutViewProps {
   onGoProducts: () => void;
@@ -8,6 +10,9 @@ interface AboutViewProps {
 
 export default function AboutView({ onGoProducts }: AboutViewProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  
+  const { language } = useYouniverseApp();
+  const t = translations[language];
   
   // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
   const glowRef = useRef<HTMLDivElement>(null);
@@ -66,16 +71,13 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
         <div className="absolute top-4 left-6 hidden sm:block font-mono text-[8px] text-stone-500 uppercase tracking-widest pointer-events-none select-none z-10">
           [ 10.7626° N, 106.6602° E // HCMC_NODE ]
         </div>
-        <div className="absolute bottom-4 right-6 hidden sm:block font-mono text-[8px] text-stone-500 uppercase tracking-widest pointer-events-none select-none z-10">
-          [ SYS_VER // ABOUT_DOSS ]
-        </div>
 
         <div className="mx-auto max-w-xl text-center space-y-3 relative z-10 px-4">
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-wider select-none drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]">
-            ABOUT YOUNIVERSE
+            {t.aboutBannerTitle}
           </h1>
           <p className="font-sans text-stone-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-            A project weaving unique identity and aesthetics from UEH.ISB. Championing the right to be yourself for everyone.
+            {t.aboutBannerDesc}
           </p>
         </div>
       </section>
@@ -87,24 +89,21 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
           {/* Left info box (Big Headline) */}
           <div className="lg:col-span-5 space-y-4 text-left lg:sticky lg:top-28">
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-black uppercase tracking-tight leading-tight">
-              From cookie-cutter molds to a free universe.
+              {t.storyTitle}
             </h2>
             <div className="h-1 w-20 bg-amber-500 mt-4 rounded animate-pulse-glow" />
             
             {/* Ambient ornament graphics background */}
             <div className="hidden lg:block pt-10">
               <div className="relative p-6 border border-stone-200/60 rounded-2xl bg-white/85 backdrop-blur-md flex items-center space-x-4 text-stone-600 shadow-sm transition-all duration-300 hover:shadow-md hover:border-amber-200">
-                <div className="absolute top-2 right-4 font-mono text-[8px] text-stone-400 tracking-wider font-bold">
-                  [ INSP_NODE // 01 ]
-                </div>
                 
                 {/* Rotating orbit path */}
                 <div className="absolute inset-0 border border-dashed border-stone-150/80 rounded-2xl pointer-events-none animate-pulse-glow" />
                 
                 <Quote className="h-7 w-7 text-amber-500 shrink-0 animate-float" />
-                <p className="text-[11px] font-mono leading-relaxed text-stone-600 text-left">
-                  &ldquo;We long to break rigid stereotypes, allowing Gen Z to express their truest, most authentic selves.&rdquo;
-                </p>
+                <p className={`text-[11px] ${language === 'vi' ? 'font-sans' : 'font-mono'} leading-relaxed text-stone-600 text-left`}>
+                   {t.quoteText}
+                 </p>
                 {/* Decorative stars */}
                 <Sparkles className="absolute -top-2 -right-2 h-4 w-4 text-amber-400 animate-twinkle" />
               </div>
@@ -124,17 +123,17 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
               
               <div className="space-y-6 text-stone-600 text-sm leading-relaxed font-sans relative z-10">
                 <p className="first-letter:text-4xl first-letter:font-extrabold first-letter:text-black first-letter:mr-2 first-letter:float-left">
-                  Originating from a passionate team at <strong className="text-black font-semibold">UEH.ISB</strong>, YOUniverse was born out of a question that kept us restless: Gen Z's inner world is vibrant and multi-faceted, so why do we have to constrain ourselves to generic, mass-produced accessories?
+                  {t.storyDesc}
                 </p>
                 
                 <p>
-                  YOUniverse was created to completely break those boundaries. We present you with an infinite space for creativity: a miniature &quot;universe&quot; where each sparkling, starry charm speaks for you in the most authentic way possible.
+                  {t.storyDesc2}
                 </p>
                 
-                <div className="p-4 bg-stone-50/80 rounded-2xl border border-stone-200/80 font-mono text-xs text-stone-850 flex items-center space-x-2">
-                  <span className="text-amber-500 animate-pulse">⚡</span>
-                  <span>Without saying a single word, the world around you will immediately know who you are, what passions you carry, and how unique your identity truly is.</span>
-                </div>
+                 <div className={`p-4 bg-stone-50/80 rounded-2xl border border-stone-200/80 ${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs text-stone-850 flex items-center space-x-2`}>
+                   <span className="text-amber-500 animate-pulse">⚡</span>
+                   <span>{t.storyTip}</span>
+                 </div>
               </div>
 
             </div>
@@ -156,10 +155,7 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-50/10 via-white to-white border border-stone-200/80 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
 
             {/* Content Wrapper */}
-            <div className="relative z-20 p-8 space-y-4">
-              <div className="absolute top-3 right-4 font-mono text-[8px] text-stone-400 tracking-widest font-bold group-hover:text-blue-500 transition-colors duration-300">
-                [ SYS_VAL // MISSION ]
-              </div>
+             <div className="relative z-20 p-8 space-y-4">
               <div className="absolute top-0 right-0 h-20 w-20 bg-blue-500/5 rounded-bl-full pointer-events-none z-0" />
               
               <div className="flex items-center space-x-3 relative z-10">
@@ -167,12 +163,12 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
                   <Flame className="h-5 w-5 animate-pulse" />
                 </span>
                 <h3 className="font-display text-xl font-extrabold text-black uppercase tracking-tight">
-                  Our Mission
+                  {t.missionTitle}
                 </h3>
               </div>
               
               <p className="font-sans text-stone-700 text-sm leading-relaxed relative z-10">
-                The mission of YOUniverse is not just to sell standard accessories. We sell <strong className="text-black font-bold">&ldquo;the right to be yourself&rdquo;</strong>. By creating highly symbolic charm lines, we help you carry your simple hobbies and reliable spiritual anchors wherever you go.
+                {t.missionDesc}
               </p>
             </div>
           </div>
@@ -186,10 +182,7 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-50/10 via-white to-white border border-stone-200/80 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
 
             {/* Content Wrapper */}
-            <div className="relative z-20 p-8 space-y-4">
-              <div className="absolute top-3 right-4 font-mono text-[8px] text-stone-400 tracking-widest font-bold group-hover:text-amber-500 transition-colors duration-300">
-                [ SYS_VAL // VISION ]
-              </div>
+             <div className="relative z-20 p-8 space-y-4">
               <div className="absolute top-0 right-0 h-20 w-20 bg-amber-500/5 rounded-bl-full pointer-events-none z-0" />
 
               <div className="flex items-center space-x-3 relative z-10">
@@ -197,12 +190,12 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
                   <Eye className="h-5 w-5 animate-float" />
                 </span>
                 <h3 className="font-display text-xl font-extrabold text-black uppercase tracking-tight">
-                  Our Vision
+                  {t.visionTitle}
                 </h3>
               </div>
 
               <p className="font-sans text-stone-700 text-sm leading-relaxed relative z-10">
-                We aim to become the leading personalized accessory brand for Gen Z, founded and owned by <strong className="text-black font-bold">UEH.ISB-ers</strong>. We aspire to be an inspiring lifestyle gift brand, empowering every customer to confidently depict their independent individual signature.
+                {t.visionDesc}
               </p>
             </div>
           </div>
@@ -215,10 +208,10 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
         
         <div className="text-center space-y-2">
           <h2 className="font-display text-3xl font-extrabold text-black uppercase tracking-tight">
-            Our Core Values (Y.O.U)
+            {t.coreValuesTitle}
           </h2>
           <p className="font-sans text-stone-500 text-xs max-w-sm mx-auto">
-            Core values that construct the soul of our cosmic jewelry styling.
+            {t.coreValuesDesc}
           </p>
         </div>
 
@@ -253,6 +246,12 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
                   gradient: 'from-rose-400 via-red-500 to-pink-505'
                 };
 
+            // Load translated titles and text dynamically based on val.letter (Y, O, U)
+            const transTitle = val.letter === 'Y' ? t.coreYTitle : val.letter === 'O' ? t.coreOTitle : t.coreUTitle;
+            const transSubtitle = val.letter === 'Y' ? t.coreYSubtitle : val.letter === 'O' ? t.coreOSubtitle : t.coreUSubtitle;
+            const transHighlight = val.letter === 'Y' ? t.coreYHighlight : val.letter === 'O' ? t.coreOHighlight : t.coreUHighlight;
+            const transDesc = val.letter === 'Y' ? t.coreYDesc : val.letter === 'O' ? t.coreODesc : t.coreUDesc;
+
             return (
               <div
                 key={val.letter}
@@ -277,21 +276,21 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
                         {val.letter}
                       </span>
                       <h3 className="font-display text-lg font-extrabold text-black tracking-tight uppercase">
-                        {val.title}
+                        {transTitle}
                       </h3>
                     </div>
 
                     <div className="space-y-1">
                       <h4 className="font-display text-xs font-bold text-stone-900 uppercase tracking-widest">
-                        {val.subtitle}
+                        {transSubtitle}
                       </h4>
-                      <p className={`font-mono text-[11px] font-bold ${colorSetup.text}`}>
-                        {val.vietnameseTitle}
+                      <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-[11px] font-bold ${colorSetup.text}`}>
+                        {transHighlight}
                       </p>
                     </div>
 
                     <p className="font-sans text-stone-500 text-xs leading-relaxed pt-2 border-t border-stone-100">
-                      {val.description}
+                      {transDesc}
                     </p>
                   </div>
 
@@ -312,11 +311,11 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-[1px] bg-gradient-to-r from-transparent via-stone-300 to-transparent" />
           
           <h2 className="font-display text-3xl font-extrabold text-black uppercase tracking-tight relative inline-block">
-            Meet Our Team
+            {t.meetTeamTitle}
             <span className="absolute -bottom-1.5 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-500 via-amber-400 to-rose-500 rounded-full" />
           </h2>
           <p className="font-sans text-stone-500 text-xs max-w-xs mx-auto leading-relaxed pt-1.5">
-            The creative UEH.ISB team behind the YOUniverse brand concept.
+            {t.meetTeamDesc}
           </p>
         </div>
 
@@ -340,7 +339,8 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
           </div>
 
           {TEAM_MEMBERS.map((member, index) => {
-            const cleanName = member.name.replace(/^(Mr\.|Ms\.)\s+/i, '');
+            const nameToUse = language === 'vi' ? member.nameVi : member.name;
+            const cleanName = nameToUse.replace(/^(Mr\.|Ms\.|Anh|Chị)\s+/i, '');
             const nameParts = cleanName.split(' ');
             const initials = nameParts.length >= 2 
               ? `${nameParts[nameParts.length - 2][0]}${nameParts[nameParts.length - 1][0]}` 
@@ -399,98 +399,105 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
                 onMouseEnter={() => setHoveredIdx(index)}
                 onMouseLeave={() => setHoveredIdx(null)}
                 style={{
-                  transform: `rotate(${rotAngle}deg) translateY(${transY}px)`,
                   zIndex: zIndex,
                 }}
-                className={`group relative rounded-[28px] h-full transition-all duration-500 ease-out flex flex-col justify-between cursor-pointer backdrop-blur-md p-5 shadow-[0_12px_28px_rgba(0,0,0,0.04)] hover:shadow-[0_24px_50px_rgba(0,0,0,0.12)] select-none origin-bottom ${theme.bg} ${cardWidth} ${cardMargin} overflow-hidden`}
+                className={`group relative h-full transition-all duration-500 ease-out origin-bottom ${cardWidth} ${cardMargin}`}
               >
-                {/* Flowing Gradient Border (on hover) */}
-                <div className={`absolute -inset-[1.5px] rounded-[29px] bg-gradient-to-r ${theme.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient`} />
-                
-                {/* Inner Card Background Mask */}
-                <div className={`absolute inset-0 rounded-[28px] ${theme.bg} group-hover:bg-white/95 group-hover:border-transparent z-10 pointer-events-none transition-all duration-500`} />
-
-                {/* Tech coordinates grid backdrop (reveals slightly on hover) */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:10px_10px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
-                
-                {/* Technical Corner Crosshairs */}
-                <div className="absolute top-2.5 left-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
-                <div className="absolute top-2.5 right-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
-
-                {/* Decorative background stars inside the card */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden z-20 opacity-45 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute top-7 left-5 text-[7px] text-stone-400 group-hover:text-amber-500 transition-colors animate-twinkle select-none">✦</div>
-                  <div className="absolute top-20 right-4 text-[6.5px] text-stone-400 group-hover:text-amber-400 transition-colors animate-twinkle duration-1000 select-none">✦</div>
-                  <div className="absolute bottom-24 left-3 text-[6px] text-stone-400 group-hover:text-purple-400 transition-colors animate-twinkle duration-3000 select-none">✦</div>
-                  <div className="absolute bottom-16 right-5 text-[6.5px] text-stone-400 group-hover:text-blue-500 transition-colors animate-twinkle duration-2000 select-none">✦</div>
-                  {isHovered && (
-                    <>
-                      <div className="absolute top-1/4 right-6 text-[8px] text-rose-500 animate-twinkle duration-1500 select-none">✦</div>
-                      <div className="absolute bottom-1/3 left-6 text-[7px] text-purple-500 animate-twinkle duration-2500 select-none">✦</div>
-                    </>
-                  )}
-                </div>
-
-                {/* Card Header Section */}
-                <div className="relative z-20 flex justify-end items-center w-full h-4">
-                </div>
-
-                {/* Card Body Section */}
-                <div className="relative z-20 flex flex-col items-center justify-center flex-grow py-3 overflow-hidden">
+                {/* Inner Card (handles actual visual padding, translation, and rotation) */}
+                <div
+                  style={{
+                    transform: `rotate(${rotAngle}deg) translateY(${transY}px)`,
+                  }}
+                  className={`w-full h-full relative rounded-[28px] transition-all duration-500 ease-out flex flex-col justify-between cursor-pointer backdrop-blur-md p-5 shadow-[0_12px_28px_rgba(0,0,0,0.04)] group-hover:shadow-[0_24px_50px_rgba(0,0,0,0.12)] select-none origin-bottom ${theme.bg} overflow-hidden`}
+                >
+                  {/* Flowing Gradient Border (on hover) */}
+                  <div className={`absolute -inset-[1.5px] rounded-[29px] bg-gradient-to-r ${theme.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient`} />
                   
-                  {isHovered ? (
-                    // Expanded Hover View
-                    <div className="flex flex-col items-center justify-between text-center animate-fade-in w-full h-full py-1">
-                      {/* Full-width avatar/photo container */}
-                      <div className="relative w-full h-[240px] rounded-2xl overflow-hidden shrink-0 border border-stone-200/50 shadow-sm">
-                        {member.image ? (
-                          <img 
-                            src={member.image} 
-                            alt={member.name} 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className={`w-full h-full bg-gradient-to-br ${theme.gradient} flex items-center justify-center relative`}>
-                            <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.15)_0%,transparent_75%)] animate-pulse-glow" />
-                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:16px_16px]" />
-                            <span className="font-display text-4xl lg:text-5xl font-black tracking-wider text-white select-none uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-10">
-                              {initials}
+                  {/* Inner Card Background Mask */}
+                  <div className={`absolute inset-0 rounded-[28px] ${theme.bg} group-hover:bg-white/95 group-hover:border-transparent z-10 pointer-events-none transition-all duration-500`} />
+
+                  {/* Tech coordinates grid backdrop (reveals slightly on hover) */}
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:10px_10px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
+                  
+                  {/* Technical Corner Crosshairs */}
+                  <div className="absolute top-2.5 left-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
+                  <div className="absolute top-2.5 right-3 text-[8px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors pointer-events-none select-none z-20">+</div>
+
+                  {/* Decorative background stars inside the card */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden z-20 opacity-45 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="absolute top-7 left-5 text-[7px] text-stone-400 group-hover:text-amber-500 transition-colors animate-twinkle select-none">✦</div>
+                    <div className="absolute top-20 right-4 text-[6.5px] text-stone-400 group-hover:text-amber-400 transition-colors animate-twinkle duration-1000 select-none">✦</div>
+                    <div className="absolute bottom-24 left-3 text-[6px] text-stone-400 group-hover:text-purple-400 transition-colors animate-twinkle duration-3000 select-none">✦</div>
+                    <div className="absolute bottom-16 right-5 text-[6.5px] text-stone-400 group-hover:text-blue-500 transition-colors animate-twinkle duration-2000 select-none">✦</div>
+                    {isHovered && (
+                      <>
+                        <div className="absolute top-1/4 right-6 text-[8px] text-rose-500 animate-twinkle duration-1500 select-none">✦</div>
+                        <div className="absolute bottom-1/3 left-6 text-[7px] text-purple-500 animate-twinkle duration-2500 select-none">✦</div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Card Header Section */}
+                  <div className="relative z-20 flex justify-end items-center w-full h-4">
+                  </div>
+
+                  {/* Card Body Section */}
+                  <div className="relative z-20 flex flex-col items-center justify-center flex-grow py-3 overflow-hidden">
+                    
+                    {isHovered ? (
+                      // Expanded Hover View
+                      <div className="flex flex-col items-center justify-between text-center animate-fade-in w-full h-full py-1">
+                        {/* Full-width avatar/photo container */}
+                        <div className="relative w-full h-[240px] rounded-2xl overflow-hidden shrink-0 border border-stone-200/50 shadow-sm">
+                          {member.image ? (
+                            <img 
+                              src={member.image} 
+                              alt={member.name} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className={`w-full h-full bg-gradient-to-br ${theme.gradient} flex items-center justify-center relative`}>
+                              <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.15)_0%,transparent_75%)] animate-pulse-glow" />
+                              <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:16px_16px]" />
+                              <span className="font-display text-4xl lg:text-5xl font-black tracking-wider text-white select-none uppercase drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] z-10">
+                                {initials}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Name and Role Centered at the Bottom */}
+                        <div className="space-y-1.5 w-full mt-4 pb-2">
+                          <h3 className="font-display text-sm font-black text-stone-900 uppercase tracking-wide">
+                            {nameToUse}
+                          </h3>
+                          <div className="flex justify-center">
+                            <span className={`inline-block font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-md border ${theme.badgeText}`}>
+                              {member.role}
                             </span>
                           </div>
-                        )}
-                      </div>
-
-                      {/* Name and Role Centered at the Bottom */}
-                      <div className="space-y-1.5 w-full mt-4 pb-2">
-                        <h3 className="font-display text-sm font-black text-stone-900 uppercase tracking-wide">
-                          {member.name}
-                        </h3>
-                        <div className="flex justify-center">
-                          <span className={`inline-block font-mono text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-md border ${theme.badgeText}`}>
-                            {member.role}
-                          </span>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    // Collapsed Default View
-                    <div className="flex flex-col items-center justify-center space-y-4 h-full py-4 animate-fade-in">
-                      {/* Small Avatar Indicator */}
-                      <div className="relative w-12 h-12 rounded-full bg-stone-900 border border-stone-850 flex items-center justify-center shadow-inner shrink-0 group-hover:border-stone-700 transition-colors">
-                        <span className="font-display text-[10px] font-black text-stone-350 select-none uppercase">
-                          {initials}
+                    ) : (
+                      // Collapsed Default View
+                      <div className="flex flex-col items-center justify-center space-y-4 h-full py-4 animate-fade-in">
+                        {/* Small Avatar Indicator */}
+                        <div className="relative w-12 h-12 rounded-full bg-stone-900 border border-stone-850 flex items-center justify-center shadow-inner shrink-0 group-hover:border-stone-700 transition-colors">
+                          <span className="font-display text-[10px] font-black text-stone-350 select-none uppercase">
+                            {initials}
+                          </span>
+                        </div>
+                        
+                        {/* Vertical Name */}
+                        <span className="font-display text-[9px] font-black text-stone-400 group-hover:text-stone-600 transition-colors uppercase tracking-widest leading-none [writing-mode:vertical-lr] rotate-180 select-none pt-2">
+                          {shortName}
                         </span>
                       </div>
-                      
-                      {/* Vertical Name */}
-                      <span className="font-display text-[9px] font-black text-stone-400 group-hover:text-stone-600 transition-colors uppercase tracking-widest leading-none [writing-mode:vertical-lr] rotate-180 select-none pt-2">
-                        {shortName}
-                      </span>
-                    </div>
-                  )}
+                    )}
+
+                  </div>
 
                 </div>
-
               </div>
             );
           })}
@@ -499,7 +506,8 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
         {/* Mobile Layout: Responsive Vertical Accordion */}
         <div className="flex md:hidden flex-col space-y-3 w-full max-w-md mx-auto px-4">
           {TEAM_MEMBERS.map((member, index) => {
-            const cleanName = member.name.replace(/^(Mr\.|Ms\.)\s+/i, '');
+            const nameToUse = language === 'vi' ? member.nameVi : member.name;
+            const cleanName = nameToUse.replace(/^(Mr\.|Ms\.|Anh|Chị)\s+/i, '');
             const nameParts = cleanName.split(' ');
             const initials = nameParts.length >= 2 
               ? `${nameParts[nameParts.length - 2][0]}${nameParts[nameParts.length - 1][0]}` 
@@ -556,7 +564,7 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
                     </div>
                     <div className="text-left">
                       <h3 className={`font-display text-xs font-black uppercase tracking-wide text-stone-900 group-hover:${theme.text} transition-colors`}>
-                        {member.name}
+                        {nameToUse}
                       </h3>
                       {!isExpanded && (
                         <p className="font-mono text-[7px] text-stone-400 uppercase tracking-widest leading-none">
@@ -600,17 +608,17 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
           
           <div className="absolute top-4 left-4 text-amber-400 text-xl animate-twinkle">✦</div>
           <div className="absolute bottom-6 right-6 text-blue-400 text-lg animate-twinkle duration-2000">✦</div>
-          <div className="absolute top-3 right-4 font-mono text-[8px] text-stone-500 tracking-widest pointer-events-none select-none">[ REDIRECT // CORE_PROD ]</div>
+
 
           <div className="space-y-2 relative z-10">
-            <span className="text-[10px] font-mono tracking-widest text-amber-400 uppercase font-bold block">
-              Make Your Own Set
+            <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} tracking-widest text-amber-400 uppercase font-bold block`}>
+              {language === 'vi' ? 'Tự thiết kế bộ charm' : 'Make Your Own Set'}
             </span>
             <h3 className="font-display text-xl sm:text-2xl md:text-3xl font-black text-white uppercase leading-tight max-w-xl mx-auto">
-              So are you ready to create your own universe?
+              {t.readyTitle}
             </h3>
             <p className="font-sans text-stone-400 text-xs max-w-sm mx-auto">
-              Click below to explore our products catalog and check out our custom-crafted charms!
+              {t.readyDesc}
             </p>
           </div>
 
@@ -620,7 +628,7 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
             onClick={onGoProducts}
             className="relative z-10 w-full sm:w-auto rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-black tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 text-center flex items-center justify-center space-x-2 cursor-pointer"
           >
-            <span>Explore Products Now</span>
+            <span>{t.exploreNow}</span>
             <Sparkles className="h-4 w-4 text-amber-500 animate-twinkle" />
           </button>
 

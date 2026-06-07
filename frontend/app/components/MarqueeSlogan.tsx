@@ -1,11 +1,14 @@
 import { useState, useRef } from 'react';
 import { Sparkles } from 'lucide-react';
+import { useYouniverseApp } from '../YouniverseApp';
 
 interface MarqueeSloganProps {
   onSloganClick: () => void;
 }
 
 export default function MarqueeSlogan({ onSloganClick }: MarqueeSloganProps) {
+  const { language } = useYouniverseApp();
+  
   // Repeated text to form a continuous infinite ribbon without gaps
   const sloganText = "A galaxy to hold, a story to be told • 💫 • ";
   const repeats = Array(12).fill(sloganText).join(" ");
@@ -62,7 +65,7 @@ export default function MarqueeSlogan({ onSloganClick }: MarqueeSloganProps) {
             transform: 'translate3d(-999px, -999px, 0) translate3d(-50%, 0, 0)',
           }}
         >
-          <span>Discover our story!</span>
+          <span>{language === 'vi' ? 'Khám phá câu chuyện của chúng tôi!' : 'Discover our story!'}</span>
           <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-twinkle" />
         </div>
       )}

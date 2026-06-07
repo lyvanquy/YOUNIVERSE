@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, Menu, X, Sparkles } from 'lucide-react';
+import { useYouniverseApp } from '../YouniverseApp';
+import { translations } from '../locales';
 
 interface HeaderProps {
   cartCount: number;
@@ -15,6 +17,9 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [animateCart, setAnimateCart] = useState(false);
+  
+  const { language, setLanguage } = useYouniverseApp();
+  const t = translations[language];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,9 +39,9 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
   }, [cartCount]);
 
   const navItems = [
-    { href: '/', label: 'Home', hoverClass: 'hover:text-blue-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-blue cursor-pointer', dotColor: 'bg-blue-500' },
-    { href: '/products', label: 'Our YOUniverse', hoverClass: 'hover:text-amber-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-yellow cursor-pointer', dotColor: 'bg-yellow-500' },
-    { href: '/about', label: 'About us', hoverClass: 'hover:text-red-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-red cursor-pointer', dotColor: 'bg-red-500' },
+    { href: '/', label: t.home, hoverClass: 'hover:text-blue-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-blue cursor-pointer', dotColor: 'bg-blue-500' },
+    { href: '/products', label: t.ourUniverse, hoverClass: 'hover:text-amber-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-yellow cursor-pointer', dotColor: 'bg-yellow-500' },
+    { href: '/about', label: t.aboutUs, hoverClass: 'hover:text-red-500 hover:-translate-y-[2px] hover:scale-[1.02] active:scale-[0.98] brand-glow-red cursor-pointer', dotColor: 'bg-red-500' },
   ];
 
   const isActiveRoute = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
@@ -97,7 +102,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             onClick={() => setMobileMenuOpen(false)}
             className="group flex flex-col items-center justify-center focus:outline-none"
           >
-            <span className="relative font-display text-2xl font-extrabold tracking-widest text-black flex items-center transition-transform hover:scale-105 duration-300">
+            <span className="relative font-youth text-2xl font-extrabold tracking-widest text-black flex items-center transition-transform hover:scale-105 duration-300">
               <Sparkles className="absolute -left-6 top-1.5 h-4 w-4 text-amber-500 opacity-0 group-hover:opacity-100 group-hover:rotate-12 transition-all duration-300 animate-twinkle" />
               YO<span className="text-amber-500 group-hover:text-blue-500 transition-colors duration-500">U</span>niverse
               <Sparkles className="absolute -right-6 bottom-1.5 h-4 w-4 text-blue-500 opacity-0 group-hover:opacity-100 group-hover:-rotate-12 transition-all duration-300 animate-twinkle" />
@@ -108,8 +113,32 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           </Link>
         </div>
 
-        {/* Right Side: Shopping Bag bag icon */}
-        <div className="flex items-center space-x-4">
+        {/* Right Side: Shopping Bag bag icon & Language Toggle */}
+        <div className="flex items-center space-x-3">
+          {/* Language Toggle */}
+          <div className="flex items-center rounded-full border border-stone-250 bg-stone-50/80 p-0.5 shadow-sm">
+            <button
+              onClick={() => setLanguage('vi')}
+              className={`px-2.5 py-1 text-[10px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
+                language === 'vi'
+                  ? 'bg-stone-900 text-white shadow-sm'
+                  : 'text-stone-500 hover:text-stone-900'
+              }`}
+            >
+              VI
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-2.5 py-1 text-[10px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
+                language === 'en'
+                  ? 'bg-stone-900 text-white shadow-sm'
+                  : 'text-stone-500 hover:text-stone-900'
+              }`}
+            >
+              EN
+            </button>
+          </div>
+
           <button
             id="cart-btn"
             onClick={onOpenCart}
