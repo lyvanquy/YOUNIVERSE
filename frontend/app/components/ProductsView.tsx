@@ -1,6 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sparkles, Heart, Compass, Search } from 'lucide-react';
-import { CHARM_PRODUCTS } from '../data';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 
@@ -8,38 +7,171 @@ interface ProductsViewProps {
   onNotifySoon: (charmName: string) => void;
 }
 
+type ProductLineFilter = 'all' | 'astra' | 'sirius' | 'polaris';
+type ProductLine = 'ASTRA' | 'SIRIUS' | 'POLARIS';
+type SortBy = 'newest' | 'price-asc' | 'price-desc';
+
+type ApiProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  productLine: ProductLine;
+  badge: string | null;
+  shortDescription: string;
+  description: string | null;
+  price: number;
+  salePrice: number | null;
+  sku: string | null;
+  images: Array<{
+    url: string;
+    alt: string | null;
+    isPrimary: boolean;
+  }>;
+  inventory: {
+    quantity: number;
+  } | null;
+};
+
+type ProductListResponse = {
+  success: boolean;
+  message: string;
+  data?: {
+    items: ApiProduct[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+};
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1').replace(/\/$/, '');
+
+const productLineToApi: Record<Exclude<ProductLineFilter, 'all'>, ProductLine> = {
+  astra: 'ASTRA',
+  sirius: 'SIRIUS',
+  polaris: 'POLARIS',
+};
+
+const sortToApi: Record<SortBy, string> = {
+  newest: 'newest',
+  'price-asc': 'price-low-high',
+  'price-desc': 'price-high-low',
+};
+
+const lineTaglines: Record<ProductLine, string> = {
+  ASTRA: 'Own your unique name, ignite your inner flame.',
+  SIRIUS: 'Pack the joy you seek, let your passion speak.',
+  POLARIS: 'Trust the guiding quote, let your spirit float.',
+};
+
+const lineFallbackImages: Record<ProductLine, string> = {
+  ASTRA: '/images/astra-core.png',
+  SIRIUS: '/images/sirius-core.png',
+  POLARIS: '/images/polaris-core.png',
+};
+
+const formatPrice = (value: number) =>
+  new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(value);
+
+function ProductVisual({ product }: { product: ApiProduct }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
+  const imageUrl = imageFailed ? lineFallbackImages[product.productLine] : primaryImage?.url ?? lineFallbackImages[product.productLine];
+  
+  const coreImage = {
+    ASTRA: '/images/astra-core.png',
+    SIRIUS: '/images/sirius-core.png',
+    POLARIS: '/images/polaris-core.png',
+  }[product.productLine];
+
+  return (
+    <>
+      <img
+        src={imageUrl}
+        alt={primaryImage?.alt ?? product.name}
+        onError={() => setImageFailed(true)}
+        className="absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-500 ease-out group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-white via-white/35 to-white/10" />
+      <div className="relative w-36 h-36 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-108">
+        <img 
+          src={coreImage} 
+          alt={product.name} 
+          className="w-full h-full object-contain select-none z-10"
+        />
+      </div>
+    </>
+  );
+}
+
 export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLine, setSelectedLine] = useState<'all' | 'astra' | 'sirius' | 'polaris'>('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'price-asc' | 'price-desc'>('newest');
+  const [selectedLine, setSelectedLine] = useState<ProductLineFilter>('all');
+  const [sortBy, setSortBy] = useState<SortBy>('newest');
   const [sortOpen, setSortOpen] = useState(false);
-
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const { language } = useYouniverseApp();
   const t = translations[language];
 
-  // Filter and sort products
-  const filteredProducts = CHARM_PRODUCTS.filter((prod) => {
-    const matchesSearch = 
-      prod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prod.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prod.tagline.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesLine = selectedLine === 'all' || prod.id === selectedLine;
-    return matchesSearch && matchesLine;
-  }).sort((a, b) => {
-    const priceA = a.price || 0;
-    const priceB = b.price || 0;
-    
-    if (sortBy === 'price-asc') {
-      return priceA - priceB;
-    }
-    if (sortBy === 'price-desc') {
-      return priceB - priceA;
-    }
-    // 'newest' (Default: maintain correct brand sequence Astra -> Sirius -> Polaris)
-    const order = ['astra', 'sirius', 'polaris'];
-    return order.indexOf(a.id) - order.indexOf(b.id);
-  });
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          page: '1',
+          limit: '12',
+          sort: sortToApi[sortBy],
+        });
+
+        if (searchQuery.trim()) {
+          params.set('search', searchQuery.trim());
+        }
+
+        if (selectedLine !== 'all') {
+          params.set('line', productLineToApi[selectedLine]);
+        }
+
+        const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        const payload = (await response.json()) as ProductListResponse;
+
+        if (!response.ok || !payload.success || !payload.data) {
+          throw new Error(payload.message || 'Could not load products');
+        }
+
+        setProducts(payload.data.items);
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          return;
+        }
+
+        setProducts([]);
+        setError(err instanceof Error ? err.message : 'Could not load products');
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchQuery, selectedLine, sortBy, refreshKey]);
 
   return (
     <div className="pb-24 space-y-16 bg-neutral-50/30" id="products-view">
@@ -200,16 +332,43 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
         </div>
 
         {/* 3 columns comparative list, staggered left-to-right, inspired by Apple comparative layouts */}
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="flex flex-col items-center text-center space-y-4 animate-pulse">
+                <div className="h-60 w-full rounded-3xl bg-white border border-stone-200 shadow-sm" />
+                <div className="h-2 w-16 rounded bg-stone-200" />
+                <div className="h-6 w-40 rounded bg-stone-200" />
+                <div className="h-3 w-56 rounded bg-stone-100" />
+                <div className="h-9 w-32 rounded-full bg-stone-200" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 bg-white rounded-3xl border border-red-200/80 shadow-sm space-y-4">
+            <p className="font-sans text-red-500 text-sm font-semibold">Cannot load products from backend.</p>
+            <p className="font-mono text-[11px] text-stone-400">{error}</p>
+            <button
+              type="button"
+              onClick={() => setRefreshKey((value) => value + 1)}
+              className="rounded-full bg-black px-5 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-stone-800 transition-colors cursor-pointer"
+            >
+              Try again
+            </button>
+          </div>
+        ) : products.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-3xl border border-stone-200/60 shadow-sm">
             <p className="font-sans text-stone-400 text-sm">{language === 'vi' ? 'Không tìm thấy sản phẩm nào phù hợp với bộ lọc.' : 'No products match your search/filter criteria.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
             
-            {filteredProducts.map((prod) => {
-              const isAstra = prod.id === 'astra';
-              const isSirius = prod.id === 'sirius';
+            {products.map((prod) => {
+              const isAstra = prod.productLine === 'ASTRA';
+              const isSirius = prod.productLine === 'SIRIUS';
+              const currentPrice = prod.salePrice ?? prod.price;
+              const stockQuantity = prod.inventory?.quantity ?? 0;
+              const productCode = prod.sku ?? prod.slug.toUpperCase();
 
               const translatedBadge = prod.id === 'astra' ? t.charmAstraBadge : prod.id === 'sirius' ? t.charmSiriusBadge : t.charmPolarisBadge;
               const translatedTagline = prod.id === 'astra' ? t.charmAstraTagline : prod.id === 'sirius' ? t.charmSiriusTagline : t.charmPolarisTagline;
@@ -218,26 +377,20 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
               return (
                 <div
                   key={prod.id}
-                  id={`product-card-${prod.id}`}
+                  id={`product-card-${prod.slug}`}
                   className="flex flex-col items-center text-center space-y-4 cursor-default"
                 >
                   {/* Photo area container (rounded white box) */}
                   <div className="relative bg-white border border-stone-150 rounded-3xl h-60 w-full flex items-center justify-center p-6 shadow-sm hover:shadow-md transition-all duration-500 overflow-hidden group">
                     <span className="absolute top-4 left-4 font-mono text-[9px] text-stone-400">
-                      CODE: {prod.id.toUpperCase()}
+                      CODE: {productCode}
                     </span>
 
                     {/* Floating absolute Sparkle in corner that appears on hover */}
                     <Sparkles className="absolute top-4 right-4 h-4 w-4 text-amber-500 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 group-hover:rotate-45 transition-all duration-500 ease-out pointer-events-none" />
 
                     {/* Central big physical charm image overlaying the box */}
-                    <div className="relative w-36 h-36 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-108">
-                      <img 
-                        src={prod.id === 'astra' ? '/images/astra-core.png' : prod.id === 'sirius' ? '/images/sirius-core.png' : '/images/polaris-core.png'} 
-                        alt={prod.name} 
-                        className="w-full h-full object-contain select-none"
-                      />
-                    </div>
+                    <ProductVisual product={prod} />
                   </div>
 
                   {/* Centered color dots indicator below image box */}
@@ -271,7 +424,11 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     
                     {/* Orange micro-badge label */}
                     <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-amber-600">
+<<<<<<< HEAD
                       {translatedBadge}
+=======
+                      {prod.badge ?? prod.productLine}
+>>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                     </span>
                     
                     {/* Heading title */}
@@ -280,15 +437,34 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                     </h3>
                     
                     {/* Tagline */}
+<<<<<<< HEAD
                     <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs font-semibold text-stone-500 italic max-w-xs px-2 text-center`}>
                       &ldquo;{translatedTagline}&rdquo;
+=======
+                    <p className="font-mono text-xs font-semibold text-stone-500 italic max-w-xs px-2 text-center">
+                      &ldquo;{lineTaglines[prod.productLine]}&rdquo;
+>>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                     </p>
 
                     {/* Short Description */}
                     <p className="font-sans text-stone-500 text-xs leading-relaxed max-w-xs px-2 line-clamp-3 text-center">
+<<<<<<< HEAD
                       {translatedDescription}
+=======
+                      {prod.shortDescription || prod.description}
+>>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                     </p>
 
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="font-sans text-sm font-bold text-black">{formatPrice(currentPrice)}</span>
+                      {prod.salePrice && (
+                        <span className="font-sans text-xs text-stone-400 line-through">{formatPrice(prod.price)}</span>
+                      )}
+                    </div>
+
+                    <span className={`font-mono text-[10px] font-bold uppercase tracking-wider ${stockQuantity > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {stockQuantity > 0 ? `${stockQuantity} in stock` : 'Out of stock'}
+                    </span>
 
                   </div>
 
@@ -310,8 +486,13 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                   </div>
 
                   {/* Small launching footer text */}
+<<<<<<< HEAD
                   <p className={`text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} text-stone-400`}>
                     {language === 'vi' ? 'Chính thức ra mắt mùa hè này' : 'Launching officially this summer'}
+=======
+                  <p className="text-[9px] font-mono text-stone-400">
+                    Synced from backend API
+>>>>>>> 02f1f96cf4c1942595ed84a85a88fb967f5550ce
                   </p>
                 </div>
               );

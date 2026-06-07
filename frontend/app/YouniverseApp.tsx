@@ -10,11 +10,24 @@ import MarqueeSlogan from './components/MarqueeSlogan';
 import CartDrawer from './components/CartDrawer';
 import { translations } from './locales';
 
+export type UserInfo = {
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'CUSTOMER' | 'ADMIN';
+};
+
 type YouniverseAppContextValue = {
   language: 'en' | 'vi';
   setLanguage: (lang: 'en' | 'vi') => void;
   addCustomToCart: (item: CustomJewelry) => void;
   notifySoon: (charmName: string) => void;
+  user: UserInfo | null;
+  role: 'CUSTOMER' | 'ADMIN' | null;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  logout: () => void;
 };
 
 const YouniverseAppContext = createContext<YouniverseAppContextValue | null>(null);
@@ -32,6 +45,10 @@ export const useYouniverseApp = () => {
 export default function YouniverseApp({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const isAuthPage = pathname === '/login' || pathname === '/register';
+  const isAdminPage = pathname?.startsWith('/admin');
+  const showPublicLayout = !isAuthPage && !isAdminPage;
   const [cart, setCart] = useState<CustomJewelry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [language, setLanguage] = useState<'en' | 'vi'>('en');
@@ -74,21 +91,34 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     }
   }, [language]);
   
+  // Simulated Auth states
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [role, setRole] = useState<'CUSTOMER' | 'ADMIN' | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
   // Dialog modal states
   const [activeNotificationCharm, setActiveNotificationCharm] = useState<string | null>(null);
   const [registrationEmail, setRegistrationEmail] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [orderPlacedSuccess, setOrderPlacedSuccess] = useState(false);
 
-  // Load cart from local storage on mount
+  // Load cart and user auth from local storage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem('youniverse_cart');
       if (stored) {
         setCart(JSON.parse(stored));
       }
+
+      const storedUser = localStorage.getItem('youniverse_user');
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        setRole(parsed.role);
+        setIsAuthenticated(true);
+      }
     } catch (e) {
-      console.warn('Could not load cart from localStorage', e);
+      console.warn('Could not load app state from localStorage', e);
     }
   }, []);
 
@@ -141,6 +171,48 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     setCartOpen(false);
   };
 
+  const handleLogin = async (email: string, password: string) => {
+    // Basic verification. If email starts with admin -> Admin role.
+    const isAdmin = email.toLowerCase().startsWith('admin');
+    const mockRole = isAdmin ? 'ADMIN' : 'CUSTOMER';
+    const mockUser: UserInfo = {
+      name: isAdmin ? 'System Administrator' : 'Cosmic Voyager',
+      email: email,
+      role: mockRole
+    };
+    
+    localStorage.setItem('youniverse_user', JSON.stringify(mockUser));
+    setUser(mockUser);
+    setRole(mockRole);
+    setIsAuthenticated(true);
+    return { success: true };
+  };
+
+  const handleRegister = async (name: string, email: string, phone: string, password: string) => {
+    const isAdmin = email.toLowerCase().startsWith('admin');
+    const mockRole = isAdmin ? 'ADMIN' : 'CUSTOMER';
+    const mockUser: UserInfo = {
+      name: name,
+      email: email,
+      phone: phone || undefined,
+      role: mockRole
+    };
+    
+    localStorage.setItem('youniverse_user', JSON.stringify(mockUser));
+    setUser(mockUser);
+    setRole(mockRole);
+    setIsAuthenticated(true);
+    return { success: true };
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('youniverse_user');
+    setUser(null);
+    setRole(null);
+    setIsAuthenticated(false);
+    router.push('/');
+  };
+
   return (
     <YouniverseAppContext.Provider
       value={{
@@ -148,22 +220,30 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         setLanguage: updateLanguage,
         addCustomToCart: handleAddCustomToCart,
         notifySoon: triggerNotifySoon,
+        user,
+        role,
+        isAuthenticated,
+        login: handleLogin,
+        register: handleRegister,
+        logout: handleLogout
       }}
     >
       <div className={`min-h-screen bg-stone-50 font-sans text-stone-800 antialiased flex flex-col justify-between ${language === 'vi' ? 'lang-vi' : ''}`} id="app-root-container">
         
         {/* 1. Header Navigation Area */}
-        <Header 
-          cartCount={cart.length}
-          onOpenCart={() => setCartOpen(true)}
-        />
+        {showPublicLayout && (
+          <Header 
+            cartCount={cart.length}
+            onOpenCart={() => setCartOpen(true)}
+          />
+        )}
 
         {/* 2. Primary Page Content */}
         <main className="flex-grow">
           {children}
 
           {/* Dynamic Running text slogan after banner or pages as requested (Page 4 & 7) */}
-          {pathname !== '/' && (
+          {pathname !== '/' && showPublicLayout && (
             <section className="my-6">
               <MarqueeSlogan onSloganClick={handleSloganClick} />
             </section>
@@ -171,7 +251,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         </main>
 
         {/* 3. Footer Segment */}
-        <Footer />
+        {showPublicLayout && <Footer />}
 
       {/* 4. Sliding personalized configured jewels list lookbook */}
       <CartDrawer 

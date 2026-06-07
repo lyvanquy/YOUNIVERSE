@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, Sparkles } from 'lucide-react';
+import { ShoppingBag, Menu, X, Sparkles, User, LogOut } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 
@@ -14,11 +14,11 @@ interface HeaderProps {
 
 export default function Header({ cartCount, onOpenCart }: HeaderProps) {
   const pathname = usePathname();
+  const { isAuthenticated, user, logout, language, setLanguage } = useYouniverseApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [animateCart, setAnimateCart] = useState(false);
   
-  const { language, setLanguage } = useYouniverseApp();
   const t = translations[language];
 
   useEffect(() => {
@@ -113,7 +113,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           </Link>
         </div>
 
-        {/* Right Side: Shopping Bag bag icon & Language Toggle */}
+        {/* Right Side: Account state, Language Toggle, and Shopping Bag */}
         <div className="flex items-center space-x-3">
           {/* Language Toggle */}
           <div className="flex items-center rounded-full border border-stone-250 bg-stone-50/80 p-0.5 shadow-sm">
@@ -139,10 +139,42 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </button>
           </div>
 
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-2">
+              <Link
+                href={user?.role === 'ADMIN' ? '/admin' : '/account'}
+                id="header-account-btn"
+                className="group relative flex h-10 px-4 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-955 hover:border-stone-400 transition-all duration-300 shadow-sm focus:outline-none"
+                title={`Hi, ${user?.name}`}
+              >
+                <span className="h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
+                <span className="font-sans text-xs font-semibold truncate max-w-[80px]">
+                  {user?.name.split(' ')[0]}
+                </span>
+              </Link>
+              <button
+                onClick={logout}
+                id="header-logout-btn"
+                className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-rose-500 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300 focus:outline-none transition-all duration-300 shadow-sm cursor-pointer"
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              id="header-login-btn"
+              className="group relative flex h-10 px-5 items-center justify-center rounded-full bg-stone-950 hover:bg-black text-white font-display text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-md hover:translate-y-[-1px] focus:outline-none cursor-pointer"
+            >
+              Login
+            </Link>
+          )}
+
           <button
             id="cart-btn"
             onClick={onOpenCart}
-            className={`group relative flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-900 hover:border-black hover:shadow-[0_0_12px_rgba(250,204,21,0.15)] focus:outline-none transition-all duration-300 shadow-sm ${
+            className={`group relative flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-900 hover:border-black hover:shadow-[0_0_12px_rgba(250,204,21,0.15)] focus:outline-none transition-all duration-300 shadow-sm cursor-pointer ${
               animateCart ? 'animate-wiggle-glow border-amber-400 bg-amber-50/20' : ''
             }`}
           >
@@ -181,6 +213,40 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 </Link>
               );
             })}
+
+            {/* Mobile Auth actions */}
+            <div className="border-t border-stone-100 pt-4 px-4">
+              {isAuthenticated ? (
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={user?.role === 'ADMIN' ? '/admin' : '/account'}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center space-x-2 text-stone-900 font-display font-bold text-base hover:underline"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Dashboard ({user?.name.split(' ')[0]})</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="text-rose-500 hover:text-rose-700 font-sans text-sm font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full text-center py-3 bg-stone-950 text-white font-display text-sm font-bold uppercase tracking-wider rounded-full hover:bg-black transition-all cursor-pointer"
+                >
+                  Login / Register
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}
