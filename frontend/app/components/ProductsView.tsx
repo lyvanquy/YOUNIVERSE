@@ -442,16 +442,16 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
                       {translatedDescription || prod.shortDescription || prod.description}
                     </p>
 
-                    <div className="flex items-center gap-2 pt-1">
+                    {/* <div className="flex items-center gap-2 pt-1">
                       <span className="font-sans text-sm font-bold text-black">{formatPrice(currentPrice)}</span>
                       {prod.salePrice && (
                         <span className="font-sans text-xs text-stone-400 line-through">{formatPrice(prod.price)}</span>
                       )}
-                    </div>
+                    </div> */}
 
-                    <span className={`font-mono text-[10px] font-bold uppercase tracking-wider ${stockQuantity > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {/* <span className={`font-mono text-[10px] font-bold uppercase tracking-wider ${stockQuantity > 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                       {stockQuantity > 0 ? `${stockQuantity} in stock` : 'Out of stock'}
-                    </span>
+                    </span> */}
 
                   </div>
 
