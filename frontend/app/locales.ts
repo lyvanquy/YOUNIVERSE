@@ -184,7 +184,7 @@ export const translations = {
     addressText: '279 Nguyễn Tri Phương, Phường 5, Quận 10, TP.HCM',
     footerAttribution: '© 2026 YOUniverse. Thiết kế bởi YOUniverse_Nhóm 3.',
     classText: 'Lớp: DMK04_Thứ tư Ca 1_Tháng 5/2026',
-    universityText: 'Đại học Kinh tế TP.HCM, UEH.ISB Viện Đào tạo Quốc tế',
+    universityText: 'Đại học Kinh tế TP.HCM, Trường Tài Năng UEH.ISB',
     footerLogoDesc: 'Nơi mỗi người tìm thấy chính mình trong những mảnh tinh vân lấp lánh. Dự án thiết kế phụ kiện cá nhân hóa dẫn dắt bởi sinh viên UEH.ISB.',
     
     // Cart
