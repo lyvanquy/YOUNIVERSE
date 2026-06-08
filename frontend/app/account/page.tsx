@@ -4,10 +4,12 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../YouniverseApp";
 import { User, ShoppingBag, MapPin, LogOut, Sparkles, Heart } from "lucide-react";
+import { translations } from "../locales";
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useYouniverseApp();
+  const { user, isAuthenticated, logout, language } = useYouniverseApp();
+  const t = translations[language];
 
   // Route Guard: Redirect if not authenticated
   useEffect(() => {
@@ -32,7 +34,7 @@ export default function AccountPage() {
       id: "YOUNIV-9821",
       date: "2026-06-05",
       total: "248,000 VND",
-      status: "Processing",
+      status: t.accountStatusProcessing,
       statusColor: "text-amber-500 bg-amber-500/10 border-amber-500/20",
       items: ["Charm Astra", "Sirius Heart Core"],
     },
@@ -40,7 +42,7 @@ export default function AccountPage() {
       id: "YOUNIV-7410",
       date: "2026-05-20",
       total: "139,000 VND",
-      status: "Delivered",
+      status: t.accountStatusDelivered,
       statusColor: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20",
       items: ["Charm Polaris"],
     },
@@ -55,7 +57,7 @@ export default function AccountPage() {
 
       {/* Breadcrumb */}
       <div className="text-left font-mono text-[10px] text-stone-400 uppercase tracking-widest relative z-10">
-        [ Home / Account Dashboard ]
+        {t.accountBreadcrumb}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
@@ -83,12 +85,12 @@ export default function AccountPage() {
 
             <div className="space-y-4 pt-4 border-t border-stone-100 text-xs font-sans text-stone-600 relative z-10">
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-stone-400 block mb-0.5">Stellar Coordinates (Email)</span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-stone-400 block mb-0.5">{t.accountStellarEmail}</span>
                 <span className="font-medium text-stone-900">{user.email}</span>
               </div>
               <div>
-                <span className="font-mono text-[9px] uppercase tracking-widest text-stone-400 block mb-0.5">Comm Link (Phone)</span>
-                <span className="font-medium text-stone-900">{user.phone || "Not linked"}</span>
+                <span className="font-mono text-[9px] uppercase tracking-widest text-stone-400 block mb-0.5">{t.accountCommLink}</span>
+                <span className="font-medium text-stone-900">{user.phone || t.accountNotLinked}</span>
               </div>
             </div>
 
@@ -97,7 +99,7 @@ export default function AccountPage() {
               className="w-full rounded-full border border-rose-200 bg-rose-50/20 hover:bg-rose-50 text-rose-600 hover:text-rose-700 py-3 px-4 font-display text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer relative z-10 shadow-sm hover:shadow"
             >
               <LogOut className="h-4 w-4" />
-              <span>Stellar Logout</span>
+              <span>{t.accountLogout}</span>
             </button>
           </div>
 
@@ -105,10 +107,10 @@ export default function AccountPage() {
           <div className="bg-white/60 backdrop-blur-md border border-stone-200/40 rounded-[24px] p-5 text-left space-y-2 relative">
             <div className="flex items-center space-x-2 text-stone-800">
               <Heart className="h-4 w-4 text-rose-500 animate-float" />
-              <h4 className="font-display text-xs font-bold uppercase tracking-wider">Member Perks</h4>
+              <h4 className="font-display text-xs font-bold uppercase tracking-wider">{t.accountMemberPerks}</h4>
             </div>
             <p className="font-sans text-[11px] text-stone-500 leading-relaxed">
-              Your cosmic profile unlocks early access for upcoming charm lines. Ensure your shipping coordinates are updated during checkout.
+              {t.accountMemberPerksDesc}
             </p>
           </div>
         </div>
@@ -120,7 +122,7 @@ export default function AccountPage() {
           <div className="bg-white/80 backdrop-blur-xl border border-stone-200/60 rounded-[32px] p-6 md:p-8 shadow-md space-y-6">
             <div className="flex items-center space-x-2 text-stone-950">
               <ShoppingBag className="h-5 w-5 text-stone-700" />
-              <h3 className="font-display text-lg font-black uppercase tracking-tight">Order Logs</h3>
+              <h3 className="font-display text-lg font-black uppercase tracking-tight">{t.accountOrderLogs}</h3>
             </div>
 
             <div className="space-y-4">
@@ -138,11 +140,11 @@ export default function AccountPage() {
 
                   <div className="flex justify-between items-center text-xs">
                     <div>
-                      <span className="text-stone-400 text-[10px] font-mono uppercase tracking-wider block">Items Purchased</span>
+                      <span className="text-stone-400 text-[10px] font-mono uppercase tracking-wider block">{t.accountItemsPurchased}</span>
                       <span className="font-sans font-medium text-stone-700">{order.items.join(", ")}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-stone-400 text-[10px] font-mono uppercase tracking-wider block">Cosmic Value</span>
+                      <span className="text-stone-400 text-[10px] font-mono uppercase tracking-wider block">{t.accountCosmicValue}</span>
                       <span className="font-display font-extrabold text-stone-900">{order.total}</span>
                     </div>
                   </div>
@@ -155,7 +157,7 @@ export default function AccountPage() {
           <div className="bg-white/80 backdrop-blur-xl border border-stone-200/60 rounded-[32px] p-6 md:p-8 shadow-md space-y-6">
             <div className="flex items-center space-x-2 text-stone-950">
               <MapPin className="h-5 w-5 text-stone-700" />
-              <h3 className="font-display text-lg font-black uppercase tracking-tight">Shipping Coordinates</h3>
+              <h3 className="font-display text-lg font-black uppercase tracking-tight">{t.accountShippingCoords}</h3>
             </div>
 
             <div className="border border-stone-100 bg-stone-50/30 p-5 rounded-2xl text-xs space-y-2">
@@ -163,14 +165,14 @@ export default function AccountPage() {
                 <div>
                   <span className="font-sans font-bold text-stone-800 block">{user.name}</span>
                   <span className="font-sans text-stone-600 leading-relaxed block mt-1">
-                    279 Nguyễn Tri Phương Street, Vườn Lài Ward, District 10, HCMC
+                    {t.addressText}
                   </span>
                 </div>
                 <button
-                  onClick={() => alert("Coordinate adjustment is coming soon.")}
+                  onClick={() => alert(t.accountEditAlert)}
                   className="font-mono text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase hover:underline focus:outline-none"
                 >
-                  Edit
+                  {t.accountEdit}
                 </button>
               </div>
             </div>
@@ -182,3 +184,4 @@ export default function AccountPage() {
     </div>
   );
 }
+

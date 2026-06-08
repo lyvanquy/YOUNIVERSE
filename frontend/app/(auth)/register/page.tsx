@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useRef, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../../YouniverseApp";
-import { Sparkles, Eye, EyeOff, Lock, Mail, User, Phone, Check, Heart } from "lucide-react";
+import { translations } from "../../locales";
+import { Eye, EyeOff, Lock, Mail, User, Phone, Check, Heart } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated, user } = useYouniverseApp();
+  const { register, isAuthenticated, user, language } = useYouniverseApp();
+  const t = translations[language];
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,6 +25,24 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
+  const glowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const container = document.getElementById('register-container');
+      if (container && glowRef.current) {
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // GPU-accelerated translate3d for smooth animations
+        glowRef.current.style.transform = `translate3d(${x - 175}px, ${y - 175}px, 0)`;
+      }
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   // If already authenticated, redirect
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -36,32 +56,32 @@ export default function RegisterPage() {
 
   const validateForm = () => {
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
-      return "Please fill in all required cosmic coordinate fields.";
+      return t.fillRequiredFieldsError;
     }
 
     // Email pattern check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return "Please enter a valid cosmic email address.";
+      return t.invalidEmailError;
     }
 
     // Password rules: minimum 8 characters, at least one letter and one number
     if (password.length < 8) {
-      return "Password must be at least 8 characters long.";
+      return t.passwordRuleError;
     }
 
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     if (!hasLetter || !hasNumber) {
-      return "Password must contain both letters and numbers.";
+      return t.passwordRuleError;
     }
 
     if (password !== confirmPassword) {
-      return "Stellar passwords do not match.";
+      return t.passwordMatchError;
     }
 
     if (!agreeTerms) {
-      return "You must agree to the YOUniverse terms and conditions.";
+      return t.agreeTermsError;
     }
 
     return null;
@@ -84,10 +104,10 @@ export default function RegisterPage() {
       if (res.success) {
         // Redirection will be handled by the useEffect
       } else {
-        setError(res.message || "Failed to create your identity.");
+        setError(res.message || t.registerFailedError);
       }
     } catch (err) {
-      setError("Stellar disturbance occurred. Please try again.");
+      setError(t.unexpectedError);
       console.error(err);
     } finally {
       setLoading(false);
@@ -95,35 +115,107 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="relative min-h-[90vh] flex items-center justify-center py-16 px-4 overflow-hidden" id="register-container">
-      {/* 1. Background elements aligning with YOUniverse theme */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
-      <div className="absolute top-[15%] right-[-10%] w-[350px] h-[350px] rounded-full bg-rose-500/5 filter blur-[90px] pointer-events-none z-0 animate-pulse-glow" />
-      <div className="absolute bottom-[15%] left-[-10%] w-[350px] h-[350px] rounded-full bg-blue-500/5 filter blur-[90px] pointer-events-none z-0 animate-pulse-glow duration-5000" />
+    <div className="relative min-h-screen w-full flex flex-col md:flex-row overflow-hidden bg-white" id="register-container">
+      {/* 2. Interactive Mouse-Follow Glow Halo (Desktop only) */}
+      <div 
+        ref={glowRef}
+        className="absolute w-[350px] h-[350px] rounded-full pointer-events-none z-0 blur-[100px] opacity-35 bg-gradient-to-r from-rose-500 via-pink-400 to-cyan-400 hidden md:block will-change-transform transform-gpu"
+        style={{
+          left: 0,
+          top: 0,
+        }}
+      />
 
-      {/* 2. Glassmorphic Registration Card */}
-      <div className="relative w-full max-w-lg bg-white/80 backdrop-blur-xl border border-stone-200/60 rounded-[32px] p-8 md:p-10 shadow-2xl z-10 overflow-hidden">
+      {/* LEFT PANEL: Branding & Visuals */}
+      <div className="relative w-full md:w-2/5 bg-[#0b0f19] flex flex-col justify-between text-white shrink-0 min-h-[35vh] md:min-h-screen z-10">
+        {/* Full-screen Vertical Pop-Art Illustration Background */}
+        <div className="absolute inset-0 z-0 select-none pointer-events-none">
+          <img 
+            src="/images/auth-branding-vertical.png" 
+            alt="Left Panel Cosmic Backdrop" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/[0.04]" />
+        </div>
+
+        {/* Cloud Separator SVGs - Desktop (Right side of left panel) */}
+        <svg 
+          className="absolute top-0 bottom-0 -right-20 h-full w-40 z-20 pointer-events-none select-none hidden md:block" 
+          viewBox="0 0 100 1000" 
+          preserveAspectRatio="none"
+        >
+          {/* Layer 1 - Deep Glow */}
+          <path 
+            d="M 70,0 C 0,50 0,150 70,200 C 25,230 25,320 70,350 C -5,400 -5,500 70,550 C 20,580 20,670 70,700 C -10,740 -10,840 70,880 C 10,910 10,970 70,1000 L 100,1000 L 100,0 Z" 
+            fill="white" 
+            fillOpacity={0.15} 
+          />
+          {/* Layer 2 - Mid Shadow */}
+          <path 
+            d="M 70,0 C 10,50 10,150 70,200 C 35,230 35,320 70,350 C 5,400 5,500 70,550 C 30,580 30,670 70,700 C 0,740 0,840 70,880 C 20,910 20,970 70,1000 L 100,1000 L 100,0 Z" 
+            fill="white" 
+            fillOpacity={0.3} 
+          />
+          {/* Layer 3 - Main Boundary */}
+          <path 
+            d="M 70,0 C 20,50 20,150 70,200 C 45,230 45,320 70,350 C 15,400 15,500 70,550 C 40,580 40,670 70,700 C 10,740 10,840 70,880 C 30,910 30,970 70,1000 L 100,1000 L 100,0 Z" 
+            fill="white" 
+          />
+        </svg>
+
+        {/* Cloud Separator SVGs - Mobile (Bottom side of left panel) */}
+        <svg 
+          className="absolute left-0 right-0 -bottom-16 w-full h-32 z-20 pointer-events-none select-none md:hidden" 
+          viewBox="0 0 1000 100" 
+          preserveAspectRatio="none"
+        >
+          {/* Layer 1 - Deep Glow */}
+          <path 
+            d="M 0,70 C 50,0 150,0 200,70 C 230,25 320,25 350,70 C 400,-5 500,-5 550,70 C 580,20 670,20 700,70 C 740,-10 840,-10 880,70 C 910,10 970,10 1000,70 L 1000,100 L 0,100 Z" 
+            fill="white" 
+            fillOpacity={0.15} 
+          />
+          {/* Layer 2 - Mid Shadow */}
+          <path 
+            d="M 0,70 C 50,10 150,10 200,70 C 230,35 320,35 350,70 C 400,5 500,5 550,70 C 580,30 670,30 700,70 C 740,0 840,0 880,70 C 910,20 970,20 1000,70 L 1000,100 L 0,100 Z" 
+            fill="white" 
+            fillOpacity={0.3} 
+          />
+          {/* Layer 3 - Main Boundary */}
+          <path 
+            d="M 0,70 C 50,20 150,20 200,70 C 230,45 320,45 350,70 C 400,15 500,15 550,70 C 580,40 670,40 700,70 C 740,10 840,10 880,70 C 910,30 970,30 1000,70 L 1000,100 L 0,100 Z" 
+            fill="white" 
+          />
+        </svg>
+      </div>
+
+      {/* RIGHT PANEL: The Form */}
+      <div className="relative w-full md:w-3/5 bg-white flex flex-col justify-center items-center p-8 md:p-16 z-20 min-h-[65vh] md:min-h-screen">
+        {/* Technical corner crosshairs & coordinates */}
+        <div className="absolute top-4 left-6 text-[8px] font-mono text-stone-300 pointer-events-none select-none z-20">+</div>
+        <div className="absolute top-4 right-6 text-[8px] font-mono text-stone-300 pointer-events-none select-none z-20">+</div>
+        <div className="absolute bottom-4 left-6 text-[8px] font-mono text-stone-300 pointer-events-none select-none z-20">+</div>
+        <div className="absolute bottom-4 right-6 text-[8px] font-mono text-stone-300 pointer-events-none select-none z-20">+</div>
+        <div className="absolute top-4 right-12 font-mono text-[7px] text-stone-400/80 tracking-widest pointer-events-none select-none z-20 uppercase">
+          [ 10.7626° N, 106.6602° E ]
+        </div>
+
         {/* Card Technical mesh backdrop */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808001_1px,transparent_1px),linear-gradient(to_bottom,#80808001_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
 
-        <div className="relative z-10 flex flex-col items-center text-center space-y-6">
-          {/* Top Orbiting Heart Header */}
-          <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-rose-50 to-rose-100/30 border border-rose-200 flex items-center justify-center shadow-inner">
-            <div className="absolute inset-[-4px] rounded-full border border-dashed border-rose-400/40 animate-spin-slow" style={{ animationDirection: "reverse" }} />
-            <Heart className="h-6 w-6 text-rose-500 animate-float" />
-          </div>
-
-          <div className="space-y-2">
-            <h2 className="font-display text-2xl font-black uppercase tracking-wider text-stone-900">
-              CREATE IDENTITY
+        {/* Form Container */}
+        <div className="w-full max-w-md space-y-6 relative z-10 animate-fade-in">
+          <div className="text-center space-y-2">
+            <h2 className="font-display text-2xl md:text-3xl font-black uppercase tracking-wider text-stone-900">
+              {t.registerTitle}
             </h2>
-            <p className="font-sans text-xs text-stone-500 leading-relaxed max-w-xs">
-              Begin your journey and design your unique universe.
+            <p className="font-sans text-xs text-stone-500 leading-relaxed">
+              {t.registerSubtitle}
             </p>
           </div>
 
           {error && (
-            <div className="w-full bg-rose-50 border border-rose-200 text-rose-600 rounded-xl p-3 text-xs font-sans text-left animate-fade-in flex items-start space-x-2">
+            <div className="w-full bg-rose-50 border border-rose-200 text-rose-600 rounded-xl p-3 text-xs font-sans text-left flex items-start space-x-2">
               <span className="shrink-0 mt-0.5">✦</span>
               <span>{error}</span>
             </div>
@@ -133,7 +225,7 @@ export default function RegisterPage() {
             {/* Full Name */}
             <div className="space-y-1 text-left">
               <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block ml-1" htmlFor="register-name">
-                Full Name *
+                {t.fullNameLabel}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-stone-400">
@@ -143,10 +235,10 @@ export default function RegisterPage() {
                   id="register-name"
                   type="text"
                   required
-                  placeholder="Ms. Cosmic Voyager"
+                  placeholder={language === 'vi' ? "Nguyễn Linh Chi" : "Jane Doe"}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-stone-200 focus:border-stone-400 focus:ring-1 focus:ring-stone-400 rounded-2xl pl-11 pr-4 py-3 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
+                  className="w-full border border-stone-200 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:shadow-[0_0_12px_rgba(244,63,94,0.15)] rounded-2xl pl-11 pr-4 py-3.5 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
                 />
               </div>
             </div>
@@ -154,7 +246,7 @@ export default function RegisterPage() {
             {/* Email Field */}
             <div className="space-y-1 text-left">
               <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block ml-1" htmlFor="register-email">
-                Cosmic Address (Email) *
+                {t.emailLabelLogin} *
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-stone-400">
@@ -167,7 +259,7 @@ export default function RegisterPage() {
                   placeholder="your-name@galaxy.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-stone-200 focus:border-stone-400 focus:ring-1 focus:ring-stone-400 rounded-2xl pl-11 pr-4 py-3 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
+                  className="w-full border border-stone-200 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:shadow-[0_0_12px_rgba(244,63,94,0.15)] rounded-2xl pl-11 pr-4 py-3.5 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
                 />
               </div>
             </div>
@@ -175,7 +267,7 @@ export default function RegisterPage() {
             {/* Phone (Optional) */}
             <div className="space-y-1 text-left">
               <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 block ml-1 font-bold" htmlFor="register-phone">
-                Mobile Number (Optional)
+                {t.phoneLabel}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-stone-400">
@@ -187,17 +279,17 @@ export default function RegisterPage() {
                   placeholder="0912345678"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full border border-stone-200 focus:border-stone-400 focus:ring-1 focus:ring-stone-400 rounded-2xl pl-11 pr-4 py-3 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
+                  className="w-full border border-stone-200 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:shadow-[0_0_12px_rgba(244,63,94,0.15)] rounded-2xl pl-11 pr-4 py-3.5 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
                 />
               </div>
             </div>
 
-            {/* Passwords grid (Responsive: 1 column on mobile, 2 columns on desktop) */}
+            {/* Passwords grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Password */}
               <div className="space-y-1 text-left">
                 <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block ml-1" htmlFor="register-password">
-                  Stellar Password *
+                  {t.passwordLabelRegister}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-stone-400">
@@ -210,7 +302,7 @@ export default function RegisterPage() {
                     placeholder="Min 8 chars"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-stone-200 focus:border-stone-400 focus:ring-1 focus:ring-stone-400 rounded-2xl pl-11 pr-11 py-3 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
+                    className="w-full border border-stone-200 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:shadow-[0_0_12px_rgba(244,63,94,0.15)] rounded-2xl pl-11 pr-11 py-3.5 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
                   />
                   <button
                     type="button"
@@ -225,7 +317,7 @@ export default function RegisterPage() {
               {/* Confirm Password */}
               <div className="space-y-1 text-left">
                 <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block ml-1" htmlFor="register-confirm">
-                  Confirm Password *
+                  {t.confirmPasswordLabel}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-stone-400">
@@ -238,7 +330,7 @@ export default function RegisterPage() {
                     placeholder="Confirm password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border border-stone-200 focus:border-stone-400 focus:ring-1 focus:ring-stone-400 rounded-2xl pl-11 pr-11 py-3 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
+                    className="w-full border border-stone-200 focus:border-rose-400 focus:ring-1 focus:ring-rose-400 focus:shadow-[0_0_12px_rgba(244,63,94,0.15)] rounded-2xl pl-11 pr-11 py-3.5 text-xs font-sans text-stone-900 bg-stone-50/40 focus:bg-white focus:outline-none transition-all"
                   />
                   <button
                     type="button"
@@ -258,10 +350,10 @@ export default function RegisterPage() {
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-stone-300 text-stone-950 focus:ring-stone-950 cursor-pointer"
+                className="mt-1 h-4 w-4 rounded border-stone-300 text-stone-950 focus:ring-1 focus:ring-rose-400 cursor-pointer"
               />
-              <label htmlFor="agree-terms" className="text-stone-500 text-[11px] leading-relaxed cursor-pointer select-none">
-                I agree to align my energy with the YOUniverse rules. I consent to styling unique modular charms and keeping my personal galaxy data secure.
+              <label htmlFor="agree-terms" className="text-stone-500 text-[11px] leading-relaxed cursor-pointer select-none font-semibold">
+                {t.agreeTermsLabel}
               </label>
             </div>
 
@@ -275,7 +367,7 @@ export default function RegisterPage() {
                 <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Create Account</span>
+                  <span>{t.registerBtn}</span>
                   <Check className="h-4 w-4" />
                 </>
               )}
@@ -283,13 +375,13 @@ export default function RegisterPage() {
           </form>
 
           <div className="text-center font-sans text-xs text-stone-500 pt-2 border-t border-dashed border-stone-200/80 w-full">
-            <span>Already have an identity? </span>
+            <span>{t.alreadyHaveIdentity} </span>
             <Link
               href="/login"
               id="go-to-login"
-              className="text-stone-900 font-bold hover:underline hover:text-rose-500 transition-colors"
+              className="text-stone-900 font-bold hover:underline hover:text-rose-500 transition-colors font-semibold"
             >
-              Login Instead
+              {t.loginInstead}
             </Link>
           </div>
         </div>

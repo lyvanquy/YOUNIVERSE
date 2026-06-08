@@ -461,8 +461,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                       {charm.name}
                     </h4>
                     
-                    {/* Hover effect text reveal */}
-                    <div className="max-h-48 opacity-100 md:max-h-0 md:opacity-0 md:group-hover:max-h-48 md:group-hover:opacity-100 transition-all duration-500 ease-in-out overflow-hidden">
+                    {/* Hover effect text reveal - uses opacity+translate instead of max-height to prevent flicker */}
+                    <div className="opacity-100 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-500 ease-in-out">
                       <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs italic font-semibold leading-relaxed ${textColors} mt-2 mb-1`}>
                         &ldquo;{translatedTagline}&rdquo;
                       </p>
