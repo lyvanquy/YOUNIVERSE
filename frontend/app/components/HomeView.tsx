@@ -282,7 +282,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   return (
                     <div
                       key={slide.id}
-                      className={`absolute inset-0 p-6 flex flex-col justify-between transition-all duration-1000 ease-in-out ${slideTransformClass}`}
+                      className={`absolute inset-0 p-6 pb-12 flex flex-col justify-between transition-all duration-1000 ease-in-out ${slideTransformClass}`}
                     >
                       {/* Full Background Slide Image */}
                       <img 
@@ -324,7 +324,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                 })}
 
                 {/* Dot/Dash Indicators (larger, colored pill-shaped dashes with glowing shadows) */}
-                <div className="absolute bottom-5 left-0 right-0 flex justify-center space-x-2 z-20">
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-2 z-20">
                   {heroSlides.map((slide, idx) => {
                     const isActive = idx === heroCarouselIndex;
                     // Dynamic active color matching slide theme
@@ -422,73 +422,59 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                 onMouseEnter={() => setActiveCharmIndex(index)}
                 onMouseLeave={() => setActiveCharmIndex(null)}
                 onClick={onGoProducts}
-                className={`group shrink-0 w-[88%] md:w-auto snap-center md:snap-align-none relative h-[420px] rounded-[32px] transition-all duration-500 hover:-translate-y-1.5 cursor-pointer shadow-sm ${borderColors}`}
+                className={`group shrink-0 w-[88%] md:w-auto snap-center md:snap-align-none relative h-[420px] rounded-[32px] transition-all duration-500 md:hover:-translate-y-1.5 cursor-pointer shadow-sm ${borderColors}`}
               >
                 {/* Flowing Gradient Border (on hover) */}
-                <div className={`absolute -inset-[1.5px] rounded-[33px] bg-gradient-to-r ${gradientColors} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient`} />
+                <div className={`absolute -inset-[1.5px] rounded-[33px] bg-gradient-to-r ${gradientColors} opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient`} />
 
                 {/* Inner Card Background Mask */}
-                <div className={`absolute inset-0 rounded-[32px] bg-gradient-to-b ${bgGlows} backdrop-blur-md border border-stone-200/60 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500`} />
+                <div className={`absolute inset-0 rounded-[32px] bg-gradient-to-b ${bgGlows} backdrop-blur-md border border-stone-200/60 z-10 pointer-events-none md:group-hover:border-transparent transition-all duration-500`} />
 
                 {/* Card Content Wrapper */}
-                <div className="relative z-20 flex flex-col justify-between h-full w-full p-6">
-                  {/* Card Icon & Top indicator (aligned right) */}
-                  <div className="flex justify-end w-full">
-                    {/* Icon mapped beautifully */}
-                    <div className={`p-2.5 rounded-full bg-white/90 border border-stone-100 shadow-sm ${textColors}`}>
-                      {charm.id === 'astra' && <Sparkles className="h-5 w-5 animate-twinkle" />}
-                      {charm.id === 'sirius' && <Heart className="h-5 w-5 animate-float" />}
-                      {charm.id === 'polaris' && <Compass className="h-5 w-5 animate-spin-slow" />}
-                    </div>
-                  </div>
+                <div className="relative z-20 h-full w-full overflow-hidden rounded-[32px]">
 
-                  {/* Mid Section: Styled Illustration placeholder */}
-                  <div className="relative mx-auto w-32 h-32 flex items-center justify-center">
-                    {/* Spinning outer dashed border */}
-                    <div className="absolute inset-0 rounded-full border border-dashed border-stone-200 animate-spin-slow opacity-60 pointer-events-none" />
-                    
-                    {/* Inner image container cropped to a circle */}
-                    <div className="absolute inset-2 rounded-full overflow-hidden bg-stone-50 flex items-center justify-center">
-                      <img 
-                        src={`/images/home-${charm.id}.jpg`} 
-                        alt={charm.name} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                      />
-                    </div>
-                    
-                    {/* Decorative orbital stars blinking */}
-                    <span className={`absolute top-2 right-2 ${textColors} text-lg animate-twinkle`}>✦</span>
-                    <span className={`absolute bottom-2 left-2 ${textColors} text-[10px] animate-twinkle`}>✦</span>
-                  </div>
+                  {/* Full-card product image */}
+                  <img 
+                    src={`/images/home-${charm.id}.jpg`} 
+                    alt={charm.name} 
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110" 
+                  />
 
-                  {/* Content: sliding reveal on hover, cleanly handled via CSS transitions */}
-                  <div className="space-y-1 text-left relative z-10 bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-stone-200/50 shadow-sm">
-                    <div className="flex items-center space-x-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                      <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-extrabold uppercase tracking-widest text-stone-400`}>
-                        {translatedBadge}
-                      </span>
+                  {/* Gradient overlay - stronger on hover/mobile to make text readable */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-85 md:opacity-60 md:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                  {/* Decorative stars */}
+                  <span className={`absolute top-4 right-4 ${textColors} text-sm animate-twinkle z-10`}>✦</span>
+                  <span className={`absolute top-4 left-4 ${textColors} text-[10px] animate-twinkle duration-2000 z-10`}>✦</span>
+
+                  {/* Charm name always visible at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+                    {/* Badge + Name - always visible */}
+                    <div className="transform translate-y-[-8px] md:translate-y-0 transition-all duration-500 md:group-hover:translate-y-[-8px]">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                        <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-extrabold uppercase tracking-widest text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]`}>
+                          {translatedBadge}
+                        </span>
+                      </div>
+                      <h4 className="font-display text-2xl font-black text-white uppercase tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                        {charm.name}
+                      </h4>
                     </div>
-                    
-                    <h4 className="font-display text-lg font-black text-black uppercase tracking-tight">
-                      {charm.name}
-                    </h4>
-                    
-                    {/* Hover effect text reveal - uses opacity+translate instead of max-height to prevent flicker */}
-                    <div className="opacity-100 md:opacity-0 md:translate-y-2 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-500 ease-in-out">
-                      <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs italic font-semibold leading-relaxed ${textColors} mt-2 mb-1`}>
+
+                    {/* Hover-reveal content - slides up on desktop, always visible on mobile */}
+                    <div className="opacity-100 translate-y-0 md:opacity-0 md:translate-y-6 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-500 ease-out mt-2">
+                      <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs italic font-bold leading-relaxed text-amber-300 mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]`}>
                         &ldquo;{translatedTagline}&rdquo;
                       </p>
-                      <p className="font-sans text-stone-500 text-[11px] leading-relaxed">
+                      <p className="font-sans text-white/90 text-[11px] leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
                         {translatedDescription}
                       </p>
+                      <div className={`flex items-center justify-between mt-3 pt-2 border-t border-white/20 text-xs ${language === 'vi' ? 'font-sans' : 'font-mono'} font-medium text-white/70`}>
+                        <span>{language === 'vi' ? 'Khám phá chi tiết' : 'Explore Details'}</span>
+                        <ChevronRight className="h-4 w-4 transform md:group-hover:translate-x-1.5 transition-transform duration-300" />
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Bottom line decorator */}
-                  <div className={`flex items-center justify-between mt-2 pt-2 border-t border-stone-150/60 text-xs ${language === 'vi' ? 'font-sans' : 'font-mono'} font-medium text-stone-400`}>
-                    <span>{language === 'vi' ? 'Khám phá chi tiết' : 'Explore Details'}</span>
-                    <ChevronRight className="h-4 w-4 transform group-hover:translate-x-1.5 transition-transform duration-300" />
                   </div>
                 </div>
               </div>

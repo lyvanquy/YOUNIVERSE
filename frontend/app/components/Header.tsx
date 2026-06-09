@@ -102,21 +102,21 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             onClick={() => setMobileMenuOpen(false)}
             className="group flex flex-col items-center justify-center focus:outline-none"
           >
-            <span className="relative font-youth text-lg sm:text-2xl font-extrabold tracking-widest text-black flex items-center transition-transform hover:scale-105 duration-300">
-              <Sparkles className="absolute -left-5 sm:-left-6 top-1 sm:top-1.5 h-3 w-3 sm:h-4 sm:w-4 text-amber-500 opacity-0 group-hover:opacity-100 group-hover:rotate-12 transition-all duration-300 animate-twinkle" />
+            <span className="relative font-youth text-lg md:text-2xl font-extrabold tracking-widest text-black flex items-center transition-transform hover:scale-105 duration-300">
+              <Sparkles className="absolute -left-5 md:-left-6 top-1 md:top-1.5 h-3 w-3 md:h-4 md:w-4 text-amber-500 opacity-0 group-hover:opacity-100 group-hover:rotate-12 transition-all duration-300 animate-twinkle" />
               YO<span className="text-amber-500 group-hover:text-blue-500 transition-colors duration-500">U</span>niverse
-              <Sparkles className="absolute -right-5 sm:-right-6 bottom-1 sm:bottom-1.5 h-3 w-3 sm:h-4 sm:w-4 text-blue-500 opacity-0 group-hover:opacity-100 group-hover:-rotate-12 transition-all duration-300 animate-twinkle" />
+              <Sparkles className="absolute -right-5 md:-right-6 bottom-1 md:bottom-1.5 h-3 w-3 md:h-4 md:w-4 text-blue-500 opacity-0 group-hover:opacity-100 group-hover:-rotate-12 transition-all duration-300 animate-twinkle" />
             </span>
-            <span className="hidden sm:block text-[7px] font-mono tracking-[0.35em] text-stone-400 uppercase group-hover:text-red-500 transition-colors duration-500">
+            <span className="hidden md:block text-[7px] font-mono tracking-[0.35em] text-stone-400 uppercase group-hover:text-red-500 transition-colors duration-500">
               A Galaxy to Hold
             </span>
           </Link>
         </div>
 
         {/* Right Side: Account state, Language Toggle, and Shopping Bag */}
-        <div className="flex items-center space-x-1.5 sm:space-x-3 z-20">
-          {/* Language Toggle */}
-          <div className="flex items-center rounded-full border border-stone-250 bg-stone-50/80 p-0.5 shadow-sm">
+        <div className="flex items-center space-x-1.5 md:space-x-3 z-20">
+          {/* Language Toggle - hidden on mobile, shown on desktop */}
+          <div className="hidden md:flex items-center rounded-full border border-stone-250 bg-stone-50/80 p-0.5 shadow-sm">
             <button
               onClick={() => setLanguage('vi')}
               className={`px-2.5 py-1 text-[10px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
@@ -140,22 +140,22 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           </div>
 
           {isAuthenticated ? (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1.5 md:space-x-2">
               <Link
                 href={user?.role === 'ADMIN' ? '/admin' : '/account'}
                 id="header-account-btn"
-                className="group relative flex h-10 px-4 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-955 hover:border-stone-400 transition-all duration-300 shadow-sm focus:outline-none"
+                className="group relative flex h-9 md:h-10 w-9 md:w-auto md:px-4 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-700 hover:bg-stone-100 hover:text-stone-955 hover:border-stone-400 transition-all duration-300 shadow-sm focus:outline-none"
                 title={`Hi, ${user?.name}`}
               >
-                <span className="h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
-                <span className="font-sans text-xs font-semibold truncate max-w-[80px]">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 md:mr-2 animate-pulse" />
+                <span className="hidden md:inline font-sans text-xs font-semibold truncate max-w-[80px]">
                   {user?.name.split(' ')[0]}
                 </span>
               </Link>
               <button
                 onClick={logout}
                 id="header-logout-btn"
-                className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-rose-500 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300 focus:outline-none transition-all duration-300 shadow-sm cursor-pointer"
+                className="hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-rose-500 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300 focus:outline-none transition-all duration-300 shadow-sm cursor-pointer"
                 title="Log out"
               >
                 <LogOut className="h-4 w-4" />
@@ -213,6 +213,33 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 </Link>
               );
             })}
+
+            {/* Mobile Language Toggle */}
+            <div className="border-t border-stone-100 pt-4 px-4 flex items-center justify-between">
+              <span className="font-display text-sm font-bold text-stone-500">{language === 'vi' ? 'Ngôn ngữ' : 'Language'}</span>
+              <div className="flex items-center rounded-full border border-stone-250 bg-stone-50/80 p-0.5 shadow-sm">
+                <button
+                  onClick={() => setLanguage('vi')}
+                  className={`px-3 py-1.5 text-[11px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
+                    language === 'vi'
+                      ? 'bg-stone-900 text-white shadow-sm'
+                      : 'text-stone-500 hover:text-stone-900'
+                  }`}
+                >
+                  VI
+                </button>
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1.5 text-[11px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
+                    language === 'en'
+                      ? 'bg-stone-900 text-white shadow-sm'
+                      : 'text-stone-500 hover:text-stone-900'
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
+            </div>
 
             {/* Mobile Auth actions */}
             <div className="border-t border-stone-100 pt-4 px-4">
