@@ -58,7 +58,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
         ? 'Hạt charm ngôi sao khắc tên riêng — mỗi mảnh là một câu chuyện độc nhất.' 
         : 'Custom star charm engraved with your name — every piece tells a unique story.',
       badgeText: language === 'vi' ? 'Bán chạy' : 'Best Seller',
-      imageUrl: '/images/charm-stock-1.jpg',
+      imageUrl: '/images/home-astra.jpg',
     },
     {
       id: 'charm-cat',
@@ -69,7 +69,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
         ? 'Chú mèo vũ trụ dễ thương — người bạn đồng hành trên mọi hành trình.' 
         : 'Adorable cosmic cat — your companion on every journey.',
       badgeText: language === 'vi' ? 'Yêu thích' : 'Fan Favorite',
-      imageUrl: '/images/charm-stock-2.jpg',
+      imageUrl: '/images/home-sirius.jpg',
     },
     {
       id: 'charm-youcan',
@@ -80,7 +80,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
         ? 'Lời nhắn nhủ bạn mỗi ngày — bạn có thể làm được mọi điều.' 
         : 'A daily reminder — you can do anything you set your mind to.',
       badgeText: language === 'vi' ? 'Truyền cảm hứng' : 'Inspiring',
-      imageUrl: '/images/charm-stock-3.jpg',
+      imageUrl: '/images/home-polaris.jpg',
     },
   ];
 
@@ -435,7 +435,13 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
                   {/* Full-card product image */}
                   <img 
-                    src={`/images/home-${charm.id}.jpg`} 
+                    src={
+                      charm.id === 'astra' 
+                        ? '/images/charm-stock-1.jpg' 
+                        : charm.id === 'sirius' 
+                          ? '/images/charm-stock-2.jpg' 
+                          : '/images/charm-stock-3.jpg'
+                    } 
                     alt={charm.name} 
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110" 
                   />
