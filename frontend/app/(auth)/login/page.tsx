@@ -36,16 +36,10 @@ export default function LoginPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // If already authenticated, redirect to the correct dashboard
+  // Redirect to home since login is temporarily disabled
   useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/account");
-      }
-    }
-  }, [isAuthenticated, user, router]);
+    router.push("/");
+  }, [router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

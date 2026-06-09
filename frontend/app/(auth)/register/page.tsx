@@ -43,16 +43,10 @@ export default function RegisterPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // If already authenticated, redirect
+  // Redirect to home since registration is temporarily disabled
   useEffect(() => {
-    if (isAuthenticated && user) {
-      if (user.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/account");
-      }
-    }
-  }, [isAuthenticated, user, router]);
+    router.push("/");
+  }, [router]);
 
   const validateForm = () => {
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {

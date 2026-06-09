@@ -139,6 +139,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </button>
           </div>
 
+          {/* Temporarily hidden login functionality
           {isAuthenticated ? (
             <div className="flex items-center space-x-1.5 md:space-x-2">
               <Link
@@ -170,6 +171,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
               {t.login}
             </Link>
           )}
+          */}
 
           <button
             id="cart-btn"
@@ -241,7 +243,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
               </div>
             </div>
 
-            {/* Mobile Auth actions */}
+            {/* Temporarily hidden login functionality on mobile
             <div className="border-t border-stone-100 pt-4 px-4">
               {isAuthenticated ? (
                 <div className="flex items-center justify-between">
@@ -274,6 +276,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 </Link>
               )}
             </div>
+            */}
           </div>
         </div>
       )}
