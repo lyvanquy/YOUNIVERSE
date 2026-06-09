@@ -291,8 +291,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                         className="absolute inset-0 w-full h-full object-cover select-none z-0 transition-transform duration-1000 group-hover:scale-105" 
                       />
 
-                      {/* Legibility gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/45 z-10 pointer-events-none" />
+                      {/* Legibility gradient overlay - subtle for cinematic styling */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/15 z-10 pointer-events-none" />
 
                       {/* Visual Header of Card */}
                       <div className="relative z-20 flex justify-between items-start">
@@ -306,19 +306,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
                       {/* Center Orbit Path / Space illustration removed */}
 
-                      {/* Visual Footer of Card */}
-                      <div className="relative z-20 space-y-1 text-left">
-                        <div className="flex items-center space-x-1.5 text-amber-400 text-[10px] font-mono tracking-wider uppercase font-bold">
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                          <span>{slide.title}</span>
-                        </div>
-                        <p className="font-display text-lg font-extrabold text-white uppercase tracking-tight">
-                          {slide.footerTitle}
-                        </p>
-                        <p className="font-sans text-xs text-stone-300 line-clamp-2">
-                          {slide.footerDesc}
-                        </p>
-                      </div>
+                      {/* Visual Footer of Card removed per user request */}
                     </div>
                   );
                 })}
