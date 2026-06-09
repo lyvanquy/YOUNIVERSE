@@ -444,13 +444,21 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
                   {/* Mid Section: Styled Illustration placeholder */}
                   <div className="relative mx-auto w-32 h-32 flex items-center justify-center">
+                    {/* Spinning outer dashed border */}
                     <div className="absolute inset-0 rounded-full border border-dashed border-stone-200 animate-spin-slow opacity-60 pointer-events-none" />
-                    <div className="text-stone-300 font-display text-[9px] font-bold uppercase tracking-widest mt-12 text-center select-none">
-                      [ {language === 'vi' ? `Ảnh ${charm.name}` : `${charm.name} Image`} ]
+                    
+                    {/* Inner image container cropped to a circle */}
+                    <div className="absolute inset-2 rounded-full overflow-hidden bg-stone-50 flex items-center justify-center">
+                      <img 
+                        src={`/images/home-${charm.id}.jpg`} 
+                        alt={charm.name} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                      />
                     </div>
+                    
                     {/* Decorative orbital stars blinking */}
-                    <span className={`absolute top-4 right-4 ${textColors} text-lg animate-twinkle`}>✦</span>
-                    <span className={`absolute bottom-4 left-4 ${textColors} text-[10px] animate-twinkle`}>✦</span>
+                    <span className={`absolute top-2 right-2 ${textColors} text-lg animate-twinkle`}>✦</span>
+                    <span className={`absolute bottom-2 left-2 ${textColors} text-[10px] animate-twinkle`}>✦</span>
                   </div>
 
                   {/* Content: sliding reveal on hover, cleanly handled via CSS transitions */}

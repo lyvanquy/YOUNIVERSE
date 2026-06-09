@@ -34,6 +34,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "YOUniverse",
   description: "A galaxy to hold, a story to be told.",
+  icons: {
+    icon: "/favicon.ico?v=1",
+  },
 };
 
 export default function RootLayout({

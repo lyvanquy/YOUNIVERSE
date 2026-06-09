@@ -84,31 +84,84 @@ function ProductVisual({ product }: { product: ApiProduct }) {
   const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
   const imageUrl = imageFailed ? lineFallbackImages[product.productLine] : primaryImage?.url ?? lineFallbackImages[product.productLine];
   
-  const coreImage = {
-    ASTRA: '/images/astra-core.png',
-    SIRIUS: '/images/sirius-core.png',
-    POLARIS: '/images/polaris-core.png',
-  }[product.productLine];
-
   return (
-    <>
-      <img
-        src={imageUrl}
-        alt={primaryImage?.alt ?? product.name}
-        onError={() => setImageFailed(true)}
-        className="absolute inset-0 h-full w-full object-cover opacity-90 transition-transform duration-500 ease-out group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-white via-white/35 to-white/10" />
-      <div className="relative w-36 h-36 flex items-center justify-center transition-transform duration-500 ease-out group-hover:scale-108">
-        <img 
-          src={coreImage} 
-          alt={product.name} 
-          className="w-full h-full object-contain select-none z-10"
-        />
-      </div>
-    </>
+    <img
+      src={imageUrl}
+      alt={primaryImage?.alt ?? product.name}
+      onError={() => setImageFailed(true)}
+      className="absolute inset-0 h-full w-full object-cover opacity-100 transition-transform duration-500 ease-out group-hover:scale-105"
+    />
   );
 }
+
+const STATIC_PRODUCTS: ApiProduct[] = [
+  {
+    id: 'astra',
+    name: 'Charm Astra',
+    slug: 'charm-astra',
+    productLine: 'ASTRA',
+    badge: 'Unique',
+    shortDescription: 'A bold statement of identity, customized with your name, celestial symbols, and your unique elemental energy.',
+    description: 'Astra helps you own your unique name and ignite your inner flame.',
+    price: 129000,
+    salePrice: null,
+    sku: 'CHARM-ASTRA',
+    images: [
+      {
+        url: '/images/product-astra.jpg',
+        alt: 'Charm Astra',
+        isPrimary: true,
+      }
+    ],
+    inventory: {
+      quantity: 50,
+    }
+  },
+  {
+    id: 'sirius',
+    name: 'Charm Sirius',
+    slug: 'charm-sirius',
+    productLine: 'SIRIUS',
+    badge: 'Passion',
+    shortDescription: 'Encapsulate the little things you love, from simple everyday passions and sweet pets to your daily rituals.',
+    description: 'Sirius packs the joy you seek and lets your passion speak.',
+    price: 119000,
+    salePrice: null,
+    sku: 'CHARM-SIRIUS',
+    images: [
+      {
+        url: '/images/product-sirius.jpg',
+        alt: 'Charm Sirius',
+        isPrimary: true,
+      }
+    ],
+    inventory: {
+      quantity: 50,
+    }
+  },
+  {
+    id: 'polaris',
+    name: 'Charm Polaris',
+    slug: 'charm-polaris',
+    productLine: 'POLARIS',
+    badge: 'Inspiring',
+    shortDescription: 'Inspiring quotes that serve as a guiding compass for your soul.',
+    description: 'Polaris helps you trust the guiding quote and let your spirit float.',
+    price: 139000,
+    salePrice: null,
+    sku: 'CHARM-POLARIS',
+    images: [
+      {
+        url: '/images/product-polaris.jpg',
+        alt: 'Charm Polaris',
+        isPrimary: true,
+      }
+    ],
+    inventory: {
+      quantity: 50,
+    }
+  }
+];
 
 export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,55 +176,59 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
   const t = translations[language];
 
   useEffect(() => {
-    const controller = new AbortController();
-    const timer = window.setTimeout(async () => {
-      setLoading(true);
-      setError(null);
+    setLoading(true);
+    setError(null);
 
+    const timer = window.setTimeout(() => {
       try {
-        const params = new URLSearchParams({
-          page: '1',
-          limit: '12',
-          sort: sortToApi[sortBy],
-        });
-
-        if (searchQuery.trim()) {
-          params.set('search', searchQuery.trim());
-        }
-
+        // Filter by product line
+        let filtered = [...STATIC_PRODUCTS];
         if (selectedLine !== 'all') {
-          params.set('line', productLineToApi[selectedLine]);
+          const apiLine = productLineToApi[selectedLine];
+          filtered = filtered.filter(p => p.productLine === apiLine);
         }
 
-        const response = await fetch(`${API_BASE_URL}/products?${params.toString()}`, {
-          signal: controller.signal,
-        });
-        const payload = (await response.json()) as ProductListResponse;
-
-        if (!response.ok || !payload.success || !payload.data) {
-          throw new Error(payload.message || 'Could not load products');
+        // Filter by search query (case-insensitive)
+        if (searchQuery.trim()) {
+          const query = searchQuery.trim().toLowerCase();
+          filtered = filtered.filter(p => 
+            p.name.toLowerCase().includes(query) || 
+            p.shortDescription.toLowerCase().includes(query) ||
+            p.description?.toLowerCase().includes(query)
+          );
         }
 
-        setProducts(payload.data.items);
+        // Sort by option
+        if (sortBy === 'price-asc') {
+          filtered.sort((a, b) => {
+            const priceA = a.salePrice ?? a.price;
+            const priceB = b.salePrice ?? b.price;
+            return priceA - priceB;
+          });
+        } else if (sortBy === 'price-desc') {
+          filtered.sort((a, b) => {
+            const priceA = a.salePrice ?? a.price;
+            const priceB = b.salePrice ?? b.price;
+            return priceB - priceA;
+          });
+        } else {
+          // Default sorting (newest/by ID)
+          // Since it's static, default order is the order defined in STATIC_PRODUCTS
+        }
+
+        setProducts(filtered);
       } catch (err) {
-        if (err instanceof DOMException && err.name === 'AbortError') {
-          return;
-        }
-
         setProducts([]);
         setError(err instanceof Error ? err.message : 'Could not load products');
       } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     }, 250);
 
     return () => {
       window.clearTimeout(timer);
-      controller.abort();
     };
-  }, [searchQuery, selectedLine, sortBy, refreshKey]);
+  }, [searchQuery, selectedLine, sortBy]);
 
   return (
     <div className="pb-24 space-y-16 bg-neutral-50/30" id="products-view">
