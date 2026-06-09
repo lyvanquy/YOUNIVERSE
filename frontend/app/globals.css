@@ -278,6 +278,37 @@ body {
   animation: wiggle-glow 0.8s ease-in-out both;
 }
 
+@keyframes shimmer {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -200% 50%; }
+}
+.animate-shimmer {
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+/* Auth page transition animations */
+@keyframes auth-slide-left {
+  0% { opacity: 0; transform: translateX(-40px) scale(0.98); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes auth-slide-right {
+  0% { opacity: 0; transform: translateX(40px) scale(0.98); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes auth-form-up {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-auth-left {
+  animation: auth-slide-left 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-auth-right {
+  animation: auth-slide-right 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-auth-form {
+  animation: auth-form-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
 /* Vietnamese Font Overrides - Placed at the bottom for absolute specificity */
 html.lang-vi,
 .lang-vi {

@@ -59,11 +59,11 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
         {/* Banner background image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/images/about-banner.png" 
-            alt="YOUniverse About Banner" 
-            className="w-full h-full object-cover opacity-65"
+            src="/images/banner-about-us.png" 
+            alt="YOUniverse About Us Banner" 
+            className="w-full h-full object-cover opacity-85"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/85" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/70" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
         </div>
 

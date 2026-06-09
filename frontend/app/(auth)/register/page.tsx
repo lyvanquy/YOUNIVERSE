@@ -127,7 +127,7 @@ export default function RegisterPage() {
       />
 
       {/* LEFT PANEL: Branding & Visuals */}
-      <div className="relative w-full md:w-2/5 bg-[#0b0f19] flex flex-col justify-between text-white shrink-0 min-h-[35vh] md:min-h-screen z-10">
+      <div className="relative w-full md:w-2/5 bg-[#0b0f19] flex flex-col justify-between text-white shrink-0 min-h-[35vh] md:min-h-screen z-10 animate-auth-left">
         {/* Full-screen Vertical Pop-Art Illustration Background */}
         <div className="absolute inset-0 z-0 select-none pointer-events-none">
           <img 
@@ -190,7 +190,7 @@ export default function RegisterPage() {
       </div>
 
       {/* RIGHT PANEL: The Form */}
-      <div className="relative w-full md:w-3/5 bg-white flex flex-col justify-center items-center p-8 md:p-16 z-20 min-h-[65vh] md:min-h-screen">
+      <div className="relative w-full md:w-3/5 bg-white flex flex-col justify-center items-center p-8 md:p-16 z-20 min-h-[65vh] md:min-h-screen overflow-hidden animate-auth-right">
         {/* Technical corner crosshairs & coordinates */}
         <div className="absolute top-4 left-6 text-[8px] font-mono text-stone-300 pointer-events-none select-none z-20">+</div>
         <div className="absolute top-4 right-6 text-[8px] font-mono text-stone-300 pointer-events-none select-none z-20">+</div>
@@ -201,10 +201,22 @@ export default function RegisterPage() {
         </div>
 
         {/* Card Technical mesh backdrop */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808001_1px,transparent_1px),linear-gradient(to_bottom,#80808001_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808004_1px,transparent_1px),linear-gradient(to_bottom,#80808004_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0" />
+
+        {/* Floating gradient blobs */}
+        <div className="absolute -top-20 -right-20 w-[350px] h-[350px] rounded-full bg-amber-200/20 filter blur-[100px] pointer-events-none z-0 animate-pulse-glow" />
+        <div className="absolute -bottom-20 -left-20 w-[300px] h-[300px] rounded-full bg-blue-200/15 filter blur-[100px] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-rose-100/10 filter blur-[120px] pointer-events-none z-0 animate-pulse-glow" style={{ animationDelay: '4s' }} />
+
+        {/* Subtle radial gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(255,255,255,0.8)_100%)] pointer-events-none z-0" />
+
+        {/* Decorative orbit ring */}
+        <div className="absolute top-[15%] right-[10%] w-32 h-32 rounded-full border border-dashed border-stone-200/30 animate-spin-slow pointer-events-none z-0 opacity-40" />
+        <div className="absolute bottom-[20%] left-[8%] w-20 h-20 rounded-full border border-dotted border-amber-200/30 animate-spin-slow pointer-events-none z-0 opacity-30" style={{ animationDirection: 'reverse' }} />
 
         {/* Form Container */}
-        <div className="w-full max-w-md space-y-6 relative z-10 animate-fade-in">
+        <div className="w-full max-w-md space-y-6 relative z-10 animate-auth-form">
           <div className="text-center space-y-2">
             <h2 className="font-display text-2xl md:text-3xl font-black uppercase tracking-wider text-stone-900">
               {t.registerTitle}

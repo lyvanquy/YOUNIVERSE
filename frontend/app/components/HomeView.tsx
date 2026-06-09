@@ -47,67 +47,40 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
   // Product Line Showcase states
   const [activeCharmIndex, setActiveCharmIndex] = useState<number | null>(null);
 
-  // Hero Carousel Slides Data
+  // Hero Carousel Slides Data - Real charm stock photos
   const heroSlides = [
     {
-      id: 'astra',
-      title: 'ASTRA CORE',
-      tagline: language === 'vi' ? 'Năng lượng bừng sáng' : 'Your Energy Spark',
-      footerTitle: language === 'vi' ? 'DÒNG ASTRA CƠ BẢN' : 'CLASSIC ORBIT CORE',
+      id: 'charm-bom',
+      title: 'CHARM STAR',
+      tagline: language === 'vi' ? 'Ngôi sao cá nhân hóa' : 'Personalized Star',
+      footerTitle: language === 'vi' ? 'CHARM NGÔI SAO "BOM"' : 'STAR CHARM "BOM"',
       footerDesc: language === 'vi' 
-        ? 'Phụ kiện tùy chọn lắp ráp dạng mô-đun cho phép kết hợp ký tự tên viết tắt với các hạt charm trái tim.' 
-        : 'Custom modular jewelry allows you to combine Star sign initials with sweet heart elements.',
-      badgeText: language === 'vi' ? 'Lấp lánh' : 'Blink Blink',
-      badgeClass: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
-      gradientFrom: 'from-amber-200',
-      glowColor: 'bg-stone-50/50 border-stone-100/85',
-      centerIcon: Sparkles,
-      centerIconColor: 'text-amber-500',
-      orbitLeftIcon: Heart,
-      orbitLeftColor: 'text-blue-500',
-      orbitRightIcon: Compass,
-      orbitRightColor: 'text-red-500',
-      imageUrl: '/images/astra-core.png',
+        ? 'Hạt charm ngôi sao khắc tên riêng — mỗi mảnh là một câu chuyện độc nhất.' 
+        : 'Custom star charm engraved with your name — every piece tells a unique story.',
+      badgeText: language === 'vi' ? 'Bán chạy' : 'Best Seller',
+      imageUrl: '/images/charm-stock-1.jpg',
     },
     {
-      id: 'sirius',
-      title: 'SIRIUS CORE',
-      tagline: language === 'vi' ? 'Kết nối tình yêu sâu sắc' : 'Deep Love Connection',
-      footerTitle: language === 'vi' ? 'DÒNG SIRIUS TRÁI TIM' : 'SIRIUS HEART CORE',
+      id: 'charm-cat',
+      title: 'CHARM MASCOT',
+      tagline: language === 'vi' ? 'Linh vật YOUniverse' : 'YOUniverse Mascot',
+      footerTitle: language === 'vi' ? 'CHARM MÈO VŨ TRỤ' : 'COSMIC CAT CHARM',
       footerDesc: language === 'vi' 
-        ? 'Kết nối những tâm hồn đồng điệu với hạt charm thiết kế riêng lưu giữ ký ức ngọt ngào.' 
-        : 'Connect your closest souls with warm customizable charms designed to capture true memories.',
-      badgeText: language === 'vi' ? 'Năng lượng sâu lắng' : 'Deep Vibe',
-      badgeClass: 'bg-rose-500/10 text-rose-700 border-rose-500/20',
-      gradientFrom: 'from-rose-200',
-      glowColor: 'bg-rose-50/40 border-rose-100/50',
-      centerIcon: Heart,
-      centerIconColor: 'text-rose-500',
-      orbitLeftIcon: Sparkles,
-      orbitLeftColor: 'text-amber-500',
-      orbitRightIcon: Compass,
-      orbitRightColor: 'text-blue-500',
-      imageUrl: '/images/sirius-core.png',
+        ? 'Chú mèo vũ trụ dễ thương — người bạn đồng hành trên mọi hành trình.' 
+        : 'Adorable cosmic cat — your companion on every journey.',
+      badgeText: language === 'vi' ? 'Yêu thích' : 'Fan Favorite',
+      imageUrl: '/images/charm-stock-2.jpg',
     },
     {
-      id: 'polaris',
-      title: 'POLARIS CORE',
-      tagline: language === 'vi' ? 'Dẫn lối hành trình' : 'Guide Your Path',
-      footerTitle: language === 'vi' ? 'DÒNG POLARIS LA BÀN' : 'POLARIS COMPASS CORE',
+      id: 'charm-youcan',
+      title: 'CHARM MESSAGE',
+      tagline: language === 'vi' ? 'Truyền cảm hứng' : 'Inspire You',
+      footerTitle: language === 'vi' ? 'CHARM "YOU CAN."' : 'CHARM "YOU CAN."',
       footerDesc: language === 'vi' 
-        ? 'Xác định tọa độ của riêng bạn và định hướng hành trình với mặt la bàn khắc tên tinh xảo.' 
-        : 'Set your own coordinates and guide your journey with high-end stellar coordinates engraving.',
-      badgeText: language === 'vi' ? 'Hướng bắc thực sự' : 'True North',
-      badgeClass: 'bg-blue-500/10 text-blue-700 border-blue-500/20',
-      gradientFrom: 'from-blue-200',
-      glowColor: 'bg-blue-50/40 border-blue-100/50',
-      centerIcon: Compass,
-      centerIconColor: 'text-blue-500',
-      orbitLeftIcon: Sparkles,
-      orbitLeftColor: 'text-amber-500',
-      orbitRightIcon: Heart,
-      orbitRightColor: 'text-rose-500',
-      imageUrl: '/images/polaris-core.png',
+        ? 'Lời nhắn nhủ bạn mỗi ngày — bạn có thể làm được mọi điều.' 
+        : 'A daily reminder — you can do anything you set your mind to.',
+      badgeText: language === 'vi' ? 'Truyền cảm hứng' : 'Inspiring',
+      imageUrl: '/images/charm-stock-3.jpg',
     },
   ];
 
@@ -227,29 +200,61 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             
             {/* Left intro text info */}
-            <div className="space-y-6 text-left">
+            <div className="space-y-7 text-left">
               
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight uppercase">
-                {t.heroTitle}
+              {/* Sparkle micro-badge */}
+              <div className="inline-flex items-center space-x-2 bg-white/[0.08] backdrop-blur-md border border-white/[0.12] rounded-full px-4 py-1.5 animate-fade-in">
+                <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+                <span className="font-mono text-[10px] text-amber-200/90 uppercase tracking-[0.2em] font-semibold">
+                  {language === 'vi' ? '✦ Phụ kiện cá nhân hóa ✦' : '✦ Personalized Charms ✦'}
+                </span>
+              </div>
+
+              {/* Hero title with gradient accent */}
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-black tracking-tight text-white leading-[1.1] uppercase">
+                <span className="block">{language === 'vi' ? 'MỖI DẢI THIÊN HÀ' : 'A GALAXY TO HOLD,'}</span>
+                <span className="block mt-1 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,191,36,0.3)]">
+                  {language === 'vi' ? 'LÀ MỘT CÂU CHUYỆN' : 'A STORY TO BE'}
+                </span>
+                <span className="block mt-1">{language === 'vi' ? 'ĐỢC KỂ' : 'TOLD'}</span>
               </h1>
+
+              {/* Decorative divider line */}
+              <div className="flex items-center space-x-3">
+                <div className="h-[2px] w-12 bg-gradient-to-r from-amber-400 to-transparent rounded-full" />
+                <div className="h-1 w-1 rounded-full bg-amber-400/60" />
+                <div className="h-1 w-1 rounded-full bg-amber-400/30" />
+              </div>
               
-              <p className="font-sans text-stone-300 text-sm md:text-base leading-relaxed max-w-lg">
+              {/* Tagline */}
+              <p className="font-sans text-stone-300/90 text-sm md:text-[15px] leading-relaxed max-w-md">
                 {t.heroTagline}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1">
+                {/* Primary CTA - Shimmer effect */}
                 <button
                   id="hero-go-products"
                   onClick={onGoProducts}
-                  className="rounded-full bg-white hover:bg-stone-100 border-2 border-white text-black font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-xl hover:translate-y-[-2px] active:translate-y-[0] text-center cursor-pointer"
+                  className="group/btn relative rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-xs font-bold tracking-[0.15em] uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(251,191,36,0.35)] hover:translate-y-[-2px] active:translate-y-[0] text-center cursor-pointer overflow-hidden"
                 >
-                  {language === 'vi' ? 'Khám phá Vũ trụ YOUniverse' : 'Explore Our UNIverse'}
+                  <span className="relative z-10 flex items-center justify-center space-x-2">
+                    <Sparkles className="h-4 w-4 opacity-70" />
+                    <span>{language === 'vi' ? 'Khám phá Vũ trụ' : 'Explore Universe'}</span>
+                    <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300" />
+                  </span>
                 </button>
+                {/* Secondary CTA - Glass style */}
                 <a
                   href="#customizer-workshop"
-                  className="rounded-full bg-transparent hover:bg-white/10 border-2 border-stone-300 text-stone-200 font-display text-sm font-bold tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-2px] active:translate-y-[0] text-center"
+                  className="group/btn2 rounded-full bg-white/[0.06] backdrop-blur-md hover:bg-white/[0.12] border border-white/20 hover:border-white/40 text-white/90 font-display text-xs font-bold tracking-[0.15em] uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-2px] active:translate-y-[0] text-center"
                 >
-                  {language === 'vi' ? 'Tự thiết kế 3 Bước ↓' : 'Build Yours 3 Steps ↓'}
+                  <span className="flex items-center justify-center space-x-2">
+                    <Paintbrush className="h-4 w-4 opacity-60" />
+                    <span>{language === 'vi' ? 'Tự thiết kế 3 Bước' : 'Build Yours 3 Steps'}</span>
+                    <span className="inline-block animate-bounce text-amber-300 text-sm">↓</span>
+                  </span>
                 </a>
               </div>
             </div>

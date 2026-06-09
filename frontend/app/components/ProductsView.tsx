@@ -181,8 +181,8 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
         {/* Banner background image */}
         <div className="absolute inset-0 z-0">
           <img 
-            src="/images/products-banner.png" 
-            alt="YOUniverse Cosmos Banner" 
+            src="/images/banner-our-universe.png" 
+            alt="YOUniverse Our UNIverse Banner" 
             className="w-full h-full object-cover"
           />
         </div>

@@ -16,10 +16,12 @@ export default function Footer() {
           
           {/* Col 1: YOUniverse Logo + Slogan */}
           <div className="space-y-6">
-            <div className="flex items-center space-x-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white text-black font-extrabold text-xl font-youth">
-                YO
-              </div>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/images/logo-youniverse.png" 
+                alt="YOUniverse Logo" 
+                className="h-12 w-auto object-contain"
+              />
               <div>
                 <span className="font-youth text-xl font-extrabold tracking-widest text-white uppercase block">
                   YOUniverse
