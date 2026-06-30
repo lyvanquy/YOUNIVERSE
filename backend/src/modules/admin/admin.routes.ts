@@ -5,12 +5,14 @@ import { authMiddleware } from "../../common/middlewares/auth.middleware";
 import { requireRole } from "../../common/middlewares/role.middleware";
 import { validate } from "../../common/middlewares/validate.middleware";
 import { sendSuccess } from "../../common/utils/response";
+import * as feedbackController from "../feedback/feedback.controller";
 import productAdminRoutes from "../products/product.admin.routes";
 import * as adminController from "./admin.controller";
 import {
   adminOrderListQuerySchema,
   couponListQuerySchema,
   createCouponSchema,
+  feedbackListQuerySchema,
   idParamsSchema,
   inventoryAdjustSchema,
   inventoryListQuerySchema,
@@ -45,6 +47,11 @@ router.patch(
   validate({ params: idParamsSchema, body: updateOrderStatusSchema }),
   adminController.updateOrderStatus,
 );
+router.post(
+  "/orders/:id/confirm-payment",
+  validate({ params: idParamsSchema }),
+  adminController.confirmBankTransferPayment,
+);
 
 router.get("/inventory", validate({ query: inventoryListQuerySchema }), adminController.listInventory);
 router.patch(
@@ -59,5 +66,9 @@ router.patch("/coupons/:id", validate({ params: idParamsSchema, body: updateCoup
 router.delete("/coupons/:id", validate({ params: idParamsSchema }), adminController.disableCoupon);
 
 router.get("/users", validate({ query: userListQuerySchema }), adminController.listUsers);
+
+// Feedbacks
+router.get("/feedbacks", validate({ query: feedbackListQuerySchema }), feedbackController.listFeedbacks);
+router.delete("/feedbacks/:id", validate({ params: idParamsSchema }), feedbackController.deleteFeedback);
 
 export default router;

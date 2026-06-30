@@ -349,6 +349,7 @@ export const createProduct = async (input: CreateProductInput) => {
     return toProductDto(product);
   } catch (error) {
     mapPrismaError(error);
+    throw error;
   }
 };
 
@@ -433,6 +434,7 @@ export const updateProduct = async (id: string, input: UpdateProductInput) => {
     return toProductDto(product);
   } catch (error) {
     mapPrismaError(error);
+    throw error;
   }
 };
 

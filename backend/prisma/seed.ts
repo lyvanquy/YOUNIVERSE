@@ -237,11 +237,59 @@ const seedCoupons = async () => {
   }
 };
 
+const astraVariants = [
+  {
+    sku: "ASTRA-SUN",
+    name: "Hệ Mặt Trời (The Sun)",
+    stock: 30,
+  },
+  {
+    sku: "ASTRA-MOON",
+    name: "Hệ Mặt Trăng (The Moon)",
+    stock: 30,
+  },
+  {
+    sku: "ASTRA-STAR",
+    name: "Hệ Tinh Tú (The Star)",
+    stock: 30,
+  },
+] as const;
+
+const seedAstraVariants = async () => {
+  const astraProduct = await prisma.product.findUnique({
+    where: { slug: "charm-astra" },
+  });
+
+  if (!astraProduct) {
+    console.warn("[seed] Charm Astra product not found, skipping variants.");
+    return;
+  }
+
+  for (const variant of astraVariants) {
+    const existing = await prisma.productVariant.findUnique({
+      where: { sku: variant.sku },
+    });
+
+    if (!existing) {
+      await prisma.productVariant.create({
+        data: {
+          productId: astraProduct.id,
+          name: variant.name,
+          sku: variant.sku,
+          stock: variant.stock,
+          isActive: true,
+        },
+      });
+    }
+  }
+};
+
 const main = async () => {
   await seedAdmin();
   await seedCategories();
   await seedProducts();
   await seedCoupons();
+  await seedAstraVariants();
 
   console.info("Database seed completed.");
 };
