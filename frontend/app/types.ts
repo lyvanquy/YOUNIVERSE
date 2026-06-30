@@ -8,7 +8,7 @@ export interface CharmProduct {
   color: string;
   brandColor: 'blue' | 'yellow' | 'red';
   iconName: string;
-  price?: number;
+  price: number;
 }
 
 export interface TeamMember {
