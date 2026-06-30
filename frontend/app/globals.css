@@ -140,6 +140,14 @@ body {
   animation: marquee-single-ltr 15s linear infinite;
 }
 
+.animate-photo-scroll {
+  animation: marquee-ltr 35s linear infinite;
+}
+
+.animate-photo-scroll-reverse {
+  animation: marquee 35s linear infinite;
+}
+
 .animate-float {
   animation: float-gentle 6s infinite ease-in-out;
 }

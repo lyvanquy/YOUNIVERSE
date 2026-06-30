@@ -7,6 +7,7 @@ import { CustomJewelry } from './types';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import MarqueeSlogan from './components/MarqueeSlogan';
+import { TestimonialCarousel, MaterialShowcase, AstraShowcase, SiriusShowcase, PolarisShowcase, Visual4Steps } from './components/ProductsView';
 import CartDrawer from './components/CartDrawer';
 import { translations } from './locales';
 
@@ -52,6 +53,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CustomJewelry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [language, setLanguage] = useState<'en' | 'vi'>('en');
+  const [mounted, setMounted] = useState(false);
   const t = translations[language];
 
   // Load language from local storage on mount
@@ -64,6 +66,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     } catch (e) {
       console.warn('Could not load language from localStorage', e);
     }
+    setMounted(true);
   }, []);
 
   const updateLanguage = (lang: 'en' | 'vi') => {
@@ -245,8 +248,38 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
           {/* Dynamic Running text slogan after banner or pages as requested (Page 4 & 7) */}
           {pathname !== '/' && showPublicLayout && (
             <section className="my-6">
-              <MarqueeSlogan onSloganClick={handleSloganClick} />
+              <MarqueeSlogan onSloganClick={handleSloganClick} variant={pathname === '/products' ? 'newArrivals' : 'default'} />
             </section>
+          )}
+
+          {/* YOUniverse & YOU — Customer Testimonials (Products page only) */}
+          {pathname === '/products' && (
+            <TestimonialCarousel language={language} />
+          )}
+
+          {/* Premium Heat-Shrink Plastic — Material Showcase (Products page only) */}
+          {pathname === '/products' && (
+            <MaterialShowcase language={language} />
+          )}
+
+          {/* Astra: Your Unique Identifier (Products page only) */}
+          {pathname === '/products' && (
+            <AstraShowcase language={language} />
+          )}
+
+          {/* Sirius: The Unspoken Passion (Products page only) */}
+          {pathname === '/products' && (
+            <SiriusShowcase language={language} />
+          )}
+
+          {/* Polaris: The Guiding Spirit (Products page only) */}
+          {pathname === '/products' && (
+            <PolarisShowcase language={language} />
+          )}
+
+          {/* Visual 4 Steps (Products page only) */}
+          {pathname === '/products' && (
+            <Visual4Steps language={language} />
           )}
         </main>
 

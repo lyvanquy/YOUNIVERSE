@@ -16,6 +16,7 @@ import MarqueeSlogan from './MarqueeSlogan';
 import { CORE_VALUES } from '../data';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
+import UsecaseCarousel from './UsecaseCarousel';
 
 interface HomeViewProps {
   onGoAbout: () => void;
@@ -46,6 +47,24 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
   // Product Line Showcase states
   const [activeCharmIndex, setActiveCharmIndex] = useState<number | null>(null);
+  const [showStickyCta, setShowStickyCta] = useState(false);
+  const inlineCtaRef = useRef<HTMLDivElement>(null);
+
+  // Show fixed CTA as soon as the inline CTA enters the viewport
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = inlineCtaRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      // Hide when footer is visible
+      const footer = document.querySelector('footer');
+      const footerVisible = footer ? footer.getBoundingClientRect().top < window.innerHeight : false;
+      // Show fixed CTA from when inline CTA enters viewport, hide at footer
+      setShowStickyCta(rect.top < window.innerHeight && !footerVisible);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Hero Carousel Slides Data - Real charm stock photos
   const heroSlides = [
@@ -156,7 +175,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
   };
 
   return (
-    <div className="space-y-16 pb-24 relative overflow-hidden" id="home-view">
+    <>
+    <div className="space-y-16 pb-8 relative overflow-x-hidden" id="home-view">
       
       {/* Technical Background Mesh Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
@@ -202,11 +222,11 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
             {/* Left intro text info */}
             <div className="space-y-7 text-left">
               
-              {/* Sparkle micro-badge */}
+              {/* Welcome badge */}
               <div className="inline-flex items-center space-x-2 bg-white/[0.08] backdrop-blur-md border border-white/[0.12] rounded-full px-4 py-1.5 animate-fade-in">
                 <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
                 <span className="font-mono text-[10px] text-amber-200/90 uppercase tracking-[0.2em] font-semibold">
-                  {language === 'vi' ? '✦ Phụ kiện cá nhân hóa ✦' : '✦ Personalized Charms ✦'}
+                  {t.heroBadge}
                 </span>
               </div>
 
@@ -232,30 +252,30 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-1">
-                {/* Primary CTA - Shimmer effect */}
+              <div className="flex flex-col items-stretch gap-3 pt-2 max-w-md">
+                {/* Primary CTA - Big prominent shimmer */}
                 <button
                   id="hero-go-products"
                   onClick={onGoProducts}
-                  className="group/btn relative rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-xs font-bold tracking-[0.15em] uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(251,191,36,0.35)] hover:translate-y-[-2px] active:translate-y-[0] text-center cursor-pointer overflow-hidden"
+                  className="group/btn relative rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.45)] hover:translate-y-[-3px] active:translate-y-[0] text-center cursor-pointer overflow-hidden whitespace-nowrap shadow-[0_4px_20px_rgba(251,191,36,0.25)]"
                 >
-                  <span className="relative z-10 flex items-center justify-center space-x-2">
-                    <Sparkles className="h-4 w-4 opacity-70" />
-                    <span>{language === 'vi' ? 'Khám phá Vũ trụ' : 'Explore Universe'}</span>
-                    <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300" />
+                  <span className="relative z-10 flex items-center justify-center gap-2.5">
+                    <Sparkles className="h-[18px] w-[18px] opacity-80 shrink-0" />
+                    <span>{t.heroBtn1}</span>
+                    <ChevronRight className="h-[18px] w-[18px] opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300 shrink-0" />
                   </span>
                 </button>
-                {/* Secondary CTA - Glass style */}
-                <a
-                  href="#customizer-workshop"
-                  className="group/btn2 rounded-full bg-white/[0.06] backdrop-blur-md hover:bg-white/[0.12] border border-white/20 hover:border-white/40 text-white/90 font-display text-xs font-bold tracking-[0.15em] uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-2px] active:translate-y-[0] text-center"
+                {/* Secondary CTA - Big glass style */}
+                <button
+                  onClick={onGoAbout}
+                  className="group/btn2 rounded-full bg-white/[0.08] backdrop-blur-md hover:bg-white/[0.15] border border-white/25 hover:border-white/50 text-white font-display text-sm font-bold tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_10px_30px_rgba(255,255,255,0.08)] active:translate-y-[0] text-center cursor-pointer whitespace-nowrap"
                 >
-                  <span className="flex items-center justify-center space-x-2">
-                    <Paintbrush className="h-4 w-4 opacity-60" />
-                    <span>{language === 'vi' ? 'Tự thiết kế 3 Bước' : 'Build Yours 3 Steps'}</span>
-                    <span className="inline-block animate-bounce text-amber-300 text-sm">↓</span>
+                  <span className="flex items-center justify-center gap-2.5">
+                    <Bookmark className="h-[18px] w-[18px] opacity-70 shrink-0" />
+                    <span>{t.heroBtn2}</span>
+                    <ChevronRight className="h-[18px] w-[18px] opacity-0 -ml-2 group-hover/btn2:opacity-100 group-hover/btn2:ml-0 transition-all duration-300 shrink-0" />
                   </span>
-                </a>
+                </button>
               </div>
             </div>
 
@@ -356,6 +376,130 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       {/* Slogan marquee right below Hero Banner */}
       <MarqueeSlogan onSloganClick={onGoAbout} />
 
+      {/* Brand Introduction — "The Silent Communicator" */}
+      <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16 md:mt-24" id="brand-intro-section">
+        <div className="relative overflow-hidden rounded-3xl bg-[#FAF6EE] border-2 border-stone-900 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          
+          {/* Pop-art background decorations */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            
+            {/* Bold geometric shapes */}
+            <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-amber-400/20" />
+            <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-blue-500/15" />
+            <div className="absolute top-[20%] right-[8%] w-20 h-20 rounded-full bg-rose-400/15" />
+            <div className="absolute bottom-[15%] left-[45%] w-14 h-14 bg-amber-400/10 rotate-45" />
+            <div className="absolute top-[60%] right-[35%] w-10 h-10 bg-blue-500/10 rotate-12 rounded-sm" />
+            
+            {/* Half-circle accent */}
+            <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-20 h-40 rounded-r-full bg-rose-400/10" />
+            <div className="absolute -right-8 bottom-[20%] w-16 h-32 rounded-l-full bg-blue-400/10" />
+            
+            {/* Colorful sparkle/star elements — varied shapes from reference */}
+            {/* Large stars */}
+            <div className="absolute top-5 left-[12%] text-2xl text-amber-500 animate-twinkle select-none" style={{ animationDelay: '0.2s' }}>✦</div>
+            <div className="absolute top-8 right-[18%] text-3xl text-blue-500 animate-twinkle select-none" style={{ animationDelay: '1.5s' }}>✦</div>
+            <div className="absolute bottom-6 left-[55%] text-xl text-rose-500 animate-twinkle select-none" style={{ animationDelay: '2.5s' }}>✦</div>
+            
+            {/* 6-point & 8-point bursts */}
+            <div className="absolute top-[25%] left-[5%] text-lg text-amber-600/60 animate-twinkle select-none" style={{ animationDelay: '0.8s' }}>✶</div>
+            <div className="absolute bottom-[30%] right-[6%] text-xl text-blue-600/50 animate-twinkle select-none" style={{ animationDelay: '2s' }}>✸</div>
+            <div className="absolute top-[15%] right-[40%] text-sm text-rose-500/50 animate-twinkle select-none" style={{ animationDelay: '3s' }}>✹</div>
+            
+            {/* Small diamonds & dots */}
+            <div className="absolute top-3 left-[35%] text-xs text-stone-900/20 select-none">◆</div>
+            <div className="absolute bottom-4 right-[45%] text-[10px] text-amber-600/30 animate-twinkle select-none" style={{ animationDelay: '1.2s' }}>◆</div>
+            <div className="absolute top-[45%] left-[8%] text-sm text-blue-500/30 animate-twinkle select-none" style={{ animationDelay: '0.5s' }}>✧</div>
+            <div className="absolute bottom-10 left-[22%] text-base text-rose-400/40 animate-twinkle select-none" style={{ animationDelay: '1.8s' }}>✧</div>
+            
+            {/* Tiny accent circles (like confetti dots) */}
+            <div className="absolute top-[12%] left-[28%] w-3 h-3 rounded-full bg-blue-500/25" />
+            <div className="absolute top-[70%] right-[12%] w-2.5 h-2.5 rounded-full bg-rose-500/30" />
+            <div className="absolute bottom-[22%] left-[38%] w-2 h-2 rounded-full bg-amber-500/35" />
+            <div className="absolute top-[55%] left-[18%] w-4 h-4 rounded-full bg-amber-400/15 border border-amber-400/20" />
+            <div className="absolute top-[35%] right-[22%] w-3 h-3 rounded-full bg-blue-400/15 border border-blue-400/20" />
+            
+            {/* Wavy/squiggly decorative lines */}
+            <svg className="absolute bottom-8 right-[28%] w-16 h-4 text-rose-400/30" viewBox="0 0 64 16">
+              <path d="M0 8 Q8 0 16 8 Q24 16 32 8 Q40 0 48 8 Q56 16 64 8" fill="none" stroke="currentColor" strokeWidth="2" />
+            </svg>
+            <svg className="absolute top-10 left-[42%] w-12 h-3 text-blue-400/25" viewBox="0 0 48 12">
+              <path d="M0 6 Q6 0 12 6 Q18 12 24 6 Q30 0 36 6 Q42 12 48 6" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            </svg>
+            
+            {/* Dotted orbit ring */}
+            <div className="absolute top-6 right-10 w-20 h-20 rounded-full border-2 border-dotted border-stone-900/8" />
+            <div className="absolute bottom-8 left-12 w-14 h-14 rounded-full border-2 border-dashed border-amber-500/15" />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-0">
+            
+            {/* Left — Big decorative title block (2 cols) */}
+            <div className="md:col-span-2 flex flex-col justify-center items-center md:items-start p-8 md:p-12 md:border-r-2 border-stone-900/10">
+              {/* Label badge */}
+              <div className="inline-flex items-center space-x-2 bg-stone-900 rounded-full px-4 py-1.5 mb-6 shadow-[3px_3px_0px_0px_rgba(234,179,8,1)]">
+                <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="font-mono text-[9px] text-amber-200 uppercase tracking-[0.2em] font-bold">
+                  {t.brandIntroLabel}
+                </span>
+              </div>
+              
+              {/* Giant brand name */}
+              <h2 className="font-youth text-5xl sm:text-6xl md:text-7xl font-black text-stone-900 leading-none tracking-tight">
+                <span className="block">YOU</span>
+                <span className="block text-transparent" style={{ WebkitTextStroke: '2px #1a1a1a', paintOrder: 'stroke fill' }}>
+                  niverse
+                </span>
+              </h2>
+              
+              {/* Subtitle with line */}
+              <div className="flex items-center gap-3 mt-5">
+                <div className="h-[3px] w-10 bg-amber-400 rounded-full" />
+                <span className="font-display text-[11px] text-stone-500 uppercase tracking-[0.25em] font-bold">
+                  {t.brandIntroSubtitle}
+                </span>
+              </div>
+            </div>
+
+            {/* Right — Description & visual (3 cols) */}
+            <div className="md:col-span-3 flex flex-col justify-center p-8 md:p-12 md:pl-10">
+              {/* Decorative quote mark */}
+              <div className="text-6xl md:text-8xl font-display text-stone-900/[0.06] leading-none select-none -mb-6 md:-mb-10">
+                &ldquo;
+              </div>
+              
+              <p className="font-sans text-stone-700 text-base md:text-lg leading-relaxed max-w-xl">
+                {t.brandIntroDesc}
+              </p>
+
+              {/* 3-element formula visual pills — bold pop-art style */}
+              <div className="flex flex-wrap items-center gap-2.5 mt-8">
+                <div className="flex items-center gap-2 bg-blue-500 rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
+                  <Sparkles className="h-3.5 w-3.5 text-white" />
+                  <span className="font-display text-[11px] text-white uppercase tracking-wider font-bold">Astra</span>
+                </div>
+                <span className="text-stone-400 text-sm font-bold">+</span>
+                <div className="flex items-center gap-2 bg-amber-400 rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
+                  <Heart className="h-3.5 w-3.5 text-stone-900" />
+                  <span className="font-display text-[11px] text-stone-900 uppercase tracking-wider font-bold">Sirius</span>
+                </div>
+                <span className="text-stone-400 text-sm font-bold">+</span>
+                <div className="flex items-center gap-2 bg-rose-500 rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all cursor-default">
+                  <Compass className="h-3.5 w-3.5 text-white" />
+                  <span className="font-display text-[11px] text-white uppercase tracking-wider font-bold">Polaris</span>
+                </div>
+                <span className="text-stone-400 text-lg font-black">=</span>
+                <div className="flex items-center gap-2 bg-stone-900 rounded-full px-4 py-2 shadow-[3px_3px_0px_0px_rgba(234,179,8,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_rgba(234,179,8,1)] transition-all cursor-default">
+                  <span className="font-display text-[11px] text-white uppercase tracking-wider font-bold">YOUniverse</span>
+                  <span className="text-amber-400 text-sm animate-twinkle">✦</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* 2. Khám Phá Các Hành Tinh: Charm Lines Products Showcase */}
       <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-20 md:mt-28 space-y-10" id="charm-lines-section">
         
@@ -363,7 +507,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
           <h3 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
             {t.planetTitle}
           </h3>
-          <p className="font-sans text-stone-500 text-xs tracking-wider max-w-lg mx-auto">
+          <p className="font-sans text-stone-500 text-xs tracking-wider mx-auto">
             {t.planetSubtitle}
           </p>
         </div>
@@ -479,114 +623,276 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
       </section>
 
-      {/* 3. How to Build Your YOUniverse (Hướng dẫn 3 bước - Customized Workshop) */}
-      <section 
-        id="customizer-workshop" 
-        className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-24 md:mt-36 space-y-10 md:space-y-12"
-      >
+      {/* Inline CTA Button — hidden when fixed version is active */}
+      <div ref={inlineCtaRef} className={`flex justify-center py-2 relative z-10 transition-opacity duration-300 ${showStickyCta ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <a
+          href="#feedback-section"
+          id="charm-lines-cta"
+          className="group/cta inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-10 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.4)] hover:translate-y-[-3px] active:translate-y-[0] cursor-pointer shadow-[0_6px_25px_rgba(251,191,36,0.3)] whitespace-nowrap"
+        >
+          <Sparkles className="h-[18px] w-[18px] opacity-80 shrink-0" />
+          <span>{t.customizeCta}</span>
+          <ChevronRight className="h-[18px] w-[18px] opacity-0 -ml-2 group-hover/cta:opacity-100 group-hover/cta:ml-0 transition-all duration-300 shrink-0" />
+        </a>
+      </div>
+
+      {/* Photoshoot Gallery — Behind the Scenes */}
+      <section className="relative z-10 mt-20 md:mt-28 overflow-hidden" id="photoshoot-section">
         
-        {/* Header segment of workshop instructions */}
-        <div className="text-center space-y-3">
-          <h3 className="font-display text-3xl font-extrabold text-stone-900 uppercase tracking-tight">
-            {t.howToTitle}
+        {/* Section header */}
+        <div className="text-center space-y-3 mb-10 px-4">
+          <h3 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
+            {t.photoshootTitle}
           </h3>
-          <p className="font-sans text-stone-500 text-xs tracking-wider max-w-xl mx-auto">
-            {t.howToSubtitle}
+          <p className="font-sans text-stone-500 text-xs tracking-wider mx-auto">
+            {t.photoshootSubtitle}
           </p>
         </div>
 
-        {/* Orbit Timeline (5A: Visual 3 steps planets flow) */}
-        <div className="relative py-6">
-          {/* Glowing Gradient Orbit Line (Desktop only) */}
-          <div className="absolute top-1/2 left-[15%] right-[15%] h-[3px] bg-gradient-to-r from-blue-300 via-amber-300 to-rose-300 -translate-y-1/2 hidden md:block z-0 opacity-80 blur-[0.5px]" />
-          <div className="absolute top-1/2 left-[15%] right-[15%] h-[3px] bg-gradient-to-r from-blue-400 via-amber-400 to-rose-400 -translate-y-1/2 hidden md:block z-0 opacity-30 blur-[4px] animate-pulse-glow" />
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
-            {/* Step 1 Card */}
-            <div className="group relative rounded-[28px] transition-all duration-500 hover:-translate-y-1.5 cursor-default flex flex-col items-center text-center hover:shadow-[0_20px_40px_rgba(59,130,246,0.08)]">
-              {/* Flowing Gradient Border (on hover) */}
-              <div className="absolute -inset-[1.5px] rounded-[29px] bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient" />
-              
-              {/* Inner Card Background Mask */}
-              <div className="absolute inset-0 rounded-[28px] bg-white/90 backdrop-blur-md border border-stone-200/60 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
-
-              {/* Content Wrapper */}
-              <div className="relative z-20 p-6 flex flex-col items-center space-y-4">
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-blue-50/50 to-blue-100/30 border border-blue-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
-                  {/* Orbiting halo effect */}
-                  <div className="absolute inset-[-4px] rounded-full border border-dashed border-blue-400/30 animate-spin-slow group-hover:border-blue-400/80 transition-colors duration-500" />
-                  <Sparkles className="h-7 w-7 text-blue-500 animate-twinkle" />
-                  
-                  {/* Glowing step badge */}
-                  <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-[10px] font-black text-white shadow-md shadow-blue-500/20 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300">1</span>
+        {/* Scrolling Photo Marquee — Row 1 (Left to Right) */}
+        <div className="relative w-full overflow-hidden mb-4">
+          <div className="flex animate-photo-scroll whitespace-nowrap">
+            {[...Array(2)].map((_, setIdx) => (
+              <div key={setIdx} className="flex gap-4 pr-4 shrink-0">
+                {/* Portrait */}
+                <div className="group/photo relative w-[220px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-1.png" alt="Photoshoot 1" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-blue-500 transition-colors">{t.step1Title}</h4>
-                  <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
-                    {t.step1Desc}
-                  </p>
+                {/* Landscape */}
+                <div className="group/photo relative w-[360px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-2.png" alt="Photoshoot 2" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
                 </div>
-              </div>
-            </div>
-
-            {/* Step 2 Card */}
-            <div className="group relative rounded-[28px] transition-all duration-500 hover:-translate-y-1.5 cursor-default flex flex-col items-center text-center hover:shadow-[0_20px_40px_rgba(234,179,8,0.08)]">
-              {/* Flowing Gradient Border (on hover) */}
-              <div className="absolute -inset-[1.5px] rounded-[29px] bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient" />
-              
-              {/* Inner Card Background Mask */}
-              <div className="absolute inset-0 rounded-[28px] bg-white/90 backdrop-blur-md border border-stone-200/60 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
-
-              {/* Content Wrapper */}
-              <div className="relative z-20 p-6 flex flex-col items-center space-y-4">
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-amber-50/50 to-amber-100/30 border border-amber-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
-                  {/* Orbiting halo effect */}
-                  <div className="absolute inset-[-4px] rounded-full border border-dashed border-amber-400/30 animate-spin-slow group-hover:border-amber-400/80 transition-colors duration-500" style={{ animationDirection: 'reverse' }} />
-                  <Heart className="h-7 w-7 text-amber-500 animate-float" />
-                  
-                  {/* Glowing step badge */}
-                  <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-white shadow-md shadow-amber-500/20 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300">2</span>
+                {/* Portrait */}
+                <div className="group/photo relative w-[220px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-3.png" alt="Photoshoot 3" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-amber-500 transition-colors">{t.step2Title}</h4>
-                  <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
-                    {t.step2Desc}
-                  </p>
+                {/* Landscape */}
+                <div className="group/photo relative w-[400px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-4.png" alt="Photoshoot 4" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            {/* Step 3 Card */}
-            <div className="group relative rounded-[28px] transition-all duration-500 hover:-translate-y-1.5 cursor-default flex flex-col items-center text-center hover:shadow-[0_20px_40px_rgba(244,63,94,0.08)]">
-              {/* Flowing Gradient Border (on hover) */}
-              <div className="absolute -inset-[1.5px] rounded-[29px] bg-gradient-to-r from-rose-400 via-red-400 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient" />
-              
-              {/* Inner Card Background Mask */}
-              <div className="absolute inset-0 rounded-[28px] bg-white/90 backdrop-blur-md border border-stone-200/60 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
-
-              {/* Content Wrapper */}
-              <div className="relative z-20 p-6 flex flex-col items-center space-y-4">
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-rose-50/50 to-rose-100/30 border border-rose-200 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-500">
-                  {/* Orbiting halo effect */}
-                  <div className="absolute inset-[-4px] rounded-full border border-dashed border-rose-400/30 animate-spin-slow group-hover:border-rose-400/80 transition-colors duration-500" />
-                  <Compass className="h-7 w-7 text-rose-500 animate-spin-slow" />
-                  
-                  {/* Glowing step badge */}
-                  <span className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-md shadow-rose-500/20 group-hover:scale-110 group-hover:animate-pulse transition-all duration-300">3</span>
+        {/* Scrolling Photo Marquee — Row 2 (Right to Left) */}
+        <div className="relative w-full overflow-hidden">
+          <div className="flex animate-photo-scroll-reverse whitespace-nowrap">
+            {[...Array(2)].map((_, setIdx) => (
+              <div key={setIdx} className="flex gap-4 pr-4 shrink-0">
+                {/* Landscape */}
+                <div className="group/photo relative w-[380px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-4.png" alt="Photoshoot 4" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-display text-sm font-black uppercase tracking-wider text-stone-900 group-hover:text-rose-500 transition-colors">{t.step3Title}</h4>
-                  <p className="font-sans text-xs text-stone-600 leading-relaxed max-w-[245px] mx-auto">
-                    {t.step3Desc}
-                  </p>
+                {/* Portrait */}
+                <div className="group/photo relative w-[200px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-5.png" alt="Photoshoot 5" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
+                </div>
+                {/* Landscape */}
+                <div className="group/photo relative w-[340px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-6.png" alt="Photoshoot 6" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
+                </div>
+                {/* Portrait */}
+                <div className="group/photo relative w-[220px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-1.png" alt="Photoshoot 1" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
+                </div>
+                {/* Landscape */}
+                <div className="group/photo relative w-[360px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
+                  <img src="/images/photoshoot-2.png" alt="Photoshoot 2" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
+                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
 
       </section>
 
+      {/* Tính Ứng Dụng — Use Cases Carousel (Apple-style) */}
+      <section className="relative z-10 mt-20 md:mt-28 py-16 md:py-24 bg-stone-950" id="usecase-section">
+        
+        {/* Section Header */}
+        <div className="text-center space-y-3 mb-12 px-4">
+          <h3 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-white uppercase">
+            {t.usecaseTitle}
+          </h3>
+        </div>
+
+        {/* Carousel */}
+        {(() => {
+          const usecaseSlides = [
+            { image: '/images/photoshoot-1.png', title: t.usecase1Title, desc: t.usecase1Desc },
+            { image: '/images/photoshoot-2.png', title: t.usecase2Title, desc: t.usecase2Desc },
+            { image: '/images/photoshoot-3.png', title: t.usecase3Title, desc: t.usecase3Desc },
+            { image: '/images/photoshoot-4.png', title: t.usecase4Title, desc: t.usecase4Desc },
+            { image: '/images/photoshoot-5.png', title: t.usecase5Title, desc: t.usecase5Desc },
+            { image: '/images/photoshoot-6.png', title: t.usecase6Title, desc: t.usecase6Desc },
+          ];
+
+          return (
+            <UsecaseCarousel slides={usecaseSlides} />
+          );
+        })()}
+
+      </section>
+
+      {/* Unleash Your YOUniverse — Feedback / Story Sharing Section */}
+      <section className="relative z-10 mt-20 md:mt-28 py-16 md:py-24 overflow-hidden" id="feedback-section">
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-3 mb-14">
+            <h3 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-stone-900 uppercase">
+              {t.feedbackTitle}
+            </h3>
+            <p className="font-sans text-stone-500 text-sm tracking-wider">{t.feedbackSubtitle}</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* Left — Product Image Collage */}
+            <div className="relative hidden lg:block">
+              <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-black/40">
+                <img src="/images/photoshoot-3.png" alt="YOUniverse Charm" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <p className="font-display text-2xl font-extrabold text-white uppercase tracking-wide leading-snug">
+                    {language === 'vi' ? 'Hãy chia sẻ' : 'Share your'}<br />
+                    <span className="text-amber-400">YOUniverse</span><br />
+                    {language === 'vi' ? 'tại đây.' : 'right here.'}
+                  </p>
+                </div>
+              </div>
+              <div className="absolute -top-6 -right-6 w-32 h-32 rounded-2xl overflow-hidden shadow-xl rotate-6 border-2 border-stone-200/60">
+                <img src="/images/photoshoot-1.png" alt="" className="w-full h-full object-cover" />
+              </div>
+              <div className="absolute -bottom-4 -left-4 w-28 h-28 rounded-2xl overflow-hidden shadow-xl -rotate-6 border-2 border-stone-200/60">
+                <img src="/images/photoshoot-5.png" alt="" className="w-full h-full object-cover" />
+              </div>
+            </div>
+
+            {/* Right — Feedback Form */}
+            <div className="relative">
+              <div className="bg-white/80 backdrop-blur-2xl border border-stone-200/60 rounded-3xl p-8 md:p-10 shadow-2xl">
+                <div className="mb-8 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-amber-400/20 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-amber-400" />
+                  </div>
+                  <span className="font-display text-xs font-bold text-amber-500 uppercase tracking-widest">
+                    {language === 'vi' ? 'Kết nối vũ trụ' : 'Cosmic Connection'}
+                  </span>
+                </div>
+
+                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); const form = e.target as HTMLFormElement; const s = document.getElementById('feedback-success'); if (s) { s.classList.remove('hidden'); setTimeout(() => s.classList.add('hidden'), 4000); } form.reset(); }}>
+                  <div className="space-y-2">
+                    <label className="block font-display text-xs font-bold text-stone-600 uppercase tracking-wider">{t.feedbackNameLabel}</label>
+                    <input type="text" required placeholder={t.feedbackNamePlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block font-display text-xs font-bold text-stone-600 uppercase tracking-wider">{t.feedbackEmailLabel}</label>
+                    <input type="email" required placeholder={t.feedbackEmailPlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block font-display text-xs font-bold text-stone-600 uppercase tracking-wider leading-relaxed">{t.feedbackStoryLabel}</label>
+                    <textarea required rows={5} placeholder={t.feedbackStoryPlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300 resize-none" />
+                  </div>
+                  <button type="submit" className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] active:translate-y-[0] cursor-pointer">
+                    {t.feedbackSubmit}
+                  </button>
+                  <div id="feedback-success" className="hidden text-center py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20">
+                    <p className="text-emerald-500 text-sm font-sans font-medium">{t.feedbackSuccess}</p>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* YOUniverse Running Text */}
+      <section className="relative z-10 mt-20 md:mt-28 overflow-hidden" id="cta-marquee-section">
+
+        {/* YOUniverse Running Text Marquee */}
+        <div 
+          className="relative py-4 bg-stone-950 cursor-pointer group/marquee overflow-hidden"
+          onClick={onGoAbout}
+        >
+          {/* Row scrolling Right to Left */}
+          <div className="flex animate-photo-scroll whitespace-nowrap">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center shrink-0 gap-8 px-4">
+                {[...Array(3)].map((_, j) => (
+                  <span 
+                    key={j} 
+                    className="font-display text-3xl md:text-5xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400/20 via-amber-300/30 to-amber-400/20 group-hover/marquee:from-amber-400 group-hover/marquee:via-yellow-300 group-hover/marquee:to-amber-400 transition-all duration-500 select-none"
+                  >
+                    YOUniverse
+                  </span>
+                ))}
+                <span className="text-amber-400/15 group-hover/marquee:text-amber-400/60 text-2xl transition-colors duration-500">✦</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Hover indicator */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/marquee:opacity-100 transition-opacity duration-500 pointer-events-none">
+            <div className="bg-black/60 backdrop-blur-sm rounded-full px-6 py-2 border border-amber-400/30">
+              <span className="font-display text-sm font-bold text-amber-400 uppercase tracking-widest">
+                {language === 'vi' ? 'Xem câu chuyện →' : 'Our Story →'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
     </div>
+
+    {/* Fixed Bottom CTA — smooth slide animation */}
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-[60] transition-all duration-500 ease-out ${
+        showStickyCta
+          ? 'translate-y-0 opacity-100'
+          : 'translate-y-full opacity-0 pointer-events-none'
+      }`}
+    >
+      <div className="bg-black/80 backdrop-blur-xl border-t border-amber-400/20 py-3 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-center">
+          <a
+            href="#feedback-section"
+            className="group/cta inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-3 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.4)] hover:scale-105 active:scale-100 cursor-pointer shadow-[0_4px_20px_rgba(251,191,36,0.25)] whitespace-nowrap"
+          >
+            <Sparkles className="h-4 w-4 opacity-80 shrink-0" />
+            <span>{t.customizeCta}</span>
+            <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/cta:opacity-100 group-hover/cta:ml-0 transition-all duration-300 shrink-0" />
+          </a>
+        </div>
+      </div>
+    </div>
+    </>
   );
 }

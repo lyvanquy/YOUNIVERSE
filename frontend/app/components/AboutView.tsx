@@ -82,29 +82,67 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
         </div>
       </section>
 
-      {/* 2. Our Story Section */}
+      {/* 2. Brand Name & Tagline */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          
+          {/* Left — Brand Name & Positioning */}
+          <div className="space-y-5">
+            <h2 className="font-display text-5xl sm:text-6xl md:text-7xl font-black text-black uppercase tracking-tight select-none leading-none">
+              YOU<span className="text-amber-500">niverse</span>
+            </h2>
+            <div className="inline-flex items-center gap-2 bg-stone-100 border border-stone-200 rounded-full px-5 py-2">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-stone-700">
+                {language === 'vi' ? 'Công cụ "Giao tiếp thầm lặng"' : 'Silent Communication Tool'}
+              </span>
+            </div>
+            <p className="font-sans text-stone-600 text-sm leading-relaxed max-w-md">
+              {language === 'vi'
+                ? 'Giúp định hình và khẳng định bản sắc cá nhân.'
+                : 'A tool that actively shapes and asserts personal identity.'}
+            </p>
+          </div>
+
+          {/* Right — Tagline Card */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/40 to-transparent rounded-3xl" />
+            <div className="relative bg-white/80 backdrop-blur-sm border border-stone-200/80 rounded-3xl p-8 md:p-10 space-y-5">
+              <p className="font-display text-lg md:text-xl font-black text-black italic tracking-tight">
+                "Unspoken Desires, Bespoke YOUniverse."
+              </p>
+              <div className="h-[1px] w-16 bg-amber-500" />
+              <p className="font-sans text-stone-600 text-xs md:text-sm leading-relaxed">
+                {language === 'vi'
+                  ? 'Nơi những khao khát chưa từng được cất lời sẽ được hữu hình hóa trong một "vũ trụ" độc bản của riêng bạn. Tagline này giải quyết trực diện "nút thắt" tâm lý của thế hệ trẻ: Sự ngần ngại khi phải mở lời đòi hỏi, song hành cùng mong muốn sâu sắc được người khác thấu hiểu và "chạm" đúng tần số.'
+                  : 'Your silent wishes and distinct preferences, perfectly tailored and captured within your own universe. This resolves the core consumer tension: the reluctance to ask directly, coupled with the desire for others to intuitively match their exact tastes.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Our Story & Key Message */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           {/* Left info box (Big Headline) */}
           <div className="lg:col-span-5 space-y-4 text-left lg:sticky lg:top-28">
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-black uppercase tracking-tight leading-tight">
-              {t.storyTitle}
+              {language === 'vi' ? 'Câu chuyện của chúng tôi' : 'Our Story'}
             </h2>
             <div className="h-1 w-20 bg-amber-500 mt-4 rounded animate-pulse-glow" />
             
-            {/* Ambient ornament graphics background */}
+            {/* Key message callout */}
             <div className="hidden lg:block pt-10">
               <div className="relative p-6 border border-stone-200/60 rounded-2xl bg-white/85 backdrop-blur-md flex items-center space-x-4 text-stone-600 shadow-sm transition-all duration-300 hover:shadow-md hover:border-amber-200">
-                
-                {/* Rotating orbit path */}
                 <div className="absolute inset-0 border border-dashed border-stone-150/80 rounded-2xl pointer-events-none animate-pulse-glow" />
-                
                 <Quote className="h-7 w-7 text-amber-500 shrink-0 animate-float" />
-                <p className={`text-[11px] ${language === 'vi' ? 'font-sans' : 'font-mono'} leading-relaxed text-stone-600 text-left`}>
-                   {t.quoteText}
-                 </p>
-                {/* Decorative stars */}
+                <p className="text-[11px] font-sans leading-relaxed text-stone-600 text-left">
+                  {language === 'vi'
+                    ? '"Hãy để chiếc charm tự cất tiếng, phát đi những tín hiệu tinh tế để người đối diện luôn chạm đúng gu của bạn."'
+                    : '"Let the charm do the talking, allowing those around you to tap into your exact vibe."'}
+                </p>
                 <Sparkles className="absolute -top-2 -right-2 h-4 w-4 text-amber-400 animate-twinkle" />
               </div>
             </div>
@@ -113,89 +151,83 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
           {/* Right info text paragraph */}
           <div className="lg:col-span-7 space-y-6 text-left">
             <div className="relative bg-white/85 border border-stone-200/60 rounded-3xl p-6 md:p-10 shadow-sm hover:shadow-[0_12px_35px_-5px_rgba(0,0,0,0.04)] hover:border-stone-350 transition-all duration-500 backdrop-blur-md overflow-hidden group">
-              
-              {/* Subtle Grid backdrop */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808004_1px,transparent_1px),linear-gradient(to_bottom,#80808004_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
-
               <div className="absolute top-4 right-4 text-stroke-current text-stone-200/40 font-display text-8xl font-black select-none pointer-events-none transition-all duration-700 group-hover:text-amber-500/25 group-hover:scale-105 z-0">
                 UEH
               </div>
               
               <div className="space-y-6 text-stone-600 text-sm leading-relaxed font-sans relative z-10">
                 <p className="first-letter:text-4xl first-letter:font-extrabold first-letter:text-black first-letter:mr-2 first-letter:float-left">
-                  {t.storyDesc}
+                  {language === 'vi'
+                    ? 'Chúng ta luôn khao khát được thấu hiểu, nhưng lại chán ghét việc phải giải thích về bản thân mình. Với Gen Z, ai cũng từng giấu một mong muốn nhỏ bé: Giá như những người thân yêu có thể tự "đọc vị" sở thích của mình mà không cần đến những lời gợi ý gượng gạo hay đòi hỏi trực tiếp.'
+                    : 'We all crave to be understood, yet we hate to overexplain. We often wish our friends and loved ones could decode our little quirks and preferences without us having to drop awkward hints or ask outright.'}
                 </p>
                 
                 <p>
-                  {t.storyDesc2}
+                  {language === 'vi'
+                    ? 'Nắm bắt tâm lý đó, YOUniverse ra đời cùng công thức "Vũ trụ 3 ngôi" độc quyền. Một chiếc móc khóa mang đậm dấu ấn cá nhân—tích hợp Biệt danh, Sở thích và một Câu Quote tuyên ngôn—giờ đây không chỉ là phụ kiện trang trí đơn thuần. Nó hóa thân thành một "Bản đồ thấu hiểu" không lời.'
+                    : 'That is exactly why YOUniverse was born, featuring our exclusive "Tri-Star Universe" formula. A customized keychain carrying your exact Nickname, Interests, and signature Quote is no longer just a decorative accessory—it acts as a silent \'User Manual\' to your personality.'}
                 </p>
-                
-                 <div className={`p-4 bg-stone-50/80 rounded-2xl border border-stone-200/80 ${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs text-stone-850 flex items-center space-x-2`}>
-                   <span className="text-amber-500 animate-pulse">⚡</span>
-                   <span>{t.storyTip}</span>
-                 </div>
-              </div>
 
+                <div className="p-4 bg-stone-50/80 rounded-2xl border border-stone-200/80 font-sans text-xs text-stone-850 flex items-center space-x-2">
+                  <span className="text-amber-500 animate-pulse">⚡</span>
+                  <span>
+                    {language === 'vi'
+                      ? 'Hãy để chiếc charm tự cất tiếng, phát đi những tín hiệu tinh tế để người đối diện luôn "chạm" đúng gu quà tặng của bạn một cách tự nhiên và mượt mà nhất.'
+                      : 'Let the charm do the talking, allowing those around you to tap into your exact vibe and gift-giving love language in the most natural, subtle way possible.'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* 3 & 4. Our Mission & Our Vision (Bento layout layout with flowing gradient borders) */}
+      {/* 4 & 5. Our Mission & Our Vision */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* Mission Card */}
           <div className="group relative rounded-3xl transition-all duration-500 hover:-translate-y-1.5 cursor-default flex flex-col justify-between hover:shadow-[0_20px_45px_-5px_rgba(59,130,246,0.12)]">
-            {/* Flowing Gradient Border (on hover) */}
             <div className="absolute -inset-[1.5px] rounded-[25px] bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient" />
-            
-            {/* Inner Card Background Mask */}
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-50/10 via-white to-white border border-stone-200/80 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
-
-            {/* Content Wrapper */}
              <div className="relative z-20 p-8 space-y-4">
               <div className="absolute top-0 right-0 h-20 w-20 bg-blue-500/5 rounded-bl-full pointer-events-none z-0" />
-              
               <div className="flex items-center space-x-3 relative z-10">
                 <span className="p-2 bg-blue-50 text-blue-600 border border-blue-100 rounded-xl flex items-center justify-center">
                   <Flame className="h-5 w-5 animate-pulse" />
                 </span>
                 <h3 className="font-display text-xl font-extrabold text-black uppercase tracking-tight">
-                  {t.missionTitle}
+                  {language === 'vi' ? 'Sứ mệnh' : 'Our Mission'}
                 </h3>
               </div>
-              
               <p className="font-sans text-stone-700 text-sm leading-relaxed relative z-10">
-                {t.missionDesc}
+                {language === 'vi'
+                  ? 'Sứ mệnh của YOUniverse là giải tỏa áp lực giao tiếp và phá vỡ rào cản "ngại bày tỏ" của người trẻ. Bằng cách cung cấp những giải pháp cá nhân hóa thiết thực, chúng tôi tạo ra các "tín hiệu ngầm" đầy tinh tế. YOUniverse trao quyền để bạn tự tin phơi bày thế giới nội tâm phong phú, biến phụ kiện thường nhật thành nhịp cầu thấu hiểu—giúp những người xung quanh trân trọng và kết nối đúng gu mà chẳng cần đến một lời giải thích.'
+                  : 'YOUniverse is on a mission to relieve communication pressure and break down the psychological barrier of expression among the youth. We provide personalized, data-driven solutions to create sophisticated, silent-signaling artifacts. We empower young consumers to confidently showcase their unique inner worlds, transforming everyday accessories into psychological bridges that help others understand, appreciate, and connect with their exact preferences without uttering a single word.'}
               </p>
             </div>
           </div>
 
           {/* Vision Card */}
           <div className="group relative rounded-3xl transition-all duration-500 hover:-translate-y-1.5 cursor-default flex flex-col justify-between hover:shadow-[0_20px_45px_-5px_rgba(234,179,8,0.12)]">
-            {/* Flowing Gradient Border (on hover) */}
             <div className="absolute -inset-[1.5px] rounded-[25px] bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 animate-flow-gradient" />
-            
-            {/* Inner Card Background Mask */}
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-amber-50/10 via-white to-white border border-stone-200/80 z-10 pointer-events-none group-hover:border-transparent transition-all duration-500" />
-
-            {/* Content Wrapper */}
              <div className="relative z-20 p-8 space-y-4">
               <div className="absolute top-0 right-0 h-20 w-20 bg-amber-500/5 rounded-bl-full pointer-events-none z-0" />
-
               <div className="flex items-center space-x-3 relative z-10">
                 <span className="p-2 bg-amber-50 text-amber-600 border border-amber-100 rounded-xl flex items-center justify-center">
                   <Eye className="h-5 w-5 animate-float" />
                 </span>
                 <h3 className="font-display text-xl font-extrabold text-black uppercase tracking-tight">
-                  {t.visionTitle}
+                  {language === 'vi' ? 'Tầm nhìn' : 'Our Vision'}
                 </h3>
               </div>
-
               <p className="font-sans text-stone-700 text-sm leading-relaxed relative z-10">
-                {t.visionDesc}
+                {language === 'vi'
+                  ? 'Trở thành thương hiệu phụ kiện mô-đun cá nhân hóa hàng đầu dành cho Gen Z, tiên phong khai mở phân khúc "Phụ kiện Tâm lý Xã hội" (Socio-psychological Accessories) tại Việt Nam. YOUniverse hướng tới việc xây dựng một hệ sinh thái nơi mỗi vật phẩm thủ công vượt khỏi giới hạn thẩm mỹ thông thường, trở thành công cụ đắc lực để định vị bản sắc và giải quyết trọn vẹn nhu cầu "kết nối vô ngôn" trong kỷ nguyên số.'
+                  : 'To become the leading personalized modular accessory brand for Gen Z, pioneering the "Socio-Psychological Accessories" segment in Vietnam. We envision a future where handcrafted products transcend mere aesthetic utility, serving as powerful tools for identity positioning and fulfilling the deep need for unspoken connection in the digital era.'}
               </p>
             </div>
           </div>
@@ -203,7 +235,50 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
         </div>
       </section>
 
-      {/* 5. Our Core Values (3 columns with premium letter hover mechanics) */}
+      {/* 6. Deep Insight */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="relative bg-stone-900 text-white rounded-3xl p-8 md:p-12 overflow-hidden group">
+          {/* Background effects */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none z-0" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+          
+          {/* Decorative stars */}
+          <div className="absolute top-6 right-8 text-amber-400 animate-twinkle">✦</div>
+          <div className="absolute bottom-8 left-10 text-blue-400 animate-twinkle duration-2000">✦</div>
+
+          <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-4 py-1.5">
+              <Eye className="h-3.5 w-3.5 text-amber-400" />
+              <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400">
+                Deep Insight
+              </span>
+            </div>
+
+            {/* Title */}
+            <h2 className="font-display text-2xl md:text-3xl font-black uppercase tracking-tight">
+              {language === 'vi' ? '"Tín hiệu ngầm"' : '"Silent Signals"'}
+            </h2>
+
+            {/* Content */}
+            <p className="font-sans text-stone-300 text-sm md:text-base leading-relaxed">
+              {language === 'vi'
+                ? 'Giới trẻ khao khát nhận được những món quà "chuẩn gu" từ bạn bè và người thân, nhưng lại bị kìm hãm bởi tâm lý e ngại việc đòi hỏi trực tiếp. Họ cần một điểm chạm vật lý nhỏ gọn, đồng hành mỗi ngày để đóng vai trò như một "Tín hiệu ngầm" — Đây là một sự gợi ý khéo léo nhằm định hướng sự thấu hiểu từ người khác, mang lại cảm giác được quan tâm trọn vẹn mà không hề phô trương hay gượng ép.'
+                : 'Young consumers harbor a strong desire for friends and loved ones to gift them items that perfectly align with their preferences, yet they face a significant psychological barrier when it comes to communicating these wants directly. They need a compact, everyday physical touchpoint to act as a "Silent Signal"—a refined, non-ostentatious cue that guides social interaction and mutual understanding effortlessly.'}
+            </p>
+
+            {/* Visual separator */}
+            <div className="flex justify-center gap-1.5 pt-2">
+              <div className="h-1 w-3 rounded-full bg-blue-500" />
+              <div className="h-1 w-6 rounded-full bg-amber-500" />
+              <div className="h-1 w-3 rounded-full bg-rose-500" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Our Core Values (3 columns with premium letter hover mechanics) */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
         
         <div className="text-center space-y-2">
@@ -599,7 +674,104 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
 
       </section>
 
-      {/* 6. Active Call-to-Action (CTA Capsule Section) */}
+      {/* Share Your YOUniverse — Feedback Form */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Section Header */}
+        <div className="text-center mb-10">
+          <p className="font-display text-[10px] font-bold uppercase tracking-[0.25em] text-amber-500 mb-2">
+            {language === 'vi' ? 'Thông điệp vũ trụ' : 'Cosmic Message'}
+          </p>
+          <h2 className="font-display text-2xl md:text-3xl font-extrabold tracking-tight text-black uppercase">
+            Unleash Your YOUniverse
+          </h2>
+          <p className="font-sans text-stone-500 text-xs mt-2 max-w-md mx-auto">
+            {language === 'vi' ? 'YOUniverse lắng nghe bạn' : 'YOUniverse listens to you'}
+          </p>
+        </div>
+
+        {/* Split layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-stretch">
+          
+          {/* Left — Product Image */}
+          <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] min-h-[400px] group">
+            <img
+              src="/images/photoshoot-1.png"
+              alt="YOUniverse Products"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            <div className="absolute bottom-6 left-6 right-6">
+              <p className="font-display text-lg font-black text-white uppercase tracking-tight">
+                {language === 'vi' ? 'Chia sẻ câu chuyện của bạn' : 'Share Your Story'}
+              </p>
+              <p className="font-sans text-white/70 text-xs mt-1">
+                {language === 'vi'
+                  ? 'Hãy chia sẻ YOUniverse của bạn tại đây'
+                  : 'Tell us about your YOUniverse experience'}
+              </p>
+            </div>
+          </div>
+
+          {/* Right — Feedback Form */}
+          <div className="relative bg-white border border-stone-200/80 rounded-[20px] p-8 md:p-10 shadow-sm">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808004_1px,transparent_1px),linear-gradient(to_bottom,#80808004_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0 rounded-[20px]" />
+            
+            <form className="relative z-10 space-y-5" onSubmit={(e) => e.preventDefault()}>
+              {/* Full Name */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                  {language === 'vi' ? 'Họ và tên' : 'Full Name'}
+                </label>
+                <input
+                  type="text"
+                  placeholder={language === 'vi' ? 'Nhập họ và tên...' : 'Enter your full name...'}
+                  className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  placeholder={language === 'vi' ? 'Nhập email...' : 'Enter your email...'}
+                  className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
+                />
+              </div>
+
+              {/* Message */}
+              <div className="space-y-1.5">
+                <label className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                  {language === 'vi' ? 'Câu chuyện của bạn' : 'Your Story'}
+                </label>
+                <p className="font-sans text-stone-400 text-[11px] leading-relaxed">
+                  {language === 'vi'
+                    ? 'Chiếc charm đã giúp bạn "lên tiếng" như thế nào? Hãy để lại tần số của bạn và chia sẻ câu chuyện đó cùng chúng mình nhé.'
+                    : 'Did your charm hit the right spot? Share your unspoken connection with us.'}
+                </p>
+                <textarea
+                  rows={4}
+                  placeholder={language === 'vi' ? 'Chia sẻ câu chuyện của bạn...' : 'Tell us your story...'}
+                  className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all resize-none"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                className="w-full bg-black hover:bg-stone-800 text-white font-display text-xs font-bold uppercase tracking-wider py-3.5 rounded-full transition-all duration-300 hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>{language === 'vi' ? 'Gửi tín hiệu' : 'Send Signal'}</span>
+                <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* Active Call-to-Action (CTA Capsule Section) */}
       <section className="mx-auto max-w-4xl px-4 text-center relative z-10">
         <div className="bg-black text-white rounded-3xl p-8 md:p-12 relative overflow-hidden flex flex-col items-center space-y-6 shadow-xl border border-stone-850 group">
           
