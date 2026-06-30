@@ -391,3 +391,54 @@ export const handlePaymentCallback = async (providerParam: string, payload: unkn
 
   return result;
 };
+
+/**
+ * Khách hàng upload ảnh minh chứng chuyển khoản sau khi đặt hàng BANK_TRANSFER.
+ * Cập nhật receiptUrl vào PaymentTransaction tương ứng.
+ */
+export const uploadPaymentReceipt = async (
+  orderId: string,
+  receiptUrl: string,
+  sessionId?: string,
+  userId?: string,
+): Promise<{ paymentId: string; receiptUrl: string }> => {
+  // Tìm payment của order này
+  const payment = await prisma.paymentTransaction.findFirst({
+    where: {
+      orderId,
+      provider: PaymentProvider.BANK_TRANSFER,
+      status: PaymentStatus.PENDING,
+    },
+    include: {
+      order: {
+        select: {
+          userId: true,
+          orderCode: true,
+        },
+      },
+    },
+  });
+
+  if (!payment) {
+    throw new AppError(
+      "No pending bank transfer payment found for this order",
+      HTTP_STATUS.NOT_FOUND,
+    );
+  }
+
+  // Kiểm tra quyền: chỉ chủ order mới được upload
+  const orderUserId = payment.order.userId;
+  if (orderUserId && userId && orderUserId !== userId) {
+    throw new AppError("You do not have permission to update this payment", HTTP_STATUS.FORBIDDEN);
+  }
+
+  const updated = await prisma.paymentTransaction.update({
+    where: { id: payment.id },
+    data: { receiptUrl },
+  });
+
+  return {
+    paymentId: updated.id,
+    receiptUrl: updated.receiptUrl ?? receiptUrl,
+  };
+};

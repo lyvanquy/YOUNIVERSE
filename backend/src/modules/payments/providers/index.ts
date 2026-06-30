@@ -2,6 +2,7 @@ import { PaymentProvider } from "@prisma/client";
 
 import { AppError } from "../../../common/errors/AppError";
 import { HTTP_STATUS } from "../../../common/errors/errorCodes";
+import { bankTransferProvider } from "./bank-transfer.provider";
 import { codProvider } from "./cod.provider";
 import { mockOnlineProvider } from "./mock-online.provider";
 import { momoProvider } from "./momo.provider";
@@ -11,6 +12,7 @@ import { vnpayProvider } from "./vnpay.provider";
 
 const providers: Record<PaymentProvider, PaymentProviderAdapter> = {
   [PaymentProvider.COD]: codProvider,
+  [PaymentProvider.BANK_TRANSFER]: bankTransferProvider,
   [PaymentProvider.MOCK_ONLINE]: mockOnlineProvider,
   [PaymentProvider.VNPAY]: vnpayProvider,
   [PaymentProvider.MOMO]: momoProvider,

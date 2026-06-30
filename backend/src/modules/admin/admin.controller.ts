@@ -184,3 +184,22 @@ export const listUsers: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * POST /api/v1/admin/orders/:id/confirm-payment
+ * Xác nhận admin đã nhận được tiền chuyển khoản (BANK_TRANSFER).
+ * Tự động kấu trừ kho, đổi trạng thái order và gửi email khách.
+ */
+export const confirmBankTransferPayment: RequestHandler = async (req, res, next) => {
+  try {
+    const adminUserId = getAdminUserIdOrThrow(req.user?.sub);
+    const result = await adminService.confirmBankTransferPayment(req.params.id, adminUserId);
+
+    sendSuccess(res, {
+      message: "Bank transfer payment confirmed. Customer will be notified by email.",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

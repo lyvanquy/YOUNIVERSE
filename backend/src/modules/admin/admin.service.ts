@@ -3,6 +3,7 @@ import {
   CouponType,
   InventoryChangeType,
   OrderStatus,
+  PaymentProvider,
   PaymentStatus,
   Prisma,
   UserRole,
@@ -847,4 +848,127 @@ export const listUsers = async (query: UserListQuery) => {
       totalPages: Math.ceil(total / query.limit),
     },
   };
+};
+
+/**
+ * Admin xác nhận đã nhận được tiền chuyển khoản thủ công.
+ * Sau khi xác nhận:
+ * 1. PaymentTransaction: PENDING → PAID
+ * 2. Order: → PAID
+ * 3. Kấu trừ tồn kho (nếu chưa bị trừ)
+ * 4. Gửi email thông báo cho khách
+ */
+export const confirmBankTransferPayment = async (orderId: string, adminUserId: string) => {
+  const payment = await prisma.paymentTransaction.findFirst({
+    where: {
+      orderId,
+      provider: PaymentProvider.BANK_TRANSFER,
+      status: PaymentStatus.PENDING,
+    },
+    include: {
+      order: {
+        include: {
+          items: true,
+          inventoryLogs: true,
+        },
+      },
+    },
+  });
+
+  if (!payment) {
+    throw new AppError(
+      "No pending bank transfer payment found for this order",
+      HTTP_STATUS.NOT_FOUND,
+    );
+  }
+
+  if (!payment.receiptUrl) {
+    throw new AppError(
+      "Customer has not uploaded a payment receipt yet",
+      HTTP_STATUS.BAD_REQUEST,
+    );
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Đánh dấu payment đã được trả
+    const claimResult = await tx.paymentTransaction.updateMany({
+      where: {
+        id: payment.id,
+        status: PaymentStatus.PENDING,
+      },
+      data: {
+        status: PaymentStatus.PAID,
+        paidAt: new Date(),
+        verifiedAt: new Date(),
+        verifiedById: adminUserId,
+      },
+    });
+
+    if (claimResult.count !== 1) {
+      throw new AppError("Payment was already processed", HTTP_STATUS.CONFLICT);
+    }
+
+    // 2. Kiểm tra nếu chưa trừ kho
+    const stockWasDeducted = payment.order.inventoryLogs.some(
+      (log) => log.type === InventoryChangeType.SALE,
+    );
+
+    if (!stockWasDeducted) {
+      for (const item of payment.order.items) {
+        const inventoryUpdate = await tx.inventory.updateMany({
+          where: {
+            productId: item.productId,
+            quantity: { gte: item.quantity },
+          },
+          data: {
+            quantity: { decrement: item.quantity },
+            soldQuantity: { increment: item.quantity },
+          },
+        });
+
+        if (inventoryUpdate.count !== 1) {
+          throw new AppError("Stock not enough to confirm order", HTTP_STATUS.BAD_REQUEST);
+        }
+
+        const inventory = await tx.inventory.findUniqueOrThrow({
+          where: { productId: item.productId },
+        });
+
+        await tx.inventoryLog.create({
+          data: {
+            inventoryId: inventory.id,
+            type: InventoryChangeType.SALE,
+            quantity: -item.quantity,
+            note: `Stock deducted for confirmed bank transfer order ${payment.order.orderCode}`,
+            orderId: payment.order.id,
+            createdById: adminUserId,
+          },
+        });
+
+        if (item.variantId) {
+          await tx.productVariant.updateMany({
+            where: {
+              id: item.variantId,
+              stock: { gte: item.quantity },
+              isActive: true,
+            },
+            data: { stock: { decrement: item.quantity } },
+          });
+        }
+      }
+    }
+
+    // 3. Cập nhật trạng thái đơn hàng
+    await tx.order.update({
+      where: { id: orderId },
+      data: { status: OrderStatus.PAID },
+    });
+
+    return { orderId, paymentId: payment.id };
+  });
+
+  // 4. Gửi email xác nhận
+  await emailService.sendPaymentSuccessEmail(orderId);
+
+  return result;
 };

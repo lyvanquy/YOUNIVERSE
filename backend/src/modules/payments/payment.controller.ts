@@ -25,3 +25,24 @@ export const handleWebhook: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * POST /api/v1/payments/receipt
+ * Khách hàng gửi URL ảnh minh chứng chuyển khoản.
+ * Yêu cầu: { orderId, receiptUrl } trong body.
+ */
+export const submitReceipt: RequestHandler = async (req, res, next) => {
+  try {
+    const { orderId, receiptUrl } = req.body as { orderId: string; receiptUrl: string };
+    const userId = req.user?.sub;
+
+    const result = await paymentService.uploadPaymentReceipt(orderId, receiptUrl, undefined, userId);
+
+    sendSuccess(res, {
+      message: "Payment receipt submitted successfully. Our team will verify your transfer shortly.",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -8,6 +8,10 @@ import {
 } from "@prisma/client";
 import { z } from "zod";
 
+// Re-export từ feedback module để admin routes import được
+export { feedbackListQuerySchema } from "../feedback/feedback.validation";
+export type { FeedbackListQuery } from "../feedback/feedback.validation";
+
 const optionalText = z.string().trim().min(1).optional().nullable();
 const money = z.coerce.number().positive("Amount must be positive");
 const optionalMoney = z.coerce.number().min(0, "Amount must be non-negative").optional().nullable();
