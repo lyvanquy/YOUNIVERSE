@@ -54,7 +54,7 @@ export default function MarqueeSlogan({ onSloganClick, variant = 'default' }: Ma
                 {[...Array(6)].map((_, i) => (
                   <span key={i} className="inline-flex items-center gap-6 px-4">
                     <img src="/images/logo-youniverse.png" alt="YOUniverse" className="h-5 w-auto object-contain" />
-                    <span className="font-display text-base md:text-lg font-black uppercase tracking-widest text-black select-none">
+                    <span className="font-display text-xs md:text-sm font-black uppercase tracking-widest text-black select-none">
                       New Arrivals
                     </span>
                     <span className="text-black/40">•</span>

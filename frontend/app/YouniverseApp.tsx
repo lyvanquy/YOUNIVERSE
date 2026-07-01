@@ -246,7 +246,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
           {children}
 
           {/* Dynamic Running text slogan after banner or pages as requested (Page 4 & 7) */}
-          {pathname !== '/' && showPublicLayout && (
+          {pathname !== '/' && pathname !== '/order' && pathname !== '/policy' && showPublicLayout && (
             <section className="my-6">
               <MarqueeSlogan onSloganClick={handleSloganClick} variant={pathname === '/products' ? 'newArrivals' : 'default'} />
             </section>

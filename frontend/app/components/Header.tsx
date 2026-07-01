@@ -127,7 +127,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <Link
             id="logo-brand"
-            href="/"
+            href="/order"
             onClick={() => setMobileMenuOpen(false)}
             className="group flex items-center justify-center focus:outline-none"
           >

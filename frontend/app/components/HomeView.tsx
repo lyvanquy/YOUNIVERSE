@@ -252,28 +252,30 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col items-stretch gap-3 pt-2 max-w-md">
+              <div className="flex flex-row items-center gap-3 pt-2">
                 {/* Primary CTA - Big prominent shimmer */}
                 <button
                   id="hero-go-products"
                   onClick={onGoProducts}
-                  className="group/btn relative rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.45)] hover:translate-y-[-3px] active:translate-y-[0] text-center cursor-pointer overflow-hidden whitespace-nowrap shadow-[0_4px_20px_rgba(251,191,36,0.25)]"
+                  suppressHydrationWarning
+                  className="group/btn relative rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-xs font-black tracking-wide uppercase px-5 py-3 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.45)] hover:translate-y-[-3px] active:translate-y-[0] text-center cursor-pointer overflow-hidden whitespace-nowrap shadow-[0_4px_20px_rgba(251,191,36,0.25)]"
                 >
-                  <span className="relative z-10 flex items-center justify-center gap-2.5">
-                    <Sparkles className="h-[18px] w-[18px] opacity-80 shrink-0" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Sparkles className="h-4 w-4 opacity-80 shrink-0" />
                     <span>{t.heroBtn1}</span>
-                    <ChevronRight className="h-[18px] w-[18px] opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300 shrink-0" />
+                    <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300 shrink-0" />
                   </span>
                 </button>
                 {/* Secondary CTA - Big glass style */}
                 <button
                   onClick={onGoAbout}
-                  className="group/btn2 rounded-full bg-white/[0.08] backdrop-blur-md hover:bg-white/[0.15] border border-white/25 hover:border-white/50 text-white font-display text-sm font-bold tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_10px_30px_rgba(255,255,255,0.08)] active:translate-y-[0] text-center cursor-pointer whitespace-nowrap"
+                  suppressHydrationWarning
+                  className="group/btn2 rounded-full bg-white/[0.08] backdrop-blur-md hover:bg-white/[0.15] border border-white/25 hover:border-white/50 text-white font-display text-xs font-bold tracking-wide uppercase px-5 py-3 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_10px_30px_rgba(255,255,255,0.08)] active:translate-y-[0] text-center cursor-pointer whitespace-nowrap"
                 >
-                  <span className="flex items-center justify-center gap-2.5">
-                    <Bookmark className="h-[18px] w-[18px] opacity-70 shrink-0" />
+                  <span className="flex items-center justify-center gap-2">
+                    <Bookmark className="h-4 w-4 opacity-70 shrink-0" />
                     <span>{t.heroBtn2}</span>
-                    <ChevronRight className="h-[18px] w-[18px] opacity-0 -ml-2 group-hover/btn2:opacity-100 group-hover/btn2:ml-0 transition-all duration-300 shrink-0" />
+                    <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/btn2:opacity-100 group-hover/btn2:ml-0 transition-all duration-300 shrink-0" />
                   </span>
                 </button>
               </div>
@@ -626,8 +628,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       {/* Inline CTA Button — hidden when fixed version is active */}
       <div ref={inlineCtaRef} className={`flex justify-center py-2 relative z-10 transition-opacity duration-300 ${showStickyCta ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         <a
-          href="#feedback-section"
-          id="charm-lines-cta"
+          href="/order"
           className="group/cta inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-10 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.4)] hover:translate-y-[-3px] active:translate-y-[0] cursor-pointer shadow-[0_6px_25px_rgba(251,191,36,0.3)] whitespace-nowrap"
         >
           <Sparkles className="h-[18px] w-[18px] opacity-80 shrink-0" />
@@ -637,17 +638,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       </div>
 
       {/* Photoshoot Gallery — Behind the Scenes */}
-      <section className="relative z-10 mt-20 md:mt-28 overflow-hidden" id="photoshoot-section">
+      <section className="relative z-10 mt-10 md:mt-14 overflow-hidden" id="photoshoot-section">
         
-        {/* Section header */}
-        <div className="text-center space-y-3 mb-10 px-4">
-          <h3 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
-            {t.photoshootTitle}
-          </h3>
-          <p className="font-sans text-stone-500 text-xs tracking-wider mx-auto">
-            {t.photoshootSubtitle}
-          </p>
-        </div>
 
         {/* Scrolling Photo Marquee — Row 1 (Left to Right) */}
         <div className="relative w-full overflow-hidden mb-4">
@@ -883,7 +875,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       <div className="bg-black/80 backdrop-blur-xl border-t border-amber-400/20 py-3 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-center">
           <a
-            href="#feedback-section"
+            href="/order"
             className="group/cta inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-3 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.4)] hover:scale-105 active:scale-100 cursor-pointer shadow-[0_4px_20px_rgba(251,191,36,0.25)] whitespace-nowrap"
           >
             <Sparkles className="h-4 w-4 opacity-80 shrink-0" />

@@ -104,12 +104,92 @@ export const TEAM_MEMBERS: TeamMember[] = [
     name: 'Ms. Duong Ngoc Phuong Nghi',
     nameVi: 'Dương Ngọc Phương Nghi',
     phone: '0346229446',
-    role: 'Production Manager'
+    role: 'Lead of Production'
   },
   {
     name: 'Ms. Tran Ngoc Thu',
-    nameVi: 'Trần Ngọc Thu',
+    nameVi: 'Trần Ngọc Thư',
     phone: '0913450445',
     role: 'Lead of Public Relations'
   }
+];
+
+/* ─── Order Page Data ─── */
+
+export type AstraSystemId = 'sun' | 'moon' | 'star';
+export type SiriusCategoryId = 'pet' | 'drink';
+export type SiriusCharmId = 'dog' | 'cat' | 'hamster' | 'boba' | 'matcha' | 'coffee';
+export type PolarisTabId = 'preset' | 'custom' | 'swap';
+
+export interface AstraSystem {
+  id: AstraSystemId;
+  emoji: string;
+  nameEn: string;
+  nameVi: string;
+  descEn: string;
+  descVi: string;
+  image: string;
+}
+
+export interface SiriusCharm {
+  id: SiriusCharmId;
+  category: SiriusCategoryId;
+  emoji: string;
+  nameEn: string;
+  nameVi: string;
+  image: string;
+}
+
+export interface PolarisQuote {
+  id: string;
+  textEn: string;
+  textVi: string;
+}
+
+export const ASTRA_SYSTEMS: AstraSystem[] = [
+  {
+    id: 'sun',
+    emoji: '☀️',
+    nameEn: 'The Sun',
+    nameVi: 'Hệ Mặt Trời',
+    descEn: 'For energetic souls, full of passion and always shining brightly.',
+    descVi: 'Dành cho những tâm hồn năng động, tràn đầy nhiệt huyết và luôn tỏa sáng rực rỡ.',
+    image: '/images/charm-stock-1.jpg',
+  },
+  {
+    id: 'moon',
+    emoji: '🌙',
+    nameEn: 'The Moon',
+    nameVi: 'Hệ Mặt Trăng',
+    descEn: 'A sanctuary of calmness, depth, mystery and keen intuition.',
+    descVi: 'Nơi trú ngụ của sự điềm tĩnh, sâu sắc, một chút bí ẩn và trực giác nhạy bén.',
+    image: '/images/charm-stock-2.jpg',
+  },
+  {
+    id: 'star',
+    emoji: '⭐',
+    nameEn: 'The Star',
+    nameVi: 'Hệ Tinh Tú',
+    descEn: 'Symbol of dreams, freedom, romance and the pursuit of wonder.',
+    descVi: 'Biểu tượng của những ước mơ, sự tự do, lãng mạn và luôn tìm kiếm điều kỳ diệu.',
+    image: '/images/charm-stock-3.jpg',
+  },
+];
+
+export const SIRIUS_CHARMS: SiriusCharm[] = [
+  { id: 'dog', category: 'pet', emoji: '🐕', nameEn: 'Dog', nameVi: 'Chó', image: '/images/charm-stock-1.jpg' },
+  { id: 'cat', category: 'pet', emoji: '🐈', nameEn: 'Cat', nameVi: 'Mèo', image: '/images/charm-stock-2.jpg' },
+  { id: 'hamster', category: 'pet', emoji: '🐹', nameEn: 'Hamster', nameVi: 'Hamster', image: '/images/charm-stock-3.jpg' },
+  { id: 'boba', category: 'drink', emoji: '🧋', nameEn: 'Bubble Tea', nameVi: 'Trà sữa', image: '/images/charm-stock-1.jpg' },
+  { id: 'matcha', category: 'drink', emoji: '🍵', nameEn: 'Matcha Latte', nameVi: 'Matcha Latte', image: '/images/charm-stock-2.jpg' },
+  { id: 'coffee', category: 'drink', emoji: '☕', nameEn: 'Coffee', nameVi: 'Cà phê', image: '/images/charm-stock-3.jpg' },
+];
+
+export const POLARIS_QUOTES: PolarisQuote[] = [
+  { id: 'q1', textEn: 'Be yourself; everyone else is already taken.', textVi: 'Hãy là chính mình; ai cũng đã có người khác rồi.' },
+  { id: 'q2', textEn: 'The only way to do great work is to love what you do.', textVi: 'Cách duy nhất để làm việc tuyệt vời là yêu những gì bạn làm.' },
+  { id: 'q3', textEn: 'Stars can\'t shine without darkness.', textVi: 'Sao không thể tỏa sáng nếu thiếu bóng tối.' },
+  { id: 'q4', textEn: 'In the middle of difficulty lies opportunity.', textVi: 'Giữa khó khăn là cơ hội.' },
+  { id: 'q5', textEn: 'Your vibe attracts your tribe.', textVi: 'Tần số của bạn thu hút cộng đồng của bạn.' },
+  { id: 'q6', textEn: 'Dream big. Start small. Act now.', textVi: 'Mơ lớn. Bắt đầu nhỏ. Hành động ngay.' },
 ];
