@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   keywords: ["YOUniverse", "charm ca nhan hoa", "phu kien ca nhan hoa", "moc khoa thu cong", "custom charm", "Astra", "Sirius", "Polaris", "UEH ISB"],
   authors: [{ name: "YOUniverse Team" }],
   icons: {
-    icon: "/favicon.ico?v=1",
+    icon: "/favicon.ico?v=2",
   },
   openGraph: {
     title: "YOUniverse - Phụ kiện & Charm cá nhân hóa độc bản",
