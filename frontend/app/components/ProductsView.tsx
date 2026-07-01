@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, useRef } from 'react';
 import { Sparkles, Heart, Compass, Search, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';

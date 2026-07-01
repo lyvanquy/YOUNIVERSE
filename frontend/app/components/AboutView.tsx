@@ -1,14 +1,14 @@
+'use client';
+
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Star, Quote, Eye, Flame, Sparkles, Phone } from 'lucide-react';
 import { CORE_VALUES, TEAM_MEMBERS } from '../data';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 
-interface AboutViewProps {
-  onGoProducts: () => void;
-}
-
-export default function AboutView({ onGoProducts }: AboutViewProps) {
+export default function AboutView() {
+  const router = useRouter();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   
   const { language } = useYouniverseApp();
@@ -797,7 +797,7 @@ export default function AboutView({ onGoProducts }: AboutViewProps) {
           {/* Button "nhấn vào thì ra trang chi tiết sản phẩm" */}
           <button
             id="cta-about-btn"
-            onClick={onGoProducts}
+            onClick={() => router.push('/products')}
             className="relative z-10 w-full sm:w-auto rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-black tracking-widest uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 text-center flex items-center justify-center space-x-2 cursor-pointer"
           >
             <span>{t.exploreNow}</span>

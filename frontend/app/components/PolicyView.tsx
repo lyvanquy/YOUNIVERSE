@@ -1,3 +1,5 @@
+'use client';
+
 import { Shield, Truck, Phone, AlertTriangle, CheckCircle, XCircle, Sparkles, Heart } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 

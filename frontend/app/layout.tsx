@@ -32,10 +32,38 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "YOUniverse",
-  description: "A galaxy to hold, a story to be told.",
+  metadataBase: new URL("https://youniverse.io.vn"),
+  title: {
+    default: "YOUniverse - Phụ kiện & Charm cá nhân hóa độc bản",
+    template: "%s | YOUniverse",
+  },
+  description: "A galaxy to hold, a story to be told. YOUniverse chuyên cung cấp các sản phẩm charm thủ công tinh tế giúp bạn khẳng định bản sắc cá nhân và giao tiếp thầm lặng.",
+  keywords: ["YOUniverse", "charm ca nhan hoa", "phu kien ca nhan hoa", "moc khoa thu cong", "custom charm", "Astra", "Sirius", "Polaris", "UEH ISB"],
+  authors: [{ name: "YOUniverse Team" }],
   icons: {
     icon: "/favicon.ico?v=1",
+  },
+  openGraph: {
+    title: "YOUniverse - Phụ kiện & Charm cá nhân hóa độc bản",
+    description: "A galaxy to hold, a story to be told. Tự thiết kế vũ trụ móc khóa của riêng bạn.",
+    url: "https://youniverse.io.vn",
+    siteName: "YOUniverse",
+    images: [
+      {
+        url: "/images/home-banner.png",
+        width: 1200,
+        height: 630,
+        alt: "YOUniverse Cosmos",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "YOUniverse - Phụ kiện & Charm cá nhân hóa độc bản",
+    description: "Tự thiết kế vũ trụ móc khóa của riêng bạn.",
+    images: ["/images/home-banner.png"],
   },
 };
 
