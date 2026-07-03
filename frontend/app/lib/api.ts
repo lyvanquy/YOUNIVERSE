@@ -4,6 +4,7 @@ export type ApiUser = {
   email: string;
   phone: string | null;
   avatarUrl: string | null;
+  address: string | null;
   status: string;
   emailVerified: boolean;
   createdAt: string;

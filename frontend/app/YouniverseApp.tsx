@@ -18,6 +18,7 @@ export type UserInfo = {
   email: string;
   phone?: string;
   avatarUrl?: string;
+  address?: string;
 };
 
 type YouniverseAppContextValue = {
@@ -32,6 +33,7 @@ type YouniverseAppContextValue = {
   googleLogin: (credential: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; message?: string }>;
   updateAvatar: (avatarUrl: string) => Promise<UserInfo>;
+  updateProfile: (name: string, phone: string, address: string) => Promise<UserInfo>;
   logout: () => void;
 };
 
@@ -43,6 +45,7 @@ const toUserInfo = (user: ApiUser): UserInfo => ({
   email: user.email,
   phone: user.phone ?? undefined,
   avatarUrl: user.avatarUrl ?? undefined,
+  address: user.address ?? undefined,
 });
 
 export const useYouniverseApp = () => {
@@ -271,6 +274,27 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     return nextUser;
   };
 
+  const handleUpdateProfile = async (name: string, phone: string, address: string) => {
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const data = await apiRequest<{ user: ApiUser }>('/auth/me/profile', {
+      method: 'PATCH',
+      token,
+      body: {
+        fullName: name,
+        phone: phone || undefined,
+        address: address || undefined,
+      },
+    });
+    const nextUser = toUserInfo(data.user);
+
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setUser(nextUser);
+    return nextUser;
+  };
+
   const handleLogout = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -294,6 +318,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         googleLogin: handleGoogleLogin,
         register: handleRegister,
         updateAvatar: handleUpdateAvatar,
+        updateProfile: handleUpdateProfile,
         logout: handleLogout
       }}
     >

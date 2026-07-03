@@ -28,7 +28,7 @@ const formatPrice = (v: number) =>
 type CheckoutPaymentProvider = 'COD' | 'BANK_TRANSFER';
 
 export default function OrderView() {
-  const { language } = useYouniverseApp();
+  const { language, user, token } = useYouniverseApp();
   const router = useRouter();
   const t = translations[language];
 
@@ -62,6 +62,178 @@ export default function OrderView() {
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [note, setNote] = useState('');
+
+  // Address suggestions, locating, and Google Maps states for Checkout
+  const [checkoutSuggestions, setCheckoutSuggestions] = useState<Array<{ display_name: string }>>([]);
+  const [checkoutLoadingSuggestions, setCheckoutLoadingSuggestions] = useState(false);
+  const [checkoutLocating, setCheckoutLocating] = useState(false);
+  const [checkoutGoogleMapsReady, setCheckoutGoogleMapsReady] = useState(false);
+
+  // Load Google Maps SDK dynamically if API Key is configured
+  useEffect(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return;
+
+    const google = (window as any).google;
+    if (google?.maps) {
+      setCheckoutGoogleMapsReady(true);
+      return;
+    }
+
+    const scriptId = "google-maps-script";
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => setCheckoutGoogleMapsReady(true);
+      script.onerror = () => console.warn("Google Maps SDK failed to load on checkout.");
+      document.head.appendChild(script);
+    } else {
+      script.addEventListener("load", () => setCheckoutGoogleMapsReady(true));
+    }
+  }, []);
+
+  // Pre-populate checkout form with saved profile details if logged in
+  useEffect(() => {
+    if (user) {
+      if (user.name && !fullName) setFullName(user.name);
+      if (user.phone && !phone) setPhone(user.phone);
+      if (user.email && !email) setEmail(user.email);
+      if (user.address && !address) setAddress(user.address);
+    }
+  }, [user, fullName, phone, email, address]);
+
+  const handleCheckoutAddressChange = async (value: string) => {
+    setAddress(value);
+    if (value.trim().length < 4) {
+      setCheckoutSuggestions([]);
+      return;
+    }
+
+    const google = (window as any).google;
+    if (checkoutGoogleMapsReady && google?.maps?.places) {
+      setCheckoutLoadingSuggestions(true);
+      try {
+        const autocompleteService = new google.maps.places.AutocompleteService();
+        autocompleteService.getPlacePredictions(
+          { input: value, componentRestrictions: { country: "vn" } },
+          (predictions: any[], status: any) => {
+            if (status === "OK" && predictions) {
+              setCheckoutSuggestions(
+                predictions.map((p) => ({
+                  display_name: p.description,
+                }))
+              );
+            } else {
+              setCheckoutSuggestions([]);
+            }
+            setCheckoutLoadingSuggestions(false);
+          }
+        );
+      } catch (e) {
+        console.warn("Google Places Autocomplete failed on checkout, falling back to Nominatim", e);
+        fallbackCheckoutNominatimSearch(value);
+      }
+    } else {
+      fallbackCheckoutNominatimSearch(value);
+    }
+  };
+
+  const fallbackCheckoutNominatimSearch = async (value: string) => {
+    setCheckoutLoadingSuggestions(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=vn`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setCheckoutSuggestions(data);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch address suggestions on checkout", e);
+    } finally {
+      setCheckoutLoadingSuggestions(false);
+    }
+  };
+
+  const handleCheckoutLocateMe = () => {
+    if (!navigator.geolocation) {
+      fallbackCheckoutToIpLocation();
+      return;
+    }
+    setCheckoutLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const google = (window as any).google;
+        if (checkoutGoogleMapsReady && google?.maps?.Geocoder) {
+          try {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode(
+              { location: { lat: latitude, lng: longitude } },
+              (results: any[], status: any) => {
+                if (status === "OK" && results && results[0]) {
+                  setAddress(results[0].formatted_address);
+                  setCheckoutSuggestions([]);
+                } else {
+                  fallbackCheckoutNominatimReverse(latitude, longitude);
+                }
+                setCheckoutLocating(false);
+              }
+            );
+          } catch (e) {
+            console.warn("Google Geocoding failed on checkout, falling back to Nominatim", e);
+            fallbackCheckoutNominatimReverse(latitude, longitude);
+          }
+        } else {
+          fallbackCheckoutNominatimReverse(latitude, longitude);
+        }
+      },
+      (error) => {
+        console.warn("Geolocation error on checkout, attempting IP fallback", error);
+        fallbackCheckoutToIpLocation();
+      },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+
+  const fallbackCheckoutToIpLocation = async () => {
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      if (data && data.city) {
+        const locationStr = `${data.city}, ${data.region || ""}, ${data.country_name || "Vietnam"}`;
+        setAddress(locationStr);
+        setCheckoutSuggestions([]);
+      } else {
+        alert(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
+      }
+    } catch (e) {
+      console.warn("IP Geolocation fallback failed on checkout", e);
+      alert(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
+    } finally {
+      setCheckoutLocating(false);
+    }
+  };
+
+  const fallbackCheckoutNominatimReverse = async (latitude: number, longitude: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        setAddress(data.display_name);
+        setCheckoutSuggestions([]);
+      } else {
+        setAddress(`${latitude}, ${longitude}`);
+      }
+    } catch (e) {
+      setAddress(`${latitude}, ${longitude}`);
+    } finally {
+      setCheckoutLocating(false);
+    }
+  };
 
   /* ── Payment ── */
   const [paymentReceipt, setPaymentReceipt] = useState<string | null>(null);
@@ -300,6 +472,7 @@ export default function OrderView() {
         {
           method: 'POST',
           sessionId,
+          token,
           body: {
             cartId,
             customer: {
@@ -324,11 +497,13 @@ export default function OrderView() {
         uploadBody.set('file', paymentFile);
         const uploaded = await apiRequest<{ url: string }>('/upload/image', {
           method: 'POST',
+          token,
           body: uploadBody,
         });
 
         await apiRequest('/payments/receipt', {
           method: 'POST',
+          token,
           body: {
             orderId: order.orderId,
             receiptUrl: uploaded.url,
@@ -1225,10 +1400,71 @@ export default function OrderView() {
                       required
                       className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:outline-none focus:shadow-[2px_2px_0_rgba(0,0,0,0.4)] transition-all" />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="font-display text-[10px] font-black uppercase tracking-wider text-stone-600">{t.orderInvoiceAddress}</label>
-                    <input type="text" value={address} onChange={e => setAddress(e.target.value)}
-                      className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:outline-none focus:shadow-[2px_2px_0_rgba(0,0,0,0.4)] transition-all" />
+                  <div className="space-y-1.5 relative">
+                    <div className="flex justify-between items-center">
+                      <label className="font-display text-[10px] font-black uppercase tracking-wider text-stone-600">{t.orderInvoiceAddress}</label>
+                      <button
+                        type="button"
+                        onClick={handleCheckoutLocateMe}
+                        disabled={checkoutLocating}
+                        className="text-[9px] font-mono text-stone-600 hover:text-stone-900 font-bold uppercase tracking-wider hover:underline focus:outline-none flex items-center space-x-1.5 disabled:opacity-60 cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="url(#googleMapsGradientCheckout)" />
+                          <circle cx="12" cy="9" r="3" fill="white" />
+                          <defs>
+                            <linearGradient id="googleMapsGradientCheckout" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor="#EA4335" />
+                              <stop offset="30%" stopColor="#FBBC05" />
+                              <stop offset="60%" stopColor="#34A853" />
+                              <stop offset="100%" stopColor="#4285F4" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <span>{checkoutLocating ? (language === 'vi' ? 'Đang định vị...' : 'Locating...') : (language === 'vi' ? 'Định vị hiện tại' : 'Auto-Locate')}</span>
+                      </button>
+                    </div>
+                    
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={e => handleCheckoutAddressChange(e.target.value)}
+                        className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:outline-none focus:shadow-[2px_2px_0_rgba(0,0,0,0.4)] transition-all"
+                      />
+
+                      {/* Autocomplete Suggestions */}
+                      {checkoutSuggestions.length > 0 && (
+                        <div className="absolute z-20 w-full bg-white border border-stone-200 rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto text-xs font-sans text-left">
+                          {checkoutSuggestions.map((item, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => {
+                                setAddress(item.display_name);
+                                setCheckoutSuggestions([]);
+                              }}
+                              className="px-3 py-2 hover:bg-stone-50 cursor-pointer border-b border-stone-100 last:border-b-0 text-stone-700 truncate animate-fade-in"
+                            >
+                              {item.display_name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Google Map Preview on Checkout */}
+                    {address && (
+                      <div className="mt-2 rounded-xl overflow-hidden border border-stone-200 h-[120px] relative z-10">
+                        <iframe
+                          title="Google Map Checkout Preview"
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-1.5">

@@ -12,7 +12,7 @@ const formatCurrency = (value: number) =>
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, logout, language, updateAvatar } = useYouniverseApp();
+  const { user, token, isAuthenticated, logout, language, updateAvatar, updateProfile } = useYouniverseApp();
   const t = translations[language];
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [orders, setOrders] = useState<ApiOrder[]>([]);
@@ -21,6 +21,204 @@ export default function AccountPage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
+
+  // Inline edit profile and address coordinate states
+  const [isEditingInline, setIsEditingInline] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editAddress, setEditAddress] = useState("");
+  const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  // Address suggestions, geolocation, and Google Maps states
+  const [suggestions, setSuggestions] = useState<Array<{ display_name: string }>>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [googleMapsReady, setGoogleMapsReady] = useState(false);
+
+  // Load Google Maps SDK dynamically if API Key is configured
+  useEffect(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) return;
+
+    const google = (window as any).google;
+    if (google?.maps) {
+      setGoogleMapsReady(true);
+      return;
+    }
+
+    const scriptId = "google-maps-script";
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => setGoogleMapsReady(true);
+      script.onerror = () => console.warn("Google Maps SDK failed to load.");
+      document.head.appendChild(script);
+    } else {
+      script.addEventListener("load", () => setGoogleMapsReady(true));
+    }
+  }, []);
+
+  const handleAddressChange = async (value: string) => {
+    setEditAddress(value);
+    if (value.trim().length < 4) {
+      setSuggestions([]);
+      return;
+    }
+
+    const google = (window as any).google;
+    if (googleMapsReady && google?.maps?.places) {
+      setLoadingSuggestions(true);
+      try {
+        const autocompleteService = new google.maps.places.AutocompleteService();
+        autocompleteService.getPlacePredictions(
+          { input: value, componentRestrictions: { country: "vn" } },
+          (predictions: any[], status: any) => {
+            if (status === "OK" && predictions) {
+              setSuggestions(
+                predictions.map((p) => ({
+                  display_name: p.description,
+                }))
+              );
+            } else {
+              setSuggestions([]);
+            }
+            setLoadingSuggestions(false);
+          }
+        );
+      } catch (e) {
+        console.warn("Google Places Autocomplete failed, falling back to Nominatim", e);
+        fallbackNominatimSearch(value);
+      }
+    } else {
+      fallbackNominatimSearch(value);
+    }
+  };
+
+  const fallbackNominatimSearch = async (value: string) => {
+    setLoadingSuggestions(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=vn`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setSuggestions(data);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch address suggestions", e);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      fallbackToIpLocation();
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const google = (window as any).google;
+        if (googleMapsReady && google?.maps?.Geocoder) {
+          try {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode(
+              { location: { lat: latitude, lng: longitude } },
+              (results: any[], status: any) => {
+                if (status === "OK" && results && results[0]) {
+                  setEditAddress(results[0].formatted_address);
+                  setSuggestions([]);
+                } else {
+                  fallbackNominatimReverse(latitude, longitude);
+                }
+                setLocating(false);
+              }
+            );
+          } catch (e) {
+            console.warn("Google Geocoding failed, falling back to Nominatim", e);
+            fallbackNominatimReverse(latitude, longitude);
+          }
+        } else {
+          fallbackNominatimReverse(latitude, longitude);
+        }
+      },
+      (error) => {
+        console.warn("Geolocation error, attempting IP fallback", error);
+        fallbackToIpLocation();
+      },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+
+  const fallbackToIpLocation = async () => {
+    try {
+      const res = await fetch("https://ipapi.co/json/");
+      const data = await res.json();
+      if (data && data.city) {
+        const locationStr = `${data.city}, ${data.region || ""}, ${data.country_name || "Vietnam"}`;
+        setEditAddress(locationStr);
+        setSuggestions([]);
+      } else {
+        alert(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
+      }
+    } catch (e) {
+      console.warn("IP Geolocation fallback failed", e);
+      alert(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const fallbackNominatimReverse = async (latitude: number, longitude: number) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        setEditAddress(data.display_name);
+        setSuggestions([]);
+      } else {
+        setEditAddress(`${latitude}, ${longitude}`);
+      }
+    } catch (e) {
+      setEditAddress(`${latitude}, ${longitude}`);
+    } finally {
+      setLocating(false);
+    }
+  };
+
+  const handleStartInlineEdit = () => {
+    if (!user) return;
+    setEditName(user.name);
+    setEditPhone(user.phone || "");
+    setEditAddress(user.address || "");
+    setProfileError(null);
+    setSuggestions([]);
+    setIsEditingInline(true);
+  };
+
+  const handleSaveInlineProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim() || !editAddress.trim()) {
+      setProfileError(language === "vi" ? "Vui lòng nhập họ tên và địa chỉ." : "Please enter both name and address.");
+      return;
+    }
+    setUpdatingProfile(true);
+    setProfileError(null);
+    try {
+      await updateProfile(editName, editPhone, editAddress);
+      setIsEditingInline(false);
+    } catch (error) {
+      setProfileError(error instanceof Error ? error.message : "Không thể cập nhật thông tin.");
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
 
   // Route Guard: Redirect if not authenticated
   useEffect(() => {
@@ -258,20 +456,162 @@ export default function AccountPage() {
             </div>
 
             <div className="border border-stone-100 bg-stone-50/30 p-5 rounded-2xl text-xs space-y-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="font-sans font-bold text-stone-800 block">{user.name}</span>
-                  <span className="font-sans text-stone-600 leading-relaxed block mt-1">
-                    {t.addressText}
-                  </span>
+              {isEditingInline ? (
+                <form onSubmit={handleSaveInlineProfile} className="space-y-3">
+                  {profileError && (
+                    <div className="rounded-xl border border-rose-100 bg-rose-50/70 px-3 py-2 text-[11px] text-rose-600">
+                      {profileError}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="inline-name">
+                        {language === "vi" ? "Họ và tên *" : "Full Name *"}
+                      </label>
+                      <input
+                        id="inline-name"
+                        type="text"
+                        required
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full border border-stone-200 rounded-xl px-3 py-2 text-xs font-sans text-black focus:border-stone-400 focus:outline-none bg-white"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="inline-phone">
+                        {language === "vi" ? "Số điện thoại" : "Phone Number"}
+                      </label>
+                      <input
+                        id="inline-phone"
+                        type="tel"
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        className="w-full border border-stone-200 rounded-xl px-3 py-2 text-xs font-sans text-black focus:border-stone-400 focus:outline-none bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="inline-address">
+                        {language === "vi" ? "Tọa độ giao hàng *" : "Shipping Address *"}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleLocateMe}
+                        disabled={locating}
+                        className="text-[9px] font-mono text-stone-600 hover:text-stone-900 font-bold uppercase tracking-wider hover:underline focus:outline-none flex items-center space-x-1.5 disabled:opacity-60 cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="url(#googleMapsGradientAccount)" />
+                          <circle cx="12" cy="9" r="3" fill="white" />
+                          <defs>
+                            <linearGradient id="googleMapsGradientAccount" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor="#EA4335" />
+                              <stop offset="30%" stopColor="#FBBC05" />
+                              <stop offset="60%" stopColor="#34A853" />
+                              <stop offset="100%" stopColor="#4285F4" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <span>{locating ? (language === "vi" ? "Đang định vị..." : "Locating...") : (language === "vi" ? "Định vị hiện tại" : "Auto-Locate")}</span>
+                      </button>
+                    </div>
+
+                    <div className="relative">
+                      <textarea
+                        id="inline-address"
+                        required
+                        rows={2}
+                        value={editAddress}
+                        onChange={(e) => handleAddressChange(e.target.value)}
+                        className="w-full border border-stone-200 rounded-xl px-3 py-2 text-xs font-sans text-black focus:border-stone-400 focus:outline-none bg-white resize-none"
+                      />
+
+                      {/* Autocomplete Suggestions */}
+                      {suggestions.length > 0 && (
+                        <div className="absolute z-20 w-full bg-white border border-stone-200 rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto text-xs font-sans">
+                          {suggestions.map((item, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => {
+                                setEditAddress(item.display_name);
+                                setSuggestions([]);
+                              }}
+                              className="px-3 py-2 hover:bg-stone-50 cursor-pointer border-b border-stone-100 last:border-b-0 text-stone-700 truncate"
+                            >
+                              {item.display_name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {editAddress && (
+                    <div className="mt-2 rounded-xl overflow-hidden border border-stone-200 h-[120px] relative z-10">
+                      <iframe
+                        title="Google Map Edit Preview"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(editAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex justify-end space-x-2 pt-1">
+                    <button
+                      type="button"
+                      disabled={updatingProfile}
+                      onClick={() => setIsEditingInline(false)}
+                      className="rounded-full border border-stone-200 bg-white text-stone-600 px-4 py-2 font-display text-[10px] font-bold tracking-widest uppercase transition hover:bg-stone-50 cursor-pointer disabled:opacity-50"
+                    >
+                      {language === "vi" ? "Hủy" : "Cancel"}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={updatingProfile}
+                      className="rounded-full bg-stone-950 hover:bg-black text-white px-4 py-2 font-display text-[10px] font-bold tracking-widest uppercase transition flex items-center space-x-1 cursor-pointer disabled:opacity-50"
+                    >
+                      {updatingProfile ? (
+                        <span className="h-3 w-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <span>{language === "vi" ? "Lưu" : "Save"}</span>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="flex justify-between items-start">
+                  <div className="flex-grow pr-4">
+                    <span className="font-sans font-bold text-stone-800 block">{user.name}</span>
+                    <span className="font-sans text-stone-600 leading-relaxed block mt-1">
+                      {user.address || t.addressText}
+                    </span>
+                    
+                    {/* Google Map Preview in Display Mode */}
+                    <div className="mt-3 rounded-xl overflow-hidden border border-stone-200/80 h-[120px]">
+                      <iframe
+                        title="Google Map Display"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(user.address || t.addressText)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleStartInlineEdit}
+                    className="font-mono text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase hover:underline focus:outline-none cursor-pointer shrink-0"
+                  >
+                    {t.accountEdit}
+                  </button>
                 </div>
-                <button
-                  onClick={() => alert(t.accountEditAlert)}
-                  className="font-mono text-[10px] text-amber-600 hover:text-amber-700 font-bold uppercase hover:underline focus:outline-none"
-                >
-                  {t.accountEdit}
-                </button>
-              </div>
+              )}
             </div>
           </div>
 
