@@ -11,6 +11,7 @@ export type AuthUserDto = {
   emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
+  address?: string | null;
 };
 
 export type AuthResponse = {

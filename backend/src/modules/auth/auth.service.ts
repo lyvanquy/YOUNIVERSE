@@ -10,7 +10,7 @@ import { signAccessToken } from "../../common/utils/jwt";
 import { env } from "../../config/env";
 import { prisma } from "../../config/prisma";
 import type { AuthResponse, AuthUserDto } from "./auth.types";
-import type { GoogleLoginInput, LoginInput, RegisterInput, UpdateAvatarInput } from "./auth.validation";
+import type { GoogleLoginInput, LoginInput, RegisterInput, UpdateAvatarInput, UpdateProfileInput } from "./auth.validation";
 
 type GoogleJwtHeader = {
   alg?: string;
@@ -168,18 +168,22 @@ const verifyGoogleCredential = async (credential: string): Promise<GoogleJwtPayl
   return payload;
 };
 
-const toAuthUserDto = (user: User): AuthUserDto => ({
-  id: user.id,
-  fullName: user.fullName,
-  email: user.email,
-  phone: user.phone,
-  avatarUrl: user.avatarUrl,
-  role: user.role,
-  status: user.status,
-  emailVerified: user.emailVerified,
-  createdAt: user.createdAt,
-  updatedAt: user.updatedAt,
-});
+const toAuthUserDto = (user: User & { addresses?: any[] }): AuthUserDto => {
+  const defaultAddress = user.addresses?.find((addr) => addr.isDefault) || user.addresses?.[0];
+  return {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    phone: user.phone,
+    avatarUrl: user.avatarUrl,
+    role: user.role,
+    status: user.status,
+    emailVerified: user.emailVerified,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    address: defaultAddress ? defaultAddress.addressLine : null,
+  };
+};
 
 const createAuthResponse = (user: User): AuthResponse => ({
   user: toAuthUserDto(user),
@@ -194,6 +198,9 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
   const existingUser = await prisma.user.findUnique({
     where: {
       email: input.email,
+    },
+    include: {
+      addresses: true,
     },
   });
 
@@ -212,6 +219,9 @@ export const register = async (input: RegisterInput): Promise<AuthResponse> => {
       role: UserRole.CUSTOMER,
       status: UserStatus.ACTIVE,
     },
+    include: {
+      addresses: true,
+    },
   });
 
   return createAuthResponse(user);
@@ -221,6 +231,9 @@ export const login = async (input: LoginInput): Promise<AuthResponse> => {
   const user = await prisma.user.findUnique({
     where: {
       email: input.email,
+    },
+    include: {
+      addresses: true,
     },
   });
 
@@ -253,6 +266,9 @@ export const loginWithGoogle = async (input: GoogleLoginInput): Promise<AuthResp
     where: {
       email,
     },
+    include: {
+      addresses: true,
+    },
   });
 
   if (existingUser) {
@@ -269,6 +285,9 @@ export const loginWithGoogle = async (input: GoogleLoginInput): Promise<AuthResp
           data: {
             emailVerified: true,
             avatarUrl: existingUser.avatarUrl ?? googleUser.picture ?? null,
+          },
+          include: {
+            addresses: true,
           },
         });
 
@@ -287,6 +306,9 @@ export const loginWithGoogle = async (input: GoogleLoginInput): Promise<AuthResp
       role: UserRole.CUSTOMER,
       status: UserStatus.ACTIVE,
       emailVerified: true,
+    },
+    include: {
+      addresses: true,
     },
   });
 
@@ -315,6 +337,9 @@ export const updateAvatar = async (userId: string, input: UpdateAvatarInput): Pr
     data: {
       avatarUrl: input.avatarUrl,
     },
+    include: {
+      addresses: true,
+    },
   });
 
   return toAuthUserDto(updatedUser);
@@ -324,6 +349,9 @@ export const getMe = async (userId: string): Promise<AuthUserDto> => {
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
+    },
+    include: {
+      addresses: true,
     },
   });
 
@@ -336,4 +364,71 @@ export const getMe = async (userId: string): Promise<AuthUserDto> => {
   }
 
   return toAuthUserDto(user);
+};
+
+export const updateProfile = async (userId: string, input: UpdateProfileInput): Promise<AuthUserDto> => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      addresses: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  if (user.status !== UserStatus.ACTIVE) {
+    throw new AppError("Account is not active", HTTP_STATUS.FORBIDDEN);
+  }
+
+  const updateData: any = {};
+  if (input.fullName !== undefined) updateData.fullName = input.fullName;
+  if (input.phone !== undefined) updateData.phone = input.phone;
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: updateData,
+  });
+
+  if (input.address !== undefined) {
+    const defaultAddress = user.addresses.find((addr) => addr.isDefault);
+    if (defaultAddress) {
+      await prisma.address.update({
+        where: {
+          id: defaultAddress.id,
+        },
+        data: {
+          fullName: input.fullName ?? updatedUser.fullName,
+          phone: input.phone ?? updatedUser.phone ?? "",
+          addressLine: input.address,
+        },
+      });
+    } else {
+      await prisma.address.create({
+        data: {
+          userId,
+          fullName: input.fullName ?? updatedUser.fullName,
+          phone: input.phone ?? updatedUser.phone ?? "",
+          addressLine: input.address,
+          isDefault: true,
+        },
+      });
+    }
+  }
+
+  const finalUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      addresses: true,
+    },
+  });
+
+  return toAuthUserDto(finalUser!);
 };

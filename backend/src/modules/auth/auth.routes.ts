@@ -4,7 +4,7 @@ import rateLimit from "express-rate-limit";
 import { authMiddleware } from "../../common/middlewares/auth.middleware";
 import { validate } from "../../common/middlewares/validate.middleware";
 import * as authController from "./auth.controller";
-import { googleLoginSchema, loginSchema, registerSchema, updateAvatarSchema } from "./auth.validation";
+import { googleLoginSchema, loginSchema, registerSchema, updateAvatarSchema, updateProfileSchema } from "./auth.validation";
 
 const router = Router();
 
@@ -24,6 +24,7 @@ router.post("/login", authRateLimit, validate({ body: loginSchema }), authContro
 router.post("/google", authRateLimit, validate({ body: googleLoginSchema }), authController.googleLogin);
 router.get("/me", authMiddleware, authController.me);
 router.patch("/me/avatar", authMiddleware, validate({ body: updateAvatarSchema }), authController.updateAvatar);
+router.patch("/me/profile", authMiddleware, validate({ body: updateProfileSchema }), authController.updateProfile);
 router.post("/logout", authMiddleware, authController.logout);
 
 export default router;

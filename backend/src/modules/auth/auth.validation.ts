@@ -32,7 +32,14 @@ export const updateAvatarSchema = z.object({
   avatarUrl: z.string().trim().url("Invalid avatar URL").max(1000),
 });
 
+export const updateProfileSchema = z.object({
+  fullName: z.string().trim().min(1, "Full name is required").optional(),
+  phone: z.string().trim().min(1, "Phone is required").optional(),
+  address: z.string().trim().min(1, "Address is required").optional(),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type GoogleLoginInput = z.infer<typeof googleLoginSchema>;
 export type UpdateAvatarInput = z.infer<typeof updateAvatarSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
