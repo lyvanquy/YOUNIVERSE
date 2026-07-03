@@ -173,7 +173,7 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Quick Actions ───────────────────────────────── */}
-      <section className="card" style={{ padding: "20px 24px" }}>
+      <section className="card tai-tho-card" style={{ padding: "20px 24px" }}>
         <h3>Thao tác nhanh</h3>
         <div className="quick-actions">
           {[
@@ -195,7 +195,7 @@ export default function DashboardPage() {
       {/* ── Chart + Recent Orders ───────────────────────── */}
       <div className="grid-2">
         {/* Revenue Chart */}
-        <section className="card">
+        <section className="card tai-tho-card">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
             <h3 style={{ margin: 0 }}>Doanh thu theo tuần</h3>
             <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
@@ -241,7 +241,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Recent Orders */}
-        <section className="card" style={{ padding: 0, overflow: "hidden" }}>
+        <section className="card tai-tho-card" style={{ padding: 0, overflow: "visible" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 24px 0" }}>
             <h3 style={{ margin: 0 }}>Đơn hàng gần đây</h3>
             <Link

@@ -9,31 +9,31 @@
   --font-display: 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Color Palette */
-  --background: #f8f8f7;
-  --foreground: #111111;
-  --border-color: #e5e4e2;
-  --border-subtle: #eeede9;
+  /* Color Palette — High-Class Fresh Feminine Style */
+  --background: #fdfaf9;
+  --foreground: #2f2525;
+  --border-color: #f1e7e6;
+  --border-subtle: #fbf5f4;
   --card-background: #ffffff;
-  --muted: #78716c;
-  --muted-foreground: #a8a29e;
+  --muted: #8a7a7a;
+  --muted-foreground: #c2b0b0;
 
-  /* Accent — Amber */
-  --accent: #eab308;
-  --accent-hover: #ca9a00;
-  --accent-glow: rgba(234, 179, 8, 0.30);
-  --accent-light: rgba(234, 179, 8, 0.08);
-  --accent-border: rgba(234, 179, 8, 0.22);
+  /* Accent — Glowing Rose Pink */
+  --accent: #f43f5e;
+  --accent-hover: #e11d48;
+  --accent-glow: rgba(244, 63, 94, 0.22);
+  --accent-light: rgba(244, 63, 94, 0.04);
+  --accent-border: rgba(244, 63, 94, 0.15);
 
-  /* Sidebar */
-  --sidebar-bg: #0d0d0f;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
-  --sidebar-text: #a1a1aa;
-  --sidebar-text-muted: #52525b;
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.055);
-  --sidebar-active-bg: rgba(234, 179, 8, 0.10);
-  --sidebar-active-text: #eab308;
-  --sidebar-active-border: rgba(234, 179, 8, 0.25);
+  /* Sidebar — Clean Blush White */
+  --sidebar-bg: #fffbfb;
+  --sidebar-border: #f5eceb;
+  --sidebar-text: #6e5c5c;
+  --sidebar-text-muted: #bdaeae;
+  --sidebar-hover-bg: rgba(244, 63, 94, 0.035);
+  --sidebar-active-bg: rgba(244, 63, 94, 0.07);
+  --sidebar-active-text: #f43f5e;
+  --sidebar-active-border: rgba(244, 63, 94, 0.18);
   --sidebar-width: 268px;
 
   /* Radii */
@@ -44,14 +44,14 @@
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.09), 0 4px 8px rgba(0,0,0,0.04);
-  --shadow-xl: 0 24px 64px rgba(0,0,0,0.10), 0 8px 16px rgba(0,0,0,0.05);
+  /* Shadows — Soft and airy */
+  --shadow-xs: 0 1px 2px rgba(244,63,94,0.02);
+  --shadow-sm: 0 4px 16px rgba(244,63,94,0.03), 0 1px 2px rgba(244,63,94,0.02);
+  --shadow-md: 0 8px 24px rgba(244,63,94,0.05), 0 2px 4px rgba(244,63,94,0.03);
+  --shadow-lg: 0 16px 40px rgba(244,63,94,0.08), 0 4px 8px rgba(244,63,94,0.04);
+  --shadow-xl: 0 24px 60px rgba(244,63,94,0.10), 0 8px 16px rgba(244,63,94,0.05);
   --shadow-accent: 0 0 0 3px var(--accent-glow);
-  --shadow-card-hover: 0 16px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-card-hover: 0 20px 48px rgba(244,63,94,0.12), 0 4px 12px rgba(244,63,94,0.06);
 
   /* Transitions */
   --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,19 +59,19 @@
   --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-spring: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Status Colors */
-  --color-blue: #3b82f6;
-  --color-blue-light: rgba(59, 130, 246, 0.10);
-  --color-green: #10b981;
-  --color-green-light: rgba(16, 185, 129, 0.10);
-  --color-amber: #f59e0b;
-  --color-amber-light: rgba(245, 158, 11, 0.10);
-  --color-red: #ef4444;
-  --color-red-light: rgba(239, 68, 68, 0.10);
-  --color-purple: #8b5cf6;
-  --color-purple-light: rgba(139, 92, 246, 0.10);
-  --color-orange: #f97316;
-  --color-orange-light: rgba(249, 115, 22, 0.10);
+  /* Status Colors — Fresh Pastel */
+  --color-blue: #60a5fa;
+  --color-blue-light: rgba(96, 165, 250, 0.08);
+  --color-green: #34d399;
+  --color-green-light: rgba(52, 211, 153, 0.08);
+  --color-amber: #fbbf24;
+  --color-amber-light: rgba(251, 191, 36, 0.08);
+  --color-red: #f87171;
+  --color-red-light: rgba(248, 113, 113, 0.08);
+  --color-purple: #c084fc;
+  --color-purple-light: rgba(192, 132, 252, 0.08);
+  --color-orange: #fdba74;
+  --color-orange-light: rgba(253, 186, 116, 0.08);
 }
 
 /* ============================================================
@@ -113,8 +113,8 @@ h1, h2, h3, h4, h5, h6 {
   to { transform: rotate(360deg); }
 }
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(16px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-20px); }
@@ -429,8 +429,8 @@ h1, h2, h3, h4, h5, h6 {
   place-items: center;
   padding: 40px 32px;
   background-image:
-    linear-gradient(to right, rgba(0,0,0,0.012) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0,0,0,0.012) 1px, transparent 1px);
+    linear-gradient(to right, rgba(244,63,94,0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244,63,94,0.015) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -596,7 +596,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-item:hover {
   background: var(--sidebar-hover-bg);
-  color: #e4e4e7;
+  color: var(--accent);
 }
 
 .nav-item--active {
@@ -607,6 +607,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Active left-bar indicator */
+@keyframes activeIndicator {
+  from { height: 0; opacity: 0; }
+  to { height: 60%; opacity: 1; }
+}
+
 .nav-item--active::before {
   content: '';
   position: absolute;
@@ -618,6 +623,7 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0 2px 2px 0;
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent-glow);
+  animation: activeIndicator 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .nav-item--active:hover {
@@ -751,7 +757,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: space-between;
   gap: 16px;
   padding: 0 32px;
-  background: rgba(248,248,247,0.88);
+  background: rgba(253, 250, 249, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
@@ -859,8 +865,8 @@ h1, h2, h3, h4, h5, h6 {
   padding: 32px;
   animation: pageFadeIn 0.3s ease-out;
   background-image:
-    linear-gradient(to right, rgba(0,0,0,0.012) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0,0,0,0.012) 1px, transparent 1px);
+    linear-gradient(to right, rgba(244,63,94,0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(244,63,94,0.015) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -901,12 +907,13 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-xl);
   padding: 24px;
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-base);
+  transition: transform var(--transition-spring), box-shadow var(--transition-spring), border-color var(--transition-base);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: #d9d8d4;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-border);
 }
 
 .card h3 {
@@ -925,7 +932,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  background: linear-gradient(135deg, #ffffff 0%, #fafaf8 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fffbfb 100%);
   cursor: default;
   position: relative;
   overflow: hidden;
@@ -1160,16 +1167,16 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  border: 1px solid var(--foreground);
+  border: 1px solid var(--accent);
   border-radius: var(--radius-full);
-  background: var(--foreground);
+  background: linear-gradient(135deg, var(--accent) 0%, #fda4af 100%);
   color: #fff;
   padding: 0 18px;
   font-weight: 600;
   font-size: 12.5px;
   cursor: pointer;
   transition: all var(--transition-base);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+  box-shadow: 0 4px 12px var(--accent-glow);
   overflow: hidden;
   white-space: nowrap;
   flex-shrink: 0;
@@ -1194,9 +1201,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .button:hover {
-  background: #000;
+  background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent) 100%);
+  border-color: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+  box-shadow: 0 6px 16px var(--accent-glow);
 }
 
 .button:active {
@@ -1319,7 +1327,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .table tbody tr:hover td {
-  background: #fafaf8;
+  background: rgba(244, 63, 94, 0.025);
 }
 
 /* Clickable row */
@@ -1662,3 +1670,70 @@ h1, h2, h3, h4, h5, h6 {
   .grid-3,
   .grid-4 { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   TAI THO (BUNNY EARS) CUTE FEMININE FRAME
+   ============================================================ */
+.tai-tho-card, .tai-tho-table {
+  position: relative;
+  overflow: visible !important;
+}
+
+/* Left Bunny Ear */
+.tai-tho-card::before, .tai-tho-table::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 24px;
+  width: 14px;
+  height: 24px;
+  background: #ffffff;
+  /* Soft pink inner ear draw using a neat box-shadow inset */
+  box-shadow: inset 0 3px 0 #ffffff, inset 3px 0 0 #ffffff, inset -3px 0 0 #ffffff, inset 0 -3px 0 #ffffff, inset 0 0 0 99px #ffcbd1;
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  transform: rotate(-12deg);
+  z-index: 10;
+  transition: transform var(--transition-spring), border-color var(--transition-base);
+}
+
+/* Right Bunny Ear */
+.tai-tho-card::after, .tai-tho-table::after {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 40px;
+  width: 14px;
+  height: 24px;
+  background: #ffffff;
+  /* Soft pink inner ear draw using a neat box-shadow inset */
+  box-shadow: inset 0 3px 0 #ffffff, inset 3px 0 0 #ffffff, inset -3px 0 0 #ffffff, inset 0 -3px 0 #ffffff, inset 0 0 0 99px #ffcbd1;
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  transform: rotate(12deg);
+  z-index: 10;
+  transition: transform var(--transition-spring), border-color var(--transition-base);
+}
+
+/* Hover bouncy movement for bunny ears */
+/* Ear wiggle animation keyframes */
+@keyframes earWiggleLeft {
+  0%, 100% { transform: rotate(-12deg) translateY(0); }
+  50% { transform: rotate(-24deg) translateY(-3px) scaleY(1.08); }
+}
+@keyframes earWiggleRight {
+  0%, 100% { transform: rotate(12deg) translateY(0); }
+  50% { transform: rotate(24deg) translateY(-3px) scaleY(1.08); }
+}
+
+.tai-tho-card:hover::before, .tai-tho-table:hover::before {
+  animation: earWiggleLeft 0.6s ease-in-out infinite;
+  border-color: var(--accent);
+}
+.tai-tho-card:hover::after, .tai-tho-table:hover::after {
+  animation: earWiggleRight 0.6s ease-in-out infinite;
+  border-color: var(--accent);
+}
+

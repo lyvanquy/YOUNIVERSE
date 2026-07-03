@@ -62,7 +62,7 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      <div className="card toolbar">
+      <div className="card toolbar tai-tho-card">
         <div className="filters">
           <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
           <div className="field">
@@ -82,7 +82,7 @@ export default function InventoryPage() {
         <EmptyState title="Không có dữ liệu tồn kho" />
       ) : (
         <>
-          <div className="table-wrap">
+          <div className="table-wrap tai-tho-table">
             <table className="table">
               <thead><tr><th>Sản phẩm</th><th>Số lượng</th><th>Đã bán</th><th>Mức báo động</th><th>Lịch sử</th><th></th></tr></thead>
               <tbody>

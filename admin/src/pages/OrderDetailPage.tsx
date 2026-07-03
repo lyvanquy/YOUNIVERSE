@@ -82,9 +82,9 @@ export default function OrderDetailPage() {
 
       <div className="split">
         <div className="page">
-          <section className="card">
+          <section className="card tai-tho-card">
             <h3>Sản phẩm trong đơn</h3>
-            <div className="table-wrap">
+            <div className="table-wrap tai-tho-table">
               <table className="table" style={{ minWidth: 720 }}>
                 <thead>
                   <tr><th>Sản phẩm</th><th>Mã SKU</th><th>Số lượng</th><th>Đơn giá</th><th>Tổng</th></tr>
@@ -108,9 +108,9 @@ export default function OrderDetailPage() {
             </div>
           </section>
 
-          <section className="card">
+          <section className="card tai-tho-card">
             <h3>Giao dịch thanh toán</h3>
-            <div className="table-wrap">
+            <div className="table-wrap tai-tho-table">
               <table className="table" style={{ minWidth: 760 }}>
                 <thead><tr><th>Phương thức</th><th>Trạng thái</th><th>Số tiền</th><th>Mã giao dịch</th><th>Biên lai</th></tr></thead>
                 <tbody>
@@ -145,7 +145,7 @@ export default function OrderDetailPage() {
         </div>
 
         <aside className="page">
-          <section className="card">
+          <section className="card tai-tho-card">
             <h3>Tóm tắt đơn hàng</h3>
             <dl className="detail-list">
               <div><dt>Trạng thái đơn</dt><dd><OrderStatusBadge status={order.status} /></dd></div>
@@ -157,7 +157,7 @@ export default function OrderDetailPage() {
             </dl>
           </section>
 
-          <section className="card">
+          <section className="card tai-tho-card">
             <h3>Khách hàng</h3>
             <p><strong>{order.customerName}</strong></p>
             <p className="muted">{order.customerEmail}</p>
@@ -166,7 +166,7 @@ export default function OrderDetailPage() {
             {order.note && <p className="muted">Ghi chú khách hàng: {order.note}</p>}
           </section>
 
-          <form className="card page" onSubmit={onSubmit}>
+          <form className="card page tai-tho-card" onSubmit={onSubmit}>
             <h3>Cập nhật trạng thái</h3>
             <div className="field">
               <label>Trạng thái đơn hàng</label>

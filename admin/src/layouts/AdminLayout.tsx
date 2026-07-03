@@ -117,7 +117,6 @@ export default function AdminLayout() {
         <header className="topbar">
           <div className="topbar__left">
             <span className="breadcrumb">Quản trị / {pageTitle(location.pathname)}</span>
-            <h1>{pageTitle(location.pathname)}</h1>
           </div>
 
           <div className="topbar__right">

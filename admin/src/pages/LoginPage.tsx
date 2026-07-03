@@ -30,7 +30,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-card">
+    <div className="login-card tai-tho-card">
       <div className="login-card__header">
         <h2>Đăng nhập</h2>
         <p>Sử dụng tài khoản Admin để tiếp tục.</p>

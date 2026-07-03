@@ -151,7 +151,7 @@ export default function CouponsPage() {
         <button className="button" type="button" onClick={openCreate}><Plus size={16} />Thêm mã giảm giá</button>
       </div>
 
-      <div className="card toolbar">
+      <div className="card toolbar tai-tho-card">
         <div className="filters">
           <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
           <div className="field">
@@ -171,7 +171,7 @@ export default function CouponsPage() {
         <EmptyState title="Chưa có coupon phù hợp" />
       ) : (
         <>
-          <div className="table-wrap">
+          <div className="table-wrap tai-tho-table">
             <table className="table">
               <thead><tr><th>Mã</th><th>Loại giảm giá</th><th>Giá trị</th><th>Đã dùng</th><th>Kích hoạt</th><th>Hạn sử dụng</th><th></th></tr></thead>
               <tbody>

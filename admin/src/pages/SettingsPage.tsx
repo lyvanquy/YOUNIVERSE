@@ -146,7 +146,7 @@ export default function SettingsPage() {
       {error && <ErrorState message={error} />}
 
       <div className="grid-2">
-        <section className="card">
+        <section className="card tai-tho-card">
           <h3>Kết nối hệ thống (API)</h3>
           <dl className="detail-list">
             <div><dt>Đường dẫn API (Base URL)</dt><dd className="mono">{apiBaseUrl}</dd></div>
@@ -154,7 +154,7 @@ export default function SettingsPage() {
           </dl>
         </section>
 
-        <section className="card">
+        <section className="card tai-tho-card">
           <h3>Phương thức thanh toán</h3>
           <div className="detail-list">
             <label className="field" style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
@@ -177,7 +177,7 @@ export default function SettingsPage() {
         </section>
       </div>
 
-      <section className="card">
+      <section className="card tai-tho-card">
         <h3>Cấu hình chuyển khoản ngân hàng</h3>
         <p className="muted">Thông tin này sẽ hiển thị ở bước thanh toán của khách hàng khi chọn chuyển khoản.</p>
 
@@ -232,7 +232,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="card">
+      <section className="card tai-tho-card">
         <h3>Tài khoản Quản trị mặc định</h3>
         <p className="muted">Dữ liệu mẫu (Seed backend) mặc định tạo tài khoản quản trị:</p>
         <pre className="mono" style={{ background: "#f5f5f4", padding: 14, borderRadius: 12, overflow: "auto" }}>

@@ -161,7 +161,7 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
       {error && <div className="page-state page-state--error" style={{ minHeight: 0 }}>{error}</div>}
 
       <div className="split">
-        <section className="card page">
+        <section className="card page tai-tho-card">
           <h3>Thông tin sản phẩm</h3>
           <div className="grid-2">
             <div className="field"><label>Tên sản phẩm</label><input className="input" value={form.name} onChange={(e) => update("name", e.target.value)} required /></div>
@@ -199,7 +199,7 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
           </div>
         </section>
 
-        <aside className="card page">
+        <aside className="card page tai-tho-card">
           <h3>Hình ảnh chính</h3>
           {form.imageUrl && <img src={form.imageUrl} alt="" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", borderRadius: 12, border: "1px solid var(--border-color)" }} />}
           <div className="field"><label>Đường dẫn ảnh (URL)</label><input className="input" value={form.imageUrl} onChange={(e) => update("imageUrl", e.target.value)} /></div>

@@ -49,7 +49,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="card toolbar">
+      <div className="card toolbar tai-tho-card">
         <div className="filters">
           <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
           <div className="field">
@@ -75,7 +75,7 @@ export default function UsersPage() {
         <EmptyState title="Không có user phù hợp" />
       ) : (
         <>
-          <div className="table-wrap">
+          <div className="table-wrap tai-tho-table">
             <table className="table">
               <thead><tr><th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th>Số đơn hàng</th><th>Giỏ nháp</th><th>Ngày tạo</th></tr></thead>
               <tbody>

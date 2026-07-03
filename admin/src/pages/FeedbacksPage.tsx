@@ -42,7 +42,7 @@ export default function FeedbacksPage() {
         </div>
       </div>
 
-      <div className="card toolbar">
+      <div className="card toolbar tai-tho-card">
         <div className="filters">
           <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
         </div>
@@ -56,7 +56,7 @@ export default function FeedbacksPage() {
         <EmptyState title="Chưa có feedback phù hợp" />
       ) : (
         <>
-          <div className="table-wrap">
+          <div className="table-wrap tai-tho-table">
             <table className="table">
               <thead><tr><th>Người gửi</th><th>Nội dung phản hồi</th><th>Ngày gửi</th><th></th></tr></thead>
               <tbody>

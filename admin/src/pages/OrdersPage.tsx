@@ -90,7 +90,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Advanced Filters */}
-      <div className="card toolbar">
+      <div className="card toolbar tai-tho-card">
         <div className="filters">
           {/* Search */}
           <div className="field">
@@ -149,7 +149,7 @@ export default function OrdersPage() {
         />
       ) : (
         <>
-          <div className="table-wrap">
+          <div className="table-wrap tai-tho-table">
             <table className="table">
               <thead>
                 <tr>
