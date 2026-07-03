@@ -1,6 +1,8 @@
 # YOUniverse - Personalized Accessories E-commerce Platform
 
 > **Slogan:** *"A galaxy to hold, a story to be told"*
+> 
+> **Website chính thức (Production):** [https://youniverse.io.vn](https://youniverse.io.vn)
 
 Dự án **YOUniverse** là nền tảng thương mại điện tử chuyên cung cấp các dòng sản phẩm phụ kiện charm cá nhân hóa độc đáo (Astra, Sirius, Polaris). Nền tảng được thiết kế hiện đại, responsive mobile-first và tối ưu hóa trải nghiệm người dùng với các hiệu ứng chuyển động mượt mà.
 

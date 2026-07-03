@@ -67,3 +67,7 @@ Desktop.ini
 .vscode/
 *.swp
 *.swo
+
+# Uploaded assets
+backend/uploads/
+

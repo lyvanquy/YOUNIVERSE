@@ -31,12 +31,13 @@ const products = [
     badge: "Unique",
     shortDescription:
       "A bold statement of identity, customized with your name, celestial symbols, and your unique elemental energy.",
-    description: "Astra helps you own your unique name and ignite your inner flame.",
+    description:
+      "A personalized visual signature or initial charm set in a unique cosmic crystal lattice, carrying the confident, distinct energy of your celestial sign.",
     price: 129000,
     status: ProductStatus.ACTIVE,
     stock: 50,
     lowStockThreshold: 5,
-    imageUrl: "/images/placeholders/charm-astra.jpg",
+    imageUrl: "/images/product-astra.jpg",
   },
   {
     name: "Charm Sirius",
@@ -45,12 +46,13 @@ const products = [
     badge: "Passion",
     shortDescription:
       "Encapsulate the little things you love, from simple everyday passions and sweet pets to your daily rituals.",
-    description: "Sirius packs the joy you seek and lets your passion speak.",
-    price: 129000,
+    description:
+      "A lucky charm representing the tiny joys of daily routine, loyal companions, or beloved habits that ignite vibrant emotions and bright passion.",
+    price: 119000,
     status: ProductStatus.ACTIVE,
     stock: 50,
     lowStockThreshold: 5,
-    imageUrl: "/images/placeholders/charm-sirius.jpg",
+    imageUrl: "/images/product-sirius.jpg",
   },
   {
     name: "Charm Polaris",
@@ -58,12 +60,13 @@ const products = [
     productLine: ProductLine.POLARIS,
     badge: "Inspiring",
     shortDescription: "Inspiring quotes that serve as a guiding compass for your soul.",
-    description: "Polaris helps you trust the guiding quote and let your spirit float.",
-    price: 129000,
+    description:
+      "An engraving of inspiring mantras, acting as a guiding compass for your soul to support your identity across the infinite cosmos.",
+    price: 139000,
     status: ProductStatus.ACTIVE,
     stock: 50,
     lowStockThreshold: 5,
-    imageUrl: "/images/placeholders/charm-polaris.jpg",
+    imageUrl: "/images/product-polaris.jpg",
   },
 ] as const;
 
