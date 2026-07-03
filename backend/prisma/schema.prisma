@@ -414,3 +414,17 @@ model Feedback {
   @@index([createdAt])
   @@index([email])
 }
+
+model PaymentSetting {
+  id                    String   @id @default("default")
+  codEnabled            Boolean  @default(true)
+  bankTransferEnabled   Boolean  @default(true)
+  bankName              String?
+  bankAccountName       String?
+  bankAccountNumber     String?
+  bankBranch            String?
+  bankTransferQrImageUrl String?
+  bankTransferNote      String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

@@ -17,6 +17,7 @@ import healthRoutes from "./modules/health/health.routes";
 import orderRoutes from "./modules/orders/order.routes";
 import paymentRoutes from "./modules/payments/payment.routes";
 import productRoutes from "./modules/products/product.routes";
+import settingsRoutes from "./modules/settings/settings.routes";
 import uploadRoutes from "./modules/upload/upload.routes";
 
 const app = express();
@@ -45,6 +46,7 @@ app.use("/api/v1/health", healthRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/payments", paymentRoutes);
 app.use("/api/v1/products", productRoutes);
+app.use("/api/v1/settings", settingsRoutes);
 app.use("/api/v1/upload", uploadRoutes);
 
 app.use(notFoundMiddleware);

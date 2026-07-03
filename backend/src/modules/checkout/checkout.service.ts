@@ -14,6 +14,7 @@ import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { prisma } from "../../config/prisma";
 import * as emailService from "../emails/email.service";
 import * as paymentService from "../payments/payment.service";
+import * as settingsService from "../settings/settings.service";
 import type { CheckoutInput } from "./checkout.validation";
 
 type CheckoutIdentity = {
@@ -270,6 +271,16 @@ const buildCheckoutPreview = async (input: CheckoutInput, identity: CheckoutIden
 
   if (totalAmount <= 0) {
     throw new AppError("Total amount must be positive", HTTP_STATUS.BAD_REQUEST);
+  }
+
+  const paymentSetting = await settingsService.getPaymentSetting();
+
+  if (input.paymentProvider === PaymentProvider.COD && !paymentSetting.codEnabled) {
+    throw new AppError("Cash on delivery is currently unavailable", HTTP_STATUS.BAD_REQUEST);
+  }
+
+  if (input.paymentProvider === PaymentProvider.BANK_TRANSFER && !paymentSetting.bankTransferEnabled) {
+    throw new AppError("Bank transfer is currently unavailable", HTTP_STATUS.BAD_REQUEST);
   }
 
   return {

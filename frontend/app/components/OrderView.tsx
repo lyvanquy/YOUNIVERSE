@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef, useCallback, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, type ChangeEvent, type DragEvent } from 'react';
 import { Sparkles, Heart, Compass, ChevronRight, Check, Plus, Upload, X, Home, ShoppingBag, PawPrint, Coffee } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
-import { apiRequest, buildQuery, type ApiProduct } from '../lib/api';
+import { apiRequest, buildQuery, type ApiPaymentSetting, type ApiProduct } from '../lib/api';
 import {
   CHARM_PRODUCTS,
   ASTRA_SYSTEMS,
@@ -24,6 +24,8 @@ import {
 
 const formatPrice = (v: number) =>
   new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(v);
+
+type CheckoutPaymentProvider = 'COD' | 'BANK_TRANSFER';
 
 export default function OrderView() {
   const { language } = useYouniverseApp();
@@ -65,6 +67,9 @@ export default function OrderView() {
   const [paymentReceipt, setPaymentReceipt] = useState<string | null>(null);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const [paymentFileName, setPaymentFileName] = useState('');
+  const [paymentProvider, setPaymentProvider] = useState<CheckoutPaymentProvider>('BANK_TRANSFER');
+  const [paymentSetting, setPaymentSetting] = useState<ApiPaymentSetting | null>(null);
+  const [paymentSettingLoading, setPaymentSettingLoading] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
   const [createdOrderCode, setCreatedOrderCode] = useState<string | null>(null);
@@ -86,6 +91,24 @@ export default function OrderView() {
   const selectedSirius = SIRIUS_CHARMS.find(c => c.id === siriusCharm);
   const otherCategory: SiriusCategoryId = siriusCategory === 'pet' ? 'drink' : 'pet';
   const remainingSiriusCharms = SIRIUS_CHARMS.filter(c => c.category === otherCategory);
+
+  useEffect(() => {
+    setPaymentSettingLoading(true);
+    apiRequest<{ paymentSetting: ApiPaymentSetting }>('/settings/payment')
+      .then((data) => {
+        setPaymentSetting(data.paymentSetting);
+        if (!data.paymentSetting.bankTransferEnabled && data.paymentSetting.codEnabled) {
+          setPaymentProvider('COD');
+        }
+        if (!data.paymentSetting.codEnabled && data.paymentSetting.bankTransferEnabled) {
+          setPaymentProvider('BANK_TRANSFER');
+        }
+      })
+      .catch((error) => {
+        setOrderError(error instanceof Error ? error.message : 'Could not load payment settings.');
+      })
+      .finally(() => setPaymentSettingLoading(false));
+  }, []);
 
   /* ── Handlers ── */
   const handleSiriusCharmClick = (id: SiriusCharmId) => {
@@ -161,8 +184,16 @@ export default function OrderView() {
         throw new Error(language === 'vi' ? 'Vui lòng nhập email để nhận xác nhận đơn hàng.' : 'Please enter your email for order confirmation.');
       }
 
-      if (!paymentFile) {
+      if (paymentProvider === 'BANK_TRANSFER' && !paymentFile) {
         throw new Error(language === 'vi' ? 'Vui lòng tải lên minh chứng chuyển khoản.' : 'Please upload your bank transfer receipt.');
+      }
+
+      if (paymentProvider === 'COD' && paymentSetting && !paymentSetting.codEnabled) {
+        throw new Error(language === 'vi' ? 'Thanh toán khi nhận hàng đang tạm ngưng.' : 'Cash on delivery is currently unavailable.');
+      }
+
+      if (paymentProvider === 'BANK_TRANSFER' && paymentSetting && !paymentSetting.bankTransferEnabled) {
+        throw new Error(language === 'vi' ? 'Thanh toán chuyển khoản đang tạm ngưng.' : 'Bank transfer is currently unavailable.');
       }
 
       const productData = await apiRequest<{ items: ApiProduct[] }>(
@@ -282,26 +313,28 @@ export default function OrderView() {
               district: null,
               province: null,
             },
-            paymentProvider: 'BANK_TRANSFER',
+            paymentProvider,
             note: note || null,
           },
         },
       );
 
-      const uploadBody = new FormData();
-      uploadBody.set('file', paymentFile);
-      const uploaded = await apiRequest<{ url: string }>('/upload/image', {
-        method: 'POST',
-        body: uploadBody,
-      });
+      if (paymentProvider === 'BANK_TRANSFER' && paymentFile) {
+        const uploadBody = new FormData();
+        uploadBody.set('file', paymentFile);
+        const uploaded = await apiRequest<{ url: string }>('/upload/image', {
+          method: 'POST',
+          body: uploadBody,
+        });
 
-      await apiRequest('/payments/receipt', {
-        method: 'POST',
-        body: {
-          orderId: order.orderId,
-          receiptUrl: uploaded.url,
-        },
-      });
+        await apiRequest('/payments/receipt', {
+          method: 'POST',
+          body: {
+            orderId: order.orderId,
+            receiptUrl: uploaded.url,
+          },
+        });
+      }
 
       setCreatedOrderCode(order.orderCode);
       goToStep(5);
@@ -330,6 +363,21 @@ export default function OrderView() {
   const stepLabels = [t.orderProgressAstra, t.orderProgressSirius, t.orderProgressPolaris, t.orderProgressOwn];
   const stepColors = ['bg-blue-500', 'bg-amber-500', 'bg-rose-500', 'bg-emerald-500'];
   const stepDone = [step1Done, step2Done, step3Done, false];
+  const paymentUnavailable =
+    !paymentSettingLoading &&
+    paymentSetting !== null &&
+    !paymentSetting.codEnabled &&
+    !paymentSetting.bankTransferEnabled;
+  const confirmDisabled =
+    !fullName ||
+    !phone ||
+    !email ||
+    !address ||
+    orderSubmitting ||
+    paymentSettingLoading ||
+    paymentUnavailable ||
+    (paymentProvider === 'COD' && paymentSetting?.codEnabled === false) ||
+    (paymentProvider === 'BANK_TRANSFER' && (paymentSetting?.bankTransferEnabled === false || !paymentReceipt));
 
   /* ═════════════════════ RENDER ═════════════════════ */
 
@@ -1196,55 +1244,128 @@ export default function OrderView() {
                   {t.orderPaymentTitle}
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* QR Code placeholder */}
-                  <div className="text-center space-y-3">
-                    <p className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
-                      {t.orderPaymentQrLabel}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    disabled={paymentSettingLoading || paymentSetting?.codEnabled === false}
+                    onClick={() => setPaymentProvider('COD')}
+                    className={`rounded-2xl border-2 p-4 text-left transition-all ${
+                      paymentProvider === 'COD'
+                        ? 'border-stone-900 bg-emerald-50 shadow-[3px_3px_0_rgba(0,0,0,0.25)]'
+                        : 'border-stone-200 bg-white hover:border-stone-400'
+                    } disabled:cursor-not-allowed disabled:opacity-50`}
+                  >
+                    <p className="font-display text-xs font-black uppercase tracking-wider text-stone-900">
+                      {language === 'vi' ? 'Thanh toán khi nhận hàng' : 'Cash on delivery'}
                     </p>
-                    <div className="w-48 h-48 mx-auto rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 flex items-center justify-center">
-                      <div className="text-center space-y-2">
-                        <ShoppingBag className="h-8 w-8 text-stone-300 mx-auto" />
-                        <p className="font-sans text-[10px] text-stone-400 max-w-[120px]">{t.orderPaymentQrPlaceholder}</p>
+                    <p className="mt-1 font-sans text-[11px] text-stone-500">
+                      {language === 'vi' ? 'Thanh toán tiền mặt khi bạn nhận sản phẩm.' : 'Pay in cash when your order arrives.'}
+                    </p>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={paymentSettingLoading || paymentSetting?.bankTransferEnabled === false}
+                    onClick={() => setPaymentProvider('BANK_TRANSFER')}
+                    className={`rounded-2xl border-2 p-4 text-left transition-all ${
+                      paymentProvider === 'BANK_TRANSFER'
+                        ? 'border-stone-900 bg-amber-50 shadow-[3px_3px_0_rgba(0,0,0,0.25)]'
+                        : 'border-stone-200 bg-white hover:border-stone-400'
+                    } disabled:cursor-not-allowed disabled:opacity-50`}
+                  >
+                    <p className="font-display text-xs font-black uppercase tracking-wider text-stone-900">
+                      {language === 'vi' ? 'Chuyển khoản ngân hàng' : 'Bank transfer'}
+                    </p>
+                    <p className="mt-1 font-sans text-[11px] text-stone-500">
+                      {language === 'vi' ? 'Quét QR, chuyển khoản và tải ảnh bill.' : 'Scan QR, transfer, then upload your receipt.'}
+                    </p>
+                  </button>
+                </div>
+
+                {paymentUnavailable && (
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-sans text-rose-600">
+                    {language === 'vi' ? 'Hiện chưa có phương thức thanh toán nào khả dụng.' : 'No payment methods are currently available.'}
+                  </div>
+                )}
+
+                {paymentProvider === 'BANK_TRANSFER' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* QR Code from admin settings */}
+                    <div className="text-center space-y-3">
+                      <p className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                        {t.orderPaymentQrLabel}
+                      </p>
+                      <div className="w-48 h-48 mx-auto rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 flex items-center justify-center overflow-hidden">
+                        {paymentSetting?.bankTransferQrImageUrl ? (
+                          <img
+                            src={paymentSetting.bankTransferQrImageUrl}
+                            alt={language === 'vi' ? 'QR chuyển khoản' : 'Bank transfer QR'}
+                            className="h-full w-full object-contain p-2"
+                          />
+                        ) : (
+                          <div className="text-center space-y-2">
+                            <ShoppingBag className="h-8 w-8 text-stone-300 mx-auto" />
+                            <p className="font-sans text-[10px] text-stone-400 max-w-[120px]">{t.orderPaymentQrPlaceholder}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="rounded-2xl border border-stone-200 bg-white p-4 text-left text-xs text-stone-600 space-y-2">
+                        {paymentSetting?.bankName && (
+                          <p><span className="font-bold text-stone-900">{language === 'vi' ? 'Ngân hàng:' : 'Bank:'}</span> {paymentSetting.bankName}</p>
+                        )}
+                        {paymentSetting?.bankAccountName && (
+                          <p><span className="font-bold text-stone-900">{language === 'vi' ? 'Chủ TK:' : 'Account name:'}</span> {paymentSetting.bankAccountName}</p>
+                        )}
+                        {paymentSetting?.bankAccountNumber && (
+                          <p><span className="font-bold text-stone-900">{language === 'vi' ? 'Số TK:' : 'Account number:'}</span> {paymentSetting.bankAccountNumber}</p>
+                        )}
+                        {paymentSetting?.bankBranch && (
+                          <p><span className="font-bold text-stone-900">{language === 'vi' ? 'Chi nhánh:' : 'Branch:'}</span> {paymentSetting.bankBranch}</p>
+                        )}
+                        {paymentSetting?.bankTransferNote && (
+                          <p><span className="font-bold text-stone-900">{language === 'vi' ? 'Nội dung:' : 'Transfer note:'}</span> {paymentSetting.bankTransferNote}</p>
+                        )}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Upload receipt */}
-                  <div className="space-y-3">
-                    <p className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
-                      {t.orderPaymentUploadLabel}
-                    </p>
-                    <div
-                      onDrop={onDrop}
-                      onDragOver={e => e.preventDefault()}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full h-48 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 hover:border-stone-400 hover:bg-stone-100/50 transition-all cursor-pointer flex items-center justify-center"
-                    >
-                      {paymentReceipt ? (
-                        <div className="relative w-full h-full">
-                          <img src={paymentReceipt} alt="Receipt" className="w-full h-full object-contain rounded-xl p-2" />
-                          <button
-                            onClick={(e) => { e.stopPropagation(); setPaymentReceipt(null); setPaymentFile(null); setPaymentFileName(''); }}
-                            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 cursor-pointer"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="text-center space-y-2">
-                          <Upload className="h-8 w-8 text-stone-300 mx-auto" />
-                          <p className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">{t.orderPaymentUploadBtn}</p>
-                          <p className="font-sans text-[9px] text-stone-400">{t.orderPaymentUploadHint}</p>
-                        </div>
+                    {/* Upload receipt */}
+                    <div className="space-y-3">
+                      <p className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
+                        {t.orderPaymentUploadLabel}
+                      </p>
+                      <div
+                        onDrop={onDrop}
+                        onDragOver={e => e.preventDefault()}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-48 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 hover:border-stone-400 hover:bg-stone-100/50 transition-all cursor-pointer flex items-center justify-center"
+                      >
+                        {paymentReceipt ? (
+                          <div className="relative w-full h-full">
+                            <img src={paymentReceipt} alt="Receipt" className="w-full h-full object-contain rounded-xl p-2" />
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setPaymentReceipt(null); setPaymentFile(null); setPaymentFileName(''); }}
+                              className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 cursor-pointer"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="text-center space-y-2">
+                            <Upload className="h-8 w-8 text-stone-300 mx-auto" />
+                            <p className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">{t.orderPaymentUploadBtn}</p>
+                            <p className="font-sans text-[9px] text-stone-400">{t.orderPaymentUploadHint}</p>
+                          </div>
+                        )}
+                      </div>
+                      <input ref={fileInputRef} type="file" accept="image/*" onChange={onFileInputChange} className="hidden" />
+                      {paymentFileName && (
+                        <p className="font-mono text-[10px] text-stone-400 truncate">File: {paymentFileName}</p>
                       )}
                     </div>
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={onFileInputChange} className="hidden" />
-                    {paymentFileName && (
-                      <p className="font-mono text-[10px] text-stone-400 truncate">📎 {paymentFileName}</p>
-                    )}
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Action buttons */}
@@ -1263,7 +1384,7 @@ export default function OrderView() {
                 </button>
                 <button
                   onClick={handleConfirmOrder}
-                  disabled={!fullName || !phone || !email || !address || !paymentReceipt || orderSubmitting}
+                  disabled={confirmDisabled}
                   className="flex items-center gap-2 bg-amber-400 disabled:bg-stone-200 disabled:border-stone-300 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 disabled:cursor-not-allowed text-stone-900 font-display text-xs font-black uppercase tracking-wider px-8 py-3.5 rounded-xl border-2 border-stone-900 shadow-[4px_4px_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-150 cursor-pointer"
                 >
                   <Sparkles className="h-3.5 w-3.5" />

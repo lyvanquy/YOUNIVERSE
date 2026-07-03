@@ -182,6 +182,19 @@ export type Coupon = {
   updatedAt: string;
 };
 
+export type PaymentSetting = {
+  codEnabled: boolean;
+  bankTransferEnabled: boolean;
+  bankName: string | null;
+  bankAccountName: string | null;
+  bankAccountNumber: string | null;
+  bankBranch: string | null;
+  bankTransferQrImageUrl: string | null;
+  bankTransferNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Feedback = {
   id: string;
   fullName: string;
