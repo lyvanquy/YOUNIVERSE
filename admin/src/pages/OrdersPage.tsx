@@ -16,6 +16,16 @@ type OrderListData = {
   pagination: PaginationType;
 };
 
+const STATUS_TABS: { label: string; value: OrderStatus | "" }[] = [
+  { label: "Tất cả",         value: "" },
+  { label: "Chờ thanh toán", value: "PENDING_PAYMENT" },
+  { label: "Đã thanh toán",  value: "PAID" },
+  { label: "Đang xử lý",    value: "PROCESSING" },
+  { label: "Đang giao",     value: "SHIPPING" },
+  { label: "Hoàn thành",    value: "COMPLETED" },
+  { label: "Đã huỷ",        value: "CANCELLED" },
+];
+
 export default function OrdersPage() {
   const { token } = useAuth();
   const [page, setPage] = useState(1);
@@ -36,51 +46,107 @@ export default function OrdersPage() {
 
   return (
     <div className="page">
+      {/* Header */}
       <div className="page-header">
         <div>
           <h2>Đơn hàng</h2>
           <p>Theo dõi đơn hàng, thanh toán, trạng thái vận hành và xác nhận chuyển khoản.</p>
         </div>
+        {query.data && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              background: "var(--card-background)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius-full)",
+              padding: "6px 14px",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--muted)",
+            }}
+          >
+            Tổng: <span style={{ color: "var(--foreground)" }}>{query.data.pagination.total} đơn</span>
+          </div>
+        )}
       </div>
 
+      {/* Status Tab Filter */}
+      <div className="filter-tabs" style={{ overflowX: "auto", borderRadius: "var(--radius-xl)", padding: 4 }}>
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            className={`filter-tab${status === tab.value ? " filter-tab--active" : ""}`}
+            type="button"
+            onClick={() => {
+              setStatus(tab.value);
+              setPage(1);
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Advanced Filters */}
       <div className="card toolbar">
         <div className="filters">
+          {/* Search */}
           <div className="field">
             <label>Tìm kiếm</label>
-            <div style={{ position: "relative" }}>
-              <Search size={16} style={{ position: "absolute", left: 10, top: 12, color: "#71717a" }} />
-              <input className="input" style={{ paddingLeft: 34 }} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+            <div className="input-wrap">
+              <span className="input-wrap__icon">
+                <Search size={14} />
+              </span>
+              <input
+                className="input"
+                style={{ width: 220 }}
+                placeholder="Mã đơn, tên, email..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              />
             </div>
           </div>
-          <div className="field">
-            <label>Trạng thái đơn hàng</label>
-            <select className="select" value={status} onChange={(e) => { setStatus(e.target.value as OrderStatus | ""); setPage(1); }}>
-              <option value="">Tất cả</option>
-              {["PENDING_PAYMENT", "PAID", "CONFIRMED", "PROCESSING", "SHIPPING", "COMPLETED", "CANCELLED", "REFUNDED"].map((item) => (
-                <option key={item} value={item}>{item}</option>
-              ))}
-            </select>
-          </div>
+
+          {/* Payment status */}
           <div className="field">
             <label>Thanh toán</label>
-            <select className="select" value={paymentStatus} onChange={(e) => { setPaymentStatus(e.target.value as PaymentStatus | ""); setPage(1); }}>
+            <select
+              className="select"
+              style={{ width: 160 }}
+              value={paymentStatus}
+              onChange={(e) => { setPaymentStatus(e.target.value as PaymentStatus | ""); setPage(1); }}
+            >
               <option value="">Tất cả</option>
               {["PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED"].map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
           </div>
-          <div className="field"><label>Từ ngày</label><input className="input" type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
-          <div className="field"><label>Đến ngày</label><input className="input" type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+
+          {/* Date range */}
+          <div className="field">
+            <label>Từ ngày</label>
+            <input className="input" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>Đến ngày</label>
+            <input className="input" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          </div>
         </div>
       </div>
 
+      {/* Content */}
       {query.isLoading ? (
         <LoadingState />
       ) : query.isError ? (
         <ErrorState message={query.error.message} onRetry={() => query.refetch()} />
       ) : query.data!.items.length === 0 ? (
-        <EmptyState title="Chưa có đơn hàng phù hợp" />
+        <EmptyState
+          title="Chưa có đơn hàng phù hợp"
+          description={search ? `Không tìm thấy kết quả cho "${search}"` : "Đơn hàng sẽ hiển thị ở đây khi khách đặt."}
+        />
       ) : (
         <>
           <div className="table-wrap">
@@ -89,31 +155,37 @@ export default function OrdersPage() {
                 <tr>
                   <th>Đơn hàng</th>
                   <th>Khách hàng</th>
-                  <th>Trạng thái đơn hàng</th>
+                  <th>Trạng thái</th>
                   <th>Thanh toán</th>
-                  <th>Tổng tiền</th>
-                  <th></th>
+                  <th style={{ textAlign: "right" }}>Tổng tiền</th>
+                  <th style={{ textAlign: "right" }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {query.data!.items.map((order) => (
-                  <tr key={order.id}>
+                  <tr key={order.id} className="row--clickable">
                     <td>
-                      <strong>{order.orderCode}</strong>
-                      <div className="muted">{formatDate(order.createdAt)}</div>
+                      <strong style={{ fontSize: 13 }}>{order.orderCode}</strong>
+                      <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>{formatDate(order.createdAt)}</div>
                     </td>
                     <td>
-                      {order.customerName}
-                      <div className="muted">{order.customerEmail}</div>
-                      <div className="muted">{order.customerPhone}</div>
+                      <div style={{ fontWeight: 500 }}>{order.customerName}</div>
+                      <div className="muted" style={{ fontSize: 11 }}>{order.customerEmail}</div>
+                      <div className="muted" style={{ fontSize: 11 }}>{order.customerPhone}</div>
                     </td>
                     <td><OrderStatusBadge status={order.status} /></td>
                     <td><PaymentStatusBadge status={order.paymentStatus} /></td>
-                    <td>{formatCurrency(order.totalAmount)}</td>
+                    <td style={{ textAlign: "right", fontWeight: 700, fontSize: 13 }}>
+                      {formatCurrency(order.totalAmount)}
+                    </td>
                     <td>
                       <div className="row-actions">
-                        <Link className="button button--secondary" to={`/admin/orders/${order.id}`}>
-                          <Eye size={15} /> Chi tiết
+                        <Link
+                          className="button button--secondary button--sm"
+                          to={`/orders/${order.id}`}
+                        >
+                          <Eye size={14} />
+                          Chi tiết
                         </Link>
                       </div>
                     </td>

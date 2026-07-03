@@ -75,7 +75,7 @@ export default function OrderDetailPage() {
           <h2>{order.orderCode}</h2>
           <p>{formatDate(order.createdAt)} · {order.customerName}</p>
         </div>
-        <Link className="button button--secondary" to="/admin/orders"><ArrowLeft size={16} />Quay lại</Link>
+        <Link className="button button--secondary" to="/orders"><ArrowLeft size={16} />Quay lại</Link>
       </div>
 
       {error && <div className="page-state page-state--error" style={{ minHeight: 0 }}>{error}</div>}

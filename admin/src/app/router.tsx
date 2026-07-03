@@ -25,24 +25,23 @@ export function AppRoutes() {
       </Route>
 
       <Route element={<RequireAdmin />}>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
-          <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="products" element={<ProductsPage />} />
-          <Route path="products/new" element={<ProductFormPage mode="create" />} />
-          <Route path="products/:id/edit" element={<ProductFormPage mode="edit" />} />
-          <Route path="orders" element={<OrdersPage />} />
-          <Route path="orders/:id" element={<OrderDetailPage />} />
-          <Route path="inventory" element={<InventoryPage />} />
-          <Route path="coupons" element={<CouponsPage />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route path="feedbacks" element={<FeedbacksPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/new" element={<ProductFormPage mode="create" />} />
+          <Route path="/products/:id/edit" element={<ProductFormPage mode="edit" />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
+          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/coupons" element={<CouponsPage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/feedbacks" element={<FeedbacksPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
 
-      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }

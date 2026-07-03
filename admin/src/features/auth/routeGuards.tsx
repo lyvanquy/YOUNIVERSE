@@ -26,7 +26,7 @@ export function RequireGuest() {
   const auth = useAuth();
 
   if (auth.isBooting) return <BootScreen />;
-  if (auth.isAuthenticated && auth.isAdmin) return <Navigate to="/admin/dashboard" replace />;
+  if (auth.isAuthenticated && auth.isAdmin) return <Navigate to="/dashboard" replace />;
 
   return <Outlet />;
 }

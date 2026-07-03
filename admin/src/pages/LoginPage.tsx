@@ -13,13 +13,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const from = (location.state as { from?: string } | null)?.from ?? "/admin/dashboard";
+  const from = (location.state as { from?: string } | null)?.from ?? "/dashboard";
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
     setLoading(true);
-
     try {
       await auth.login(email, password);
       navigate(from, { replace: true });
@@ -32,36 +31,64 @@ export default function LoginPage() {
 
   return (
     <div className="login-card">
-      <div className="page-header">
-        <div>
-          <h2>Đăng nhập Admin</h2>
-          <p>Dùng tài khoản có role ADMIN trong backend.</p>
-        </div>
+      <div className="login-card__header">
+        <h2>Đăng nhập</h2>
+        <p>Sử dụng tài khoản Admin để tiếp tục.</p>
       </div>
 
-      <form className="page" onSubmit={onSubmit}>
-        {error && <div className="page-state page-state--error" style={{ minHeight: 0 }}>{error}</div>}
+      <form className="page" onSubmit={onSubmit} style={{ gap: 18 }}>
+        {error && (
+          <div
+            style={{
+              background: "rgba(239,68,68,0.07)",
+              border: "1px solid rgba(239,68,68,0.18)",
+              borderRadius: 12,
+              padding: "12px 16px",
+              color: "#dc2626",
+              fontSize: 13,
+              fontWeight: 500,
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <div className="field">
-          <label htmlFor="email">Email</label>
-          <input id="email" className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label htmlFor="admin-email">Email</label>
+          <input
+            id="admin-email"
+            className="input"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@youniverse.local"
+            required
+            autoComplete="email"
+          />
         </div>
 
         <div className="field">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="admin-password">Mật khẩu</label>
           <input
-            id="password"
+            id="admin-password"
             className="input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
             required
+            autoComplete="current-password"
           />
         </div>
 
-        <button className="button button--full" type="submit" disabled={loading}>
+        <button
+          className="button button--full"
+          type="submit"
+          disabled={loading}
+          style={{ marginTop: 4 }}
+        >
           {loading ? <span className="spinner" /> : <LogIn size={16} />}
-          Đăng nhập
+          {loading ? "Đang xác thực..." : "Đăng nhập"}
         </button>
       </form>
     </div>

@@ -96,7 +96,7 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
         : apiRequest<{ product: Product }>(`/admin/products/${id}`, { method: "PATCH", token, body: payload }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
-      navigate("/admin/products");
+      navigate("/products");
     },
     onError: (err) => setError(err instanceof Error ? err.message : "Không lưu được sản phẩm."),
   });
@@ -153,7 +153,7 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
           <p>Thông tin sản phẩm, SEO, ảnh chính và tồn kho.</p>
         </div>
         <div className="row-actions">
-          <Link className="button button--secondary" to="/admin/products"><ArrowLeft size={16} />Quay lại</Link>
+          <Link className="button button--secondary" to="/products"><ArrowLeft size={16} />Quay lại</Link>
           <button className="button" type="submit" disabled={saveMutation.isPending}><Save size={16} />Lưu lại</button>
         </div>
       </div>
