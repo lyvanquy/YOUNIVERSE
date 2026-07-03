@@ -97,7 +97,7 @@ export const createPaymentForOrder = async (input: CreatePaymentForOrderInput) =
   };
   const result = await adapter.createPayment(createPaymentInput);
 
-  if (input.provider !== PaymentProvider.COD && !result.paymentUrl) {
+  if (input.provider !== PaymentProvider.COD && input.provider !== PaymentProvider.BANK_TRANSFER && !result.paymentUrl) {
     throw new AppError("Payment URL was not created", HTTP_STATUS.BAD_REQUEST);
   }
 

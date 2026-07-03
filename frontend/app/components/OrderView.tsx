@@ -5,6 +5,7 @@ import { Sparkles, Heart, Compass, ChevronRight, Check, Plus, Upload, X, Home, S
 import { useRouter } from 'next/navigation';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
+import { apiRequest, buildQuery, type ApiProduct } from '../lib/api';
 import {
   CHARM_PRODUCTS,
   ASTRA_SYSTEMS,
@@ -62,7 +63,11 @@ export default function OrderView() {
 
   /* ── Payment ── */
   const [paymentReceipt, setPaymentReceipt] = useState<string | null>(null);
+  const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const [paymentFileName, setPaymentFileName] = useState('');
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const [orderError, setOrderError] = useState<string | null>(null);
+  const [createdOrderCode, setCreatedOrderCode] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +127,7 @@ export default function OrderView() {
 
   const handleFileChange = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) return;
+    setPaymentFile(file);
     setPaymentFileName(file.name);
     const reader = new FileReader();
     reader.onload = (e) => setPaymentReceipt(e.target?.result as string);
@@ -146,8 +152,164 @@ export default function OrderView() {
     }, 50);
   };
 
-  const handleConfirmOrder = () => {
-    goToStep(5);
+  const handleConfirmOrder = async () => {
+    setOrderSubmitting(true);
+    setOrderError(null);
+
+    try {
+      if (!email.trim()) {
+        throw new Error(language === 'vi' ? 'Vui lòng nhập email để nhận xác nhận đơn hàng.' : 'Please enter your email for order confirmation.');
+      }
+
+      if (!paymentFile) {
+        throw new Error(language === 'vi' ? 'Vui lòng tải lên minh chứng chuyển khoản.' : 'Please upload your bank transfer receipt.');
+      }
+
+      const productData = await apiRequest<{ items: ApiProduct[] }>(
+        `/products${buildQuery({ page: 1, limit: 100 })}`,
+      );
+      const bySlug = new Map(productData.items.map((product) => [product.slug, product]));
+      const astraProduct = bySlug.get('charm-astra');
+      const siriusProduct = bySlug.get('charm-sirius');
+      const polarisProduct = bySlug.get('charm-polaris');
+
+      if (!astraProduct || !siriusProduct || !polarisProduct) {
+        throw new Error('Backend products are missing charm-astra, charm-sirius, or charm-polaris.');
+      }
+
+      const sessionId = `order-${crypto.randomUUID()}`;
+      let cartId = '';
+
+      const addCartItem = async (input: {
+        product: ApiProduct;
+        customText?: string | null;
+        customData?: Record<string, unknown>;
+      }) => {
+        const data = await apiRequest<{ cart: { id: string } }>('/cart/items', {
+          method: 'POST',
+          sessionId,
+          body: {
+            productId: input.product.id,
+            quantity: 1,
+            customText: input.customText ?? null,
+            customData: input.customData ?? null,
+          },
+        });
+        cartId = data.cart.id;
+      };
+
+      if (selectedAstra) {
+        await addCartItem({
+          product: astraProduct,
+          customText: `${language === 'vi' ? selectedAstra.nameVi : selectedAstra.nameEn}${engraveChoice === 'engrave' && nickname ? ` | ${nickname}` : ''}`,
+          customData: {
+            line: 'ASTRA',
+            system: selectedAstra.id,
+            engraveChoice,
+            nickname: engraveChoice === 'engrave' ? nickname : '',
+          },
+        });
+      }
+
+      if (selectedSirius) {
+        await addCartItem({
+          product: siriusProduct,
+          customText: `${selectedSirius.category}: ${language === 'vi' ? selectedSirius.nameVi : selectedSirius.nameEn}`,
+          customData: {
+            line: 'SIRIUS',
+            category: selectedSirius.category,
+            charm: selectedSirius.id,
+          },
+        });
+      }
+
+      if (polarisTab === 'preset' && polarisPresetId) {
+        const quote = POLARIS_QUOTES.find((item) => item.id === polarisPresetId);
+        await addCartItem({
+          product: polarisProduct,
+          customText: quote ? (language === 'vi' ? quote.textVi : quote.textEn) : null,
+          customData: {
+            line: 'POLARIS',
+            type: 'preset',
+            quoteId: polarisPresetId,
+          },
+        });
+      }
+
+      if (polarisTab === 'custom' && polarisCustomSealed && polarisCustomText) {
+        await addCartItem({
+          product: polarisProduct,
+          customText: polarisCustomText,
+          customData: {
+            line: 'POLARIS',
+            type: 'custom',
+          },
+        });
+      }
+
+      if (polarisTab === 'swap' && polarisSwapCharm) {
+        const extraCharm = SIRIUS_CHARMS.find((item) => item.id === polarisSwapCharm);
+        await addCartItem({
+          product: siriusProduct,
+          customText: `Extra ${extraCharm?.category}: ${extraCharm ? (language === 'vi' ? extraCharm.nameVi : extraCharm.nameEn) : polarisSwapCharm}`,
+          customData: {
+            line: 'SIRIUS',
+            type: 'swap',
+            charm: polarisSwapCharm,
+          },
+        });
+      }
+
+      if (!cartId) {
+        throw new Error('Cart was not created.');
+      }
+
+      const order = await apiRequest<{ orderCode: string; orderId: string; paymentProvider: string; paymentUrl?: string | null }>(
+        '/checkout/create-order',
+        {
+          method: 'POST',
+          sessionId,
+          body: {
+            cartId,
+            customer: {
+              fullName,
+              email,
+              phone,
+            },
+            shipping: {
+              addressLine: address,
+              ward: null,
+              district: null,
+              province: null,
+            },
+            paymentProvider: 'BANK_TRANSFER',
+            note: note || null,
+          },
+        },
+      );
+
+      const uploadBody = new FormData();
+      uploadBody.set('file', paymentFile);
+      const uploaded = await apiRequest<{ url: string }>('/upload/image', {
+        method: 'POST',
+        body: uploadBody,
+      });
+
+      await apiRequest('/payments/receipt', {
+        method: 'POST',
+        body: {
+          orderId: order.orderId,
+          receiptUrl: uploaded.url,
+        },
+      });
+
+      setCreatedOrderCode(order.orderCode);
+      goToStep(5);
+    } catch (error) {
+      setOrderError(error instanceof Error ? error.message : 'Could not create order.');
+    } finally {
+      setOrderSubmitting(false);
+    }
   };
 
   /* ── Step completion checks ── */
@@ -202,6 +364,11 @@ export default function OrderView() {
           <p className="font-sans text-stone-300 text-sm leading-relaxed max-w-md mx-auto">
             {t.orderSuccessText}
           </p>
+          {createdOrderCode && (
+            <div className="inline-flex rounded-full border border-amber-400/40 bg-amber-400/10 px-5 py-2 font-mono text-sm font-bold text-amber-300">
+              {language === 'vi' ? 'Mã đơn:' : 'Order code:'} {createdOrderCode}
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <button
               onClick={() => router.push('/')}
@@ -1007,6 +1174,7 @@ export default function OrderView() {
                   <div className="space-y-1.5">
                     <label className="font-display text-[10px] font-black uppercase tracking-wider text-stone-600">{t.orderInvoiceEmail}</label>
                     <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      required
                       className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:outline-none focus:shadow-[2px_2px_0_rgba(0,0,0,0.4)] transition-all" />
                   </div>
                   <div className="space-y-1.5">
@@ -1057,7 +1225,7 @@ export default function OrderView() {
                         <div className="relative w-full h-full">
                           <img src={paymentReceipt} alt="Receipt" className="w-full h-full object-contain rounded-xl p-2" />
                           <button
-                            onClick={(e) => { e.stopPropagation(); setPaymentReceipt(null); setPaymentFileName(''); }}
+                            onClick={(e) => { e.stopPropagation(); setPaymentReceipt(null); setPaymentFile(null); setPaymentFileName(''); }}
                             className="absolute top-2 right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 cursor-pointer"
                           >
                             <X className="h-3 w-3" />
@@ -1080,6 +1248,12 @@ export default function OrderView() {
               </div>
 
               {/* Action buttons */}
+              {orderError && (
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-sans text-rose-600">
+                  {orderError}
+                </div>
+              )}
+
               <div className="flex items-center justify-between pt-4 border-t-2 border-stone-100 mt-4">
                 <button
                   onClick={() => goToStep(3)}
@@ -1089,11 +1263,11 @@ export default function OrderView() {
                 </button>
                 <button
                   onClick={handleConfirmOrder}
-                  disabled={!fullName || !phone || !address}
+                  disabled={!fullName || !phone || !email || !address || !paymentReceipt || orderSubmitting}
                   className="flex items-center gap-2 bg-amber-400 disabled:bg-stone-200 disabled:border-stone-300 disabled:shadow-none disabled:translate-x-0 disabled:translate-y-0 disabled:cursor-not-allowed text-stone-900 font-display text-xs font-black uppercase tracking-wider px-8 py-3.5 rounded-xl border-2 border-stone-900 shadow-[4px_4px_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all duration-150 cursor-pointer"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>{t.orderConfirmBtn}</span>
+                  <span>{orderSubmitting ? (language === 'vi' ? 'Đang tạo đơn...' : 'Creating order...') : t.orderConfirmBtn}</span>
                 </button>
               </div>
             </div>

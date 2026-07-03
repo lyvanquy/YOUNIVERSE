@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Star, Quote, Eye, Flame, Sparkles, Phone } from 'lucide-react';
 import { CORE_VALUES, TEAM_MEMBERS } from '../data';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
+import { apiRequest } from '../lib/api';
 
 export default function AboutView() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function AboutView() {
   
   const { language } = useYouniverseApp();
   const t = translations[language];
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null);
   
   // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
   const glowRef = useRef<HTMLDivElement>(null);
@@ -31,6 +34,32 @@ export default function AboutView() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
+
+  const handleSubmitFeedback = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    setFeedbackLoading(true);
+    setFeedbackStatus(null);
+
+    try {
+      await apiRequest('/feedback', {
+        method: 'POST',
+        body: {
+          fullName: String(formData.get('fullName') ?? ''),
+          email: String(formData.get('email') ?? ''),
+          message: String(formData.get('message') ?? ''),
+        },
+      });
+      setFeedbackStatus(language === 'vi' ? 'YOUniverse đã nhận được chia sẻ của bạn.' : 'YOUniverse has received your story.');
+      form.reset();
+    } catch (error) {
+      setFeedbackStatus(error instanceof Error ? error.message : 'Could not send feedback.');
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
 
   return (
     <div className="pb-24 space-y-24 text-stone-800 relative overflow-hidden" id="about-us-view">
@@ -716,13 +745,14 @@ export default function AboutView() {
           <div className="relative bg-white border border-stone-200/80 rounded-[20px] p-8 md:p-10 shadow-sm">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808004_1px,transparent_1px),linear-gradient(to_bottom,#80808004_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0 rounded-[20px]" />
             
-            <form className="relative z-10 space-y-5" onSubmit={(e) => e.preventDefault()}>
+            <form className="relative z-10 space-y-5" onSubmit={handleSubmitFeedback}>
               {/* Full Name */}
               <div className="space-y-1.5">
                 <label className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-500">
                   {language === 'vi' ? 'Họ và tên' : 'Full Name'}
                 </label>
                 <input
+                  name="fullName"
                   type="text"
                   placeholder={language === 'vi' ? 'Nhập họ và tên...' : 'Enter your full name...'}
                   className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
@@ -735,6 +765,7 @@ export default function AboutView() {
                   Email
                 </label>
                 <input
+                  name="email"
                   type="email"
                   placeholder={language === 'vi' ? 'Nhập email...' : 'Enter your email...'}
                   className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all"
@@ -752,6 +783,7 @@ export default function AboutView() {
                     : 'Did your charm hit the right spot? Share your unspoken connection with us.'}
                 </p>
                 <textarea
+                  name="message"
                   rows={4}
                   placeholder={language === 'vi' ? 'Chia sẻ câu chuyện của bạn...' : 'Tell us your story...'}
                   className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-stone-50 border border-stone-200 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all resize-none"
@@ -761,11 +793,18 @@ export default function AboutView() {
               {/* Submit */}
               <button
                 type="submit"
+                disabled={feedbackLoading}
                 className="w-full bg-black hover:bg-stone-800 text-white font-display text-xs font-bold uppercase tracking-wider py-3.5 rounded-full transition-all duration-300 hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>{language === 'vi' ? 'Gửi tín hiệu' : 'Send Signal'}</span>
+                <span>{feedbackLoading ? (language === 'vi' ? 'Đang gửi...' : 'Sending...') : (language === 'vi' ? 'Gửi tín hiệu' : 'Send Signal')}</span>
                 <Sparkles className="h-3.5 w-3.5 text-amber-400" />
               </button>
+
+              {feedbackStatus && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-center text-xs font-sans text-emerald-600">
+                  {feedbackStatus}
+                </div>
+              )}
             </form>
           </div>
         </div>

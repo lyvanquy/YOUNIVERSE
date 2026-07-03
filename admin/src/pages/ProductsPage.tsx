@@ -37,41 +37,41 @@ export default function ProductsPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Products</h2>
+          <h2>Sản phẩm</h2>
           <p>Quản lý catalog, trạng thái bán, ảnh, giá và tồn kho ban đầu.</p>
         </div>
         <Link className="button" to="/admin/products/new">
           <Plus size={16} />
-          New Product
+          Thêm sản phẩm
         </Link>
       </div>
 
       <div className="card toolbar">
         <div className="filters">
           <div className="field">
-            <label>Search</label>
+            <label>Tìm kiếm</label>
             <div style={{ position: "relative" }}>
               <Search size={16} style={{ position: "absolute", left: 10, top: 12, color: "#71717a" }} />
               <input className="input" style={{ paddingLeft: 34 }} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
             </div>
           </div>
           <div className="field">
-            <label>Line</label>
+            <label>Dòng sản phẩm</label>
             <select className="select" value={line} onChange={(e) => { setLine(e.target.value as ProductLine | ""); setPage(1); }}>
-              <option value="">All</option>
+              <option value="">Tất cả</option>
               <option value="ASTRA">ASTRA</option>
               <option value="SIRIUS">SIRIUS</option>
               <option value="POLARIS">POLARIS</option>
             </select>
           </div>
           <div className="field">
-            <label>Status</label>
+            <label>Trạng thái</label>
             <select className="select" value={status} onChange={(e) => { setStatus(e.target.value as ProductStatus | ""); setPage(1); }}>
-              <option value="">All</option>
-              <option value="DRAFT">DRAFT</option>
-              <option value="ACTIVE">ACTIVE</option>
-              <option value="INACTIVE">INACTIVE</option>
-              <option value="ARCHIVED">ARCHIVED</option>
+              <option value="">Tất cả</option>
+              <option value="DRAFT">Nháp</option>
+              <option value="ACTIVE">Đang hoạt động</option>
+              <option value="INACTIVE">Ngừng hoạt động</option>
+              <option value="ARCHIVED">Đã lưu trữ</option>
             </select>
           </div>
         </div>
@@ -89,11 +89,11 @@ export default function ProductsPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Product</th>
-                  <th>Line</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Status</th>
+                  <th>Sản phẩm</th>
+                  <th>Dòng sản phẩm</th>
+                  <th>Giá</th>
+                  <th>Tồn kho</th>
+                  <th>Trạng thái</th>
                   <th></th>
                 </tr>
               </thead>
@@ -120,13 +120,13 @@ export default function ProductsPage() {
                       <div className="row-actions">
                         <Link className="button button--secondary" to={`/admin/products/${product.id}/edit`}>
                           <Edit size={15} />
-                          Edit
+                          Sửa
                         </Link>
                         <button
                           className="button button--danger"
                           type="button"
                           onClick={() => {
-                            if (confirm(`Archive ${product.name}?`)) archive.mutate(product.id);
+                            if (confirm(`Lưu trữ sản phẩm ${product.name}?`)) archive.mutate(product.id);
                           }}
                           disabled={archive.isPending}
                         >

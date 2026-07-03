@@ -44,24 +44,24 @@ export default function UsersPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Users</h2>
-          <p>Xem tài khoản khách hàng và admin. Backend hiện hỗ trợ read-only.</p>
+          <h2>Khách hàng</h2>
+          <p>Xem tài khoản khách hàng và quản trị viên. Backend hiện hỗ trợ read-only.</p>
         </div>
       </div>
 
       <div className="card toolbar">
         <div className="filters">
-          <div className="field"><label>Search</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
+          <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
           <div className="field">
-            <label>Role</label>
+            <label>Vai trò</label>
             <select className="select" value={role} onChange={(e) => { setRole(e.target.value as UserRole | ""); setPage(1); }}>
-              <option value="">All</option><option value="CUSTOMER">CUSTOMER</option><option value="ADMIN">ADMIN</option>
+              <option value="">Tất cả</option><option value="CUSTOMER">Khách hàng (CUSTOMER)</option><option value="ADMIN">Quản trị viên (ADMIN)</option>
             </select>
           </div>
           <div className="field">
-            <label>Status</label>
+            <label>Trạng thái</label>
             <select className="select" value={status} onChange={(e) => { setStatus(e.target.value as UserStatus | ""); setPage(1); }}>
-              <option value="">All</option><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option><option value="BANNED">BANNED</option>
+              <option value="">Tất cả</option><option value="ACTIVE">Hoạt động (ACTIVE)</option><option value="INACTIVE">Tạm ngưng (INACTIVE)</option><option value="BANNED">Đã khóa (BANNED)</option>
             </select>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function UsersPage() {
         <>
           <div className="table-wrap">
             <table className="table">
-              <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Orders</th><th>Carts</th><th>Created</th></tr></thead>
+              <thead><tr><th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th>Số đơn hàng</th><th>Giỏ nháp</th><th>Ngày tạo</th></tr></thead>
               <tbody>
                 {query.data!.items.map((user) => (
                   <tr key={user.id}>

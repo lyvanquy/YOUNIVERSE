@@ -149,12 +149,12 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
     <form className="page" onSubmit={onSubmit}>
       <div className="page-header">
         <div>
-          <h2>{mode === "create" ? "Create Product" : "Edit Product"}</h2>
+          <h2>{mode === "create" ? "Thêm sản phẩm mới" : "Chỉnh sửa sản phẩm"}</h2>
           <p>Thông tin sản phẩm, SEO, ảnh chính và tồn kho.</p>
         </div>
         <div className="row-actions">
-          <Link className="button button--secondary" to="/admin/products"><ArrowLeft size={16} />Back</Link>
-          <button className="button" type="submit" disabled={saveMutation.isPending}><Save size={16} />Save</button>
+          <Link className="button button--secondary" to="/admin/products"><ArrowLeft size={16} />Quay lại</Link>
+          <button className="button" type="submit" disabled={saveMutation.isPending}><Save size={16} />Lưu lại</button>
         </div>
       </div>
 
@@ -162,55 +162,55 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
 
       <div className="split">
         <section className="card page">
-          <h3>Product Info</h3>
+          <h3>Thông tin sản phẩm</h3>
           <div className="grid-2">
-            <div className="field"><label>Name</label><input className="input" value={form.name} onChange={(e) => update("name", e.target.value)} required /></div>
-            <div className="field"><label>Slug</label><input className="input" value={form.slug} onChange={(e) => update("slug", e.target.value)} placeholder="auto if blank" /></div>
+            <div className="field"><label>Tên sản phẩm</label><input className="input" value={form.name} onChange={(e) => update("name", e.target.value)} required /></div>
+            <div className="field"><label>Đường dẫn (Slug)</label><input className="input" value={form.slug} onChange={(e) => update("slug", e.target.value)} placeholder="tự động tạo nếu bỏ trống" /></div>
           </div>
           <div className="grid-3">
             <div className="field">
-              <label>Line</label>
+              <label>Dòng sản phẩm</label>
               <select className="select" value={form.productLine} onChange={(e) => update("productLine", e.target.value as ProductLine)}>
                 <option value="ASTRA">ASTRA</option><option value="SIRIUS">SIRIUS</option><option value="POLARIS">POLARIS</option>
               </select>
             </div>
-            <div className="field"><label>Badge</label><input className="input" value={form.badge} onChange={(e) => update("badge", e.target.value)} /></div>
+            <div className="field"><label>Nhãn đính kèm (Badge)</label><input className="input" value={form.badge} onChange={(e) => update("badge", e.target.value)} /></div>
             <div className="field">
-              <label>Status</label>
+              <label>Trạng thái</label>
               <select className="select" value={form.status} onChange={(e) => update("status", e.target.value as ProductStatus)}>
-                <option value="DRAFT">DRAFT</option><option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option><option value="ARCHIVED">ARCHIVED</option>
+                <option value="DRAFT">Nháp (DRAFT)</option><option value="ACTIVE">Đang hoạt động (ACTIVE)</option><option value="INACTIVE">Ngừng hoạt động (INACTIVE)</option><option value="ARCHIVED">Đã lưu trữ (ARCHIVED)</option>
               </select>
             </div>
           </div>
-          <div className="field"><label>Short Description</label><textarea className="textarea" value={form.shortDescription} onChange={(e) => update("shortDescription", e.target.value)} required /></div>
-          <div className="field"><label>Description</label><textarea className="textarea" value={form.description} onChange={(e) => update("description", e.target.value)} /></div>
+          <div className="field"><label>Mô tả ngắn</label><textarea className="textarea" value={form.shortDescription} onChange={(e) => update("shortDescription", e.target.value)} required /></div>
+          <div className="field"><label>Mô tả chi tiết</label><textarea className="textarea" value={form.description} onChange={(e) => update("description", e.target.value)} /></div>
           <div className="grid-2">
-            <div className="field"><label>Price</label><input className="input" type="number" value={form.price} onChange={(e) => update("price", e.target.value)} required /></div>
-            <div className="field"><label>Sale Price</label><input className="input" type="number" value={form.salePrice} onChange={(e) => update("salePrice", e.target.value)} /></div>
+            <div className="field"><label>Giá bán</label><input className="input" type="number" value={form.price} onChange={(e) => update("price", e.target.value)} required /></div>
+            <div className="field"><label>Giá khuyến mãi</label><input className="input" type="number" value={form.salePrice} onChange={(e) => update("salePrice", e.target.value)} /></div>
           </div>
           <div className="grid-3">
-            <div className="field"><label>SKU</label><input className="input" value={form.sku} onChange={(e) => update("sku", e.target.value)} /></div>
-            <div className="field"><label>Stock</label><input className="input" type="number" value={form.stockQuantity} onChange={(e) => update("stockQuantity", e.target.value)} /></div>
-            <div className="field"><label>Low Stock Threshold</label><input className="input" type="number" value={form.lowStockThreshold} onChange={(e) => update("lowStockThreshold", e.target.value)} /></div>
+            <div className="field"><label>Mã sản phẩm (SKU)</label><input className="input" value={form.sku} onChange={(e) => update("sku", e.target.value)} /></div>
+            <div className="field"><label>Số lượng tồn kho</label><input className="input" type="number" value={form.stockQuantity} onChange={(e) => update("stockQuantity", e.target.value)} /></div>
+            <div className="field"><label>Mức báo động sắp hết</label><input className="input" type="number" value={form.lowStockThreshold} onChange={(e) => update("lowStockThreshold", e.target.value)} /></div>
           </div>
           <div className="grid-2">
-            <label><input type="checkbox" checked={form.isFeatured} onChange={(e) => update("isFeatured", e.target.checked)} /> Featured</label>
-            <label><input type="checkbox" checked={form.allowCustomize} onChange={(e) => update("allowCustomize", e.target.checked)} /> Allow customize</label>
+            <label><input type="checkbox" checked={form.isFeatured} onChange={(e) => update("isFeatured", e.target.checked)} /> Sản phẩm nổi bật</label>
+            <label><input type="checkbox" checked={form.allowCustomize} onChange={(e) => update("allowCustomize", e.target.checked)} /> Cho phép tùy biến (Custom)</label>
           </div>
         </section>
 
         <aside className="card page">
-          <h3>Image</h3>
-          {form.imageUrl && <img src={form.imageUrl} alt="" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", borderRadius: 8, border: "1px solid #e5e7eb" }} />}
-          <div className="field"><label>Image URL</label><input className="input" value={form.imageUrl} onChange={(e) => update("imageUrl", e.target.value)} /></div>
-          <div className="field"><label>Image Alt</label><input className="input" value={form.imageAlt} onChange={(e) => update("imageAlt", e.target.value)} /></div>
+          <h3>Hình ảnh chính</h3>
+          {form.imageUrl && <img src={form.imageUrl} alt="" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", borderRadius: 12, border: "1px solid var(--border-color)" }} />}
+          <div className="field"><label>Đường dẫn ảnh (URL)</label><input className="input" value={form.imageUrl} onChange={(e) => update("imageUrl", e.target.value)} /></div>
+          <div className="field"><label>Chú thích ảnh (Alt)</label><input className="input" value={form.imageAlt} onChange={(e) => update("imageAlt", e.target.value)} /></div>
           <label className="button button--secondary">
-            <Upload size={16} /> Upload image
+            <Upload size={16} /> Tải ảnh lên
             <input hidden type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && uploadMutation.mutate(e.target.files[0])} />
           </label>
-          <h3>SEO</h3>
-          <div className="field"><label>Meta Title</label><input className="input" value={form.metaTitle} onChange={(e) => update("metaTitle", e.target.value)} /></div>
-          <div className="field"><label>Meta Description</label><textarea className="textarea" value={form.metaDescription} onChange={(e) => update("metaDescription", e.target.value)} /></div>
+          <h3>Cấu hình SEO</h3>
+          <div className="field"><label>Tiêu đề SEO (Meta Title)</label><input className="input" value={form.metaTitle} onChange={(e) => update("metaTitle", e.target.value)} /></div>
+          <div className="field"><label>Mô tả SEO (Meta Description)</label><textarea className="textarea" value={form.metaDescription} onChange={(e) => update("metaDescription", e.target.value)} /></div>
         </aside>
       </div>
     </form>

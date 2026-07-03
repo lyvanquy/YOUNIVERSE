@@ -145,19 +145,19 @@ export default function CouponsPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Coupons</h2>
+          <h2>Mã giảm giá</h2>
           <p>Tạo và quản lý mã giảm giá, giới hạn sử dụng và thời gian hiệu lực.</p>
         </div>
-        <button className="button" type="button" onClick={openCreate}><Plus size={16} />New Coupon</button>
+        <button className="button" type="button" onClick={openCreate}><Plus size={16} />Thêm mã giảm giá</button>
       </div>
 
       <div className="card toolbar">
         <div className="filters">
-          <div className="field"><label>Search</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
+          <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
           <div className="field">
-            <label>Status</label>
+            <label>Trạng thái</label>
             <select className="select" value={isActive} onChange={(e) => { setIsActive(e.target.value); setPage(1); }}>
-              <option value="">All</option><option value="true">Active</option><option value="false">Inactive</option>
+              <option value="">Tất cả</option><option value="true">Đang kích hoạt</option><option value="false">Ngừng kích hoạt</option>
             </select>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function CouponsPage() {
         <>
           <div className="table-wrap">
             <table className="table">
-              <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Usage</th><th>Active</th><th>Dates</th><th></th></tr></thead>
+              <thead><tr><th>Mã</th><th>Loại giảm giá</th><th>Giá trị</th><th>Đã dùng</th><th>Kích hoạt</th><th>Hạn sử dụng</th><th></th></tr></thead>
               <tbody>
                 {query.data!.items.map((coupon) => (
                   <tr key={coupon.id}>
@@ -181,11 +181,11 @@ export default function CouponsPage() {
                     <td>{coupon.type}</td>
                     <td>{coupon.type === "PERCENTAGE" ? `${coupon.value}%` : formatCurrency(coupon.value)}</td>
                     <td>{coupon.usedCount}/{coupon.usageLimit ?? "∞"}</td>
-                    <td>{coupon.isActive ? <Badge tone="green">ACTIVE</Badge> : <Badge tone="red">OFF</Badge>}</td>
+                    <td>{coupon.isActive ? <Badge tone="green">Đang chạy</Badge> : <Badge tone="red">Dừng</Badge>}</td>
                     <td>{compactDate(coupon.startsAt)} → {compactDate(coupon.endsAt)}</td>
                     <td>
                       <div className="row-actions">
-                        <button className="button button--secondary" type="button" onClick={() => openEdit(coupon)}><Edit size={15} />Edit</button>
+                        <button className="button button--secondary" type="button" onClick={() => openEdit(coupon)}><Edit size={15} />Sửa</button>
                         <button className="button button--danger" type="button" onClick={() => disable.mutate(coupon.id)} disabled={disable.isPending}>
                           <Trash2 size={15} />
                         </button>
@@ -204,38 +204,38 @@ export default function CouponsPage() {
         <div className="modal-backdrop" onClick={() => setModalOpen(false)}>
           <form className="modal page" onSubmit={onSubmit} onClick={(e) => e.stopPropagation()}>
             <div className="modal__header">
-              <h3>{editing ? "Edit Coupon" : "Create Coupon"}</h3>
-              <button className="button button--secondary" type="button" onClick={() => setModalOpen(false)}>Close</button>
+              <h3>{editing ? "Chỉnh sửa mã giảm giá" : "Tạo mã giảm giá"}</h3>
+              <button className="button button--secondary" type="button" onClick={() => setModalOpen(false)}>Đóng</button>
             </div>
             {error && <div className="page-state page-state--error" style={{ minHeight: 0 }}>{error}</div>}
             <div className="grid-2">
-              <div className="field"><label>Code</label><input className="input" value={form.code} onChange={(e) => update("code", e.target.value.toUpperCase())} required /></div>
-              <div className="field"><label>Name</label><input className="input" value={form.name} onChange={(e) => update("name", e.target.value)} required /></div>
+              <div className="field"><label>Mã giảm giá</label><input className="input" value={form.code} onChange={(e) => update("code", e.target.value.toUpperCase())} required /></div>
+              <div className="field"><label>Tên chương trình</label><input className="input" value={form.name} onChange={(e) => update("name", e.target.value)} required /></div>
             </div>
             <div className="grid-2">
               <div className="field">
-                <label>Type</label>
+                <label>Loại giảm giá</label>
                 <select className="select" value={form.type} onChange={(e) => update("type", e.target.value as CouponType)}>
-                  <option value="PERCENTAGE">PERCENTAGE</option><option value="FIXED_AMOUNT">FIXED_AMOUNT</option><option value="FREE_SHIPPING">FREE_SHIPPING</option>
+                  <option value="PERCENTAGE">Phần trăm (PERCENTAGE)</option><option value="FIXED_AMOUNT">Số tiền cố định (FIXED_AMOUNT)</option><option value="FREE_SHIPPING">Miễn phí giao hàng (FREE_SHIPPING)</option>
                 </select>
               </div>
-              <div className="field"><label>Value</label><input className="input" type="number" value={form.value} onChange={(e) => update("value", e.target.value)} required /></div>
+              <div className="field"><label>Giá trị giảm</label><input className="input" type="number" value={form.value} onChange={(e) => update("value", e.target.value)} required /></div>
             </div>
-            <div className="field"><label>Description</label><textarea className="textarea" value={form.description} onChange={(e) => update("description", e.target.value)} /></div>
+            <div className="field"><label>Mô tả</label><textarea className="textarea" value={form.description} onChange={(e) => update("description", e.target.value)} /></div>
             <div className="grid-2">
-              <div className="field"><label>Min Order Amount</label><input className="input" type="number" value={form.minOrderAmount} onChange={(e) => update("minOrderAmount", e.target.value)} /></div>
-              <div className="field"><label>Max Discount Amount</label><input className="input" type="number" value={form.maxDiscountAmount} onChange={(e) => update("maxDiscountAmount", e.target.value)} /></div>
-            </div>
-            <div className="grid-2">
-              <div className="field"><label>Usage Limit</label><input className="input" type="number" value={form.usageLimit} onChange={(e) => update("usageLimit", e.target.value)} /></div>
-              <div className="field"><label>Usage / User</label><input className="input" type="number" value={form.usagePerUser} onChange={(e) => update("usagePerUser", e.target.value)} /></div>
+              <div className="field"><label>Đơn hàng tối thiểu</label><input className="input" type="number" value={form.minOrderAmount} onChange={(e) => update("minOrderAmount", e.target.value)} /></div>
+              <div className="field"><label>Số tiền giảm tối đa</label><input className="input" type="number" value={form.maxDiscountAmount} onChange={(e) => update("maxDiscountAmount", e.target.value)} /></div>
             </div>
             <div className="grid-2">
-              <div className="field"><label>Starts At</label><input className="input" type="date" value={form.startsAt} onChange={(e) => update("startsAt", e.target.value)} /></div>
-              <div className="field"><label>Ends At</label><input className="input" type="date" value={form.endsAt} onChange={(e) => update("endsAt", e.target.value)} /></div>
+              <div className="field"><label>Giới hạn số lần dùng</label><input className="input" type="number" value={form.usageLimit} onChange={(e) => update("usageLimit", e.target.value)} /></div>
+              <div className="field"><label>Giới hạn mỗi khách hàng</label><input className="input" type="number" value={form.usagePerUser} onChange={(e) => update("usagePerUser", e.target.value)} /></div>
             </div>
-            <label><input type="checkbox" checked={form.isActive} onChange={(e) => update("isActive", e.target.checked)} /> Active</label>
-            <button className="button" type="submit" disabled={save.isPending}>Save coupon</button>
+            <div className="grid-2">
+              <div className="field"><label>Bắt đầu từ ngày</label><input className="input" type="date" value={form.startsAt} onChange={(e) => update("startsAt", e.target.value)} /></div>
+              <div className="field"><label>Kết thúc vào ngày</label><input className="input" type="date" value={form.endsAt} onChange={(e) => update("endsAt", e.target.value)} /></div>
+            </div>
+            <label><input type="checkbox" checked={form.isActive} onChange={(e) => update("isActive", e.target.checked)} /> Kích hoạt sử dụng</label>
+            <button className="button" type="submit" disabled={save.isPending}>Lưu mã giảm giá</button>
           </form>
         </div>
       )}

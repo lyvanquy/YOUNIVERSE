@@ -10,12 +10,13 @@ import MarqueeSlogan from './components/MarqueeSlogan';
 import { TestimonialCarousel, MaterialShowcase, AstraShowcase, SiriusShowcase, PolarisShowcase, Visual4Steps } from './components/ProductsView';
 import CartDrawer from './components/CartDrawer';
 import { translations } from './locales';
+import { apiRequest, AUTH_TOKEN_KEY, USER_KEY, type ApiUser } from './lib/api';
 
 export type UserInfo = {
+  id: string;
   name: string;
   email: string;
   phone?: string;
-  role: 'CUSTOMER' | 'ADMIN';
 };
 
 type YouniverseAppContextValue = {
@@ -24,7 +25,7 @@ type YouniverseAppContextValue = {
   addCustomToCart: (item: CustomJewelry) => void;
   notifySoon: (charmName: string) => void;
   user: UserInfo | null;
-  role: 'CUSTOMER' | 'ADMIN' | null;
+  token: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; message?: string }>;
@@ -32,6 +33,13 @@ type YouniverseAppContextValue = {
 };
 
 const YouniverseAppContext = createContext<YouniverseAppContextValue | null>(null);
+
+const toUserInfo = (user: ApiUser): UserInfo => ({
+  id: user.id,
+  name: user.fullName,
+  email: user.email,
+  phone: user.phone ?? undefined,
+});
 
 export const useYouniverseApp = () => {
   const context = useContext(YouniverseAppContext);
@@ -48,8 +56,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   const isAuthPage = pathname === '/login' || pathname === '/register';
-  const isAdminPage = pathname?.startsWith('/admin');
-  const showPublicLayout = !isAuthPage && !isAdminPage;
+  const showPublicLayout = !isAuthPage;
   const [cart, setCart] = useState<CustomJewelry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [language, setLanguage] = useState<'en' | 'vi'>('en');
@@ -94,9 +101,8 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     }
   }, [language]);
   
-  // Simulated Auth states
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [role, setRole] = useState<'CUSTOMER' | 'ADMIN' | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Dialog modal states
@@ -113,12 +119,31 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         setCart(JSON.parse(stored));
       }
 
-      const storedUser = localStorage.getItem('youniverse_user');
+      const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
+      const storedUser = localStorage.getItem(USER_KEY);
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
         setUser(parsed);
-        setRole(parsed.role);
-        setIsAuthenticated(true);
+      }
+
+      if (storedToken) {
+        setToken(storedToken);
+        setIsAuthenticated(Boolean(storedUser));
+
+        apiRequest<{ user: ApiUser }>('/auth/me', { token: storedToken })
+          .then((data) => {
+            const nextUser = toUserInfo(data.user);
+            localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+            setUser(nextUser);
+            setIsAuthenticated(true);
+          })
+          .catch(() => {
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+            localStorage.removeItem(USER_KEY);
+            setToken(null);
+            setUser(null);
+            setIsAuthenticated(false);
+          });
       }
     } catch (e) {
       console.warn('Could not load app state from localStorage', e);
@@ -175,43 +200,46 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   };
 
   const handleLogin = async (email: string, password: string) => {
-    // Basic verification. If email starts with admin -> Admin role.
-    const isAdmin = email.toLowerCase().startsWith('admin');
-    const mockRole = isAdmin ? 'ADMIN' : 'CUSTOMER';
-    const mockUser: UserInfo = {
-      name: isAdmin ? 'System Administrator' : 'Cosmic Voyager',
-      email: email,
-      role: mockRole
-    };
-    
-    localStorage.setItem('youniverse_user', JSON.stringify(mockUser));
-    setUser(mockUser);
-    setRole(mockRole);
+    const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/login', {
+      method: 'POST',
+      body: { email, password },
+    });
+    const nextUser = toUserInfo(data.user);
+
+    localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setToken(data.accessToken);
+    setUser(nextUser);
     setIsAuthenticated(true);
     return { success: true };
   };
 
   const handleRegister = async (name: string, email: string, phone: string, password: string) => {
-    const isAdmin = email.toLowerCase().startsWith('admin');
-    const mockRole = isAdmin ? 'ADMIN' : 'CUSTOMER';
-    const mockUser: UserInfo = {
-      name: name,
-      email: email,
-      phone: phone || undefined,
-      role: mockRole
-    };
-    
-    localStorage.setItem('youniverse_user', JSON.stringify(mockUser));
-    setUser(mockUser);
-    setRole(mockRole);
+    const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/register', {
+      method: 'POST',
+      body: {
+        fullName: name,
+        email,
+        phone: phone || undefined,
+        password,
+        confirmPassword: password,
+      },
+    });
+    const nextUser = toUserInfo(data.user);
+
+    localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setToken(data.accessToken);
+    setUser(nextUser);
     setIsAuthenticated(true);
     return { success: true };
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('youniverse_user');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    setToken(null);
     setUser(null);
-    setRole(null);
     setIsAuthenticated(false);
     router.push('/');
   };
@@ -224,7 +252,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         addCustomToCart: handleAddCustomToCart,
         notifySoon: triggerNotifySoon,
         user,
-        role,
+        token,
         isAuthenticated,
         login: handleLogin,
         register: handleRegister,

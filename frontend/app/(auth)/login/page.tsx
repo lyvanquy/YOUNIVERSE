@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../../YouniverseApp";
 import { translations } from "../../locales";
-import { Sparkles, Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, user, language } = useYouniverseApp();
+  const { login, isAuthenticated, language } = useYouniverseApp();
   const t = translations[language];
 
   const [email, setEmail] = useState("");
@@ -36,10 +36,12 @@ export default function LoginPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Redirect to home since login is temporarily disabled
+  // Redirect authenticated users to their account page
   useEffect(() => {
-    router.push("/");
-  }, [router]);
+    if (isAuthenticated) {
+      router.push("/account");
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -61,7 +63,7 @@ export default function LoginPage() {
     try {
       const res = await login(email, password);
       if (res.success) {
-        // Redirection will be handled by the useEffect
+        router.push("/account");
       } else {
         setError(res.message || t.loginFailedError);
       }

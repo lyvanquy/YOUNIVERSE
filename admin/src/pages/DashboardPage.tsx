@@ -48,28 +48,28 @@ export default function DashboardPage() {
       <div className="grid-4">
         <div className="card stat-card">
           <div>
-            <span>Revenue</span>
+            <span>Doanh thu</span>
             <strong>{formatCurrency(data.revenue)}</strong>
           </div>
           <div className="stat-icon"><TrendingUp size={20} /></div>
         </div>
         <div className="card stat-card">
           <div>
-            <span>Total Orders</span>
+            <span>Tổng đơn hàng</span>
             <strong>{data.totalOrders}</strong>
           </div>
           <div className="stat-icon"><ShoppingBag size={20} /></div>
         </div>
         <div className="card stat-card">
           <div>
-            <span>Products</span>
+            <span>Sản phẩm</span>
             <strong>{data.totalProducts}</strong>
           </div>
           <div className="stat-icon"><Package size={20} /></div>
         </div>
         <div className="card stat-card">
           <div>
-            <span>Low Stock</span>
+            <span>Sắp hết hàng</span>
             <strong>{data.lowStockProducts}</strong>
           </div>
           <div className="stat-icon"><Boxes size={20} /></div>
@@ -79,14 +79,14 @@ export default function DashboardPage() {
       <div className="grid-2">
         <div className="card stat-card">
           <div>
-            <span>Pending Payment Orders</span>
+            <span>Đơn chờ thanh toán</span>
             <strong>{data.pendingOrders}</strong>
           </div>
           <div className="stat-icon"><ShoppingBag size={20} /></div>
         </div>
         <div className="card stat-card">
           <div>
-            <span>New Customers / 30 days</span>
+            <span>Khách hàng mới / 30 ngày</span>
             <strong>{data.newCustomers}</strong>
           </div>
           <div className="stat-icon"><Users size={20} /></div>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
 
       <div className="grid-2">
         <section className="card">
-          <h3>Revenue Snapshot</h3>
+          <h3>Biểu đồ Doanh thu</h3>
           <div style={{ height: 280 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
@@ -116,15 +116,15 @@ export default function DashboardPage() {
         </section>
 
         <section className="card">
-          <h3>Recent Orders</h3>
+          <h3>Đơn hàng gần đây</h3>
           <div className="table-wrap">
             <table className="table" style={{ minWidth: 640 }}>
               <thead>
                 <tr>
-                  <th>Order</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Total</th>
+                  <th>Mã đơn</th>
+                  <th>Khách hàng</th>
+                  <th>Trạng thái</th>
+                  <th>Tổng tiền</th>
                 </tr>
               </thead>
               <tbody>

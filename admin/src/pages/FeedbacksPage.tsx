@@ -37,14 +37,14 @@ export default function FeedbacksPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Feedbacks</h2>
+          <h2>Ý kiến phản hồi</h2>
           <p>Phản hồi khách gửi từ form “Unleash Your YOUniverse”.</p>
         </div>
       </div>
 
       <div className="card toolbar">
         <div className="filters">
-          <div className="field"><label>Search</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
+          <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
         </div>
       </div>
 
@@ -58,7 +58,7 @@ export default function FeedbacksPage() {
         <>
           <div className="table-wrap">
             <table className="table">
-              <thead><tr><th>Sender</th><th>Message</th><th>Created</th><th></th></tr></thead>
+              <thead><tr><th>Người gửi</th><th>Nội dung phản hồi</th><th>Ngày gửi</th><th></th></tr></thead>
               <tbody>
                 {items.map((item) => (
                   <tr key={item.id}>
@@ -72,7 +72,7 @@ export default function FeedbacksPage() {
                           type="button"
                           disabled={remove.isPending}
                           onClick={() => {
-                            if (confirm("Delete this feedback?")) remove.mutate(item.id);
+                            if (confirm("Xóa phản hồi này?")) remove.mutate(item.id);
                           }}
                         >
                           <Trash2 size={15} />

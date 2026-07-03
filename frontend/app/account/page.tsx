@@ -1,24 +1,40 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../YouniverseApp";
 import { User, ShoppingBag, MapPin, LogOut, Sparkles, Heart } from "lucide-react";
 import { translations } from "../locales";
+import { apiRequest, type ApiOrder } from "../lib/api";
+
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND", maximumFractionDigits: 0 }).format(value);
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, isAuthenticated, logout, language } = useYouniverseApp();
+  const { user, token, isAuthenticated, logout, language } = useYouniverseApp();
   const t = translations[language];
+  const [orders, setOrders] = useState<ApiOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
 
   // Route Guard: Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login");
-    } else if (user?.role === "ADMIN") {
-      router.push("/admin");
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+
+    setOrdersLoading(true);
+    setOrdersError(null);
+    apiRequest<{ items: ApiOrder[] }>("/orders/me?page=1&limit=20", { token })
+      .then((data) => setOrders(data.items))
+      .catch((error) => setOrdersError(error instanceof Error ? error.message : "Không tải được lịch sử đơn hàng."))
+      .finally(() => setOrdersLoading(false));
+  }, [isAuthenticated, token]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -27,26 +43,6 @@ export default function AccountPage() {
       </div>
     );
   }
-
-  // Simulated customer order history
-  const mockOrders = [
-    {
-      id: "YOUNIV-9821",
-      date: "2026-06-05",
-      total: "248,000 VND",
-      status: t.accountStatusProcessing,
-      statusColor: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-      items: ["Charm Astra", "Sirius Heart Core"],
-    },
-    {
-      id: "YOUNIV-7410",
-      date: "2026-05-20",
-      total: "139,000 VND",
-      status: t.accountStatusDelivered,
-      statusColor: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20",
-      items: ["Charm Polaris"],
-    },
-  ];
 
   return (
     <div className="relative min-h-[80vh] py-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8 z-10" id="account-page">
@@ -77,9 +73,6 @@ export default function AccountPage() {
                 <h3 className="font-display text-lg font-black uppercase tracking-tight text-stone-900 truncate max-w-[160px]">
                   {user.name}
                 </h3>
-                <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[9px] font-mono font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full">
-                  {user.role}
-                </span>
               </div>
             </div>
 
@@ -126,14 +119,34 @@ export default function AccountPage() {
             </div>
 
             <div className="space-y-4">
-              {mockOrders.map((order) => (
+              {ordersLoading && (
+                <div className="border border-stone-100 bg-stone-50/30 p-5 rounded-2xl text-xs text-stone-500">
+                  Đang tải lịch sử đơn hàng...
+                </div>
+              )}
+
+              {ordersError && (
+                <div className="border border-rose-100 bg-rose-50/50 p-5 rounded-2xl text-xs text-rose-600">
+                  {ordersError}
+                </div>
+              )}
+
+              {!ordersLoading && !ordersError && orders.length === 0 && (
+                <div className="border border-stone-100 bg-stone-50/30 p-5 rounded-2xl text-xs text-stone-500">
+                  Chưa có đơn hàng nào được ghi nhận trên backend.
+                </div>
+              )}
+
+              {orders.map((order) => (
                 <div key={order.id} className="border border-stone-100 bg-stone-50/30 hover:bg-stone-50/70 p-5 rounded-2xl transition-all duration-300 space-y-3">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-2 border-b border-stone-100">
                     <div>
-                      <span className="font-mono text-xs font-bold text-stone-900">{order.id}</span>
-                      <span className="text-[10px] font-sans text-stone-400 block sm:inline sm:ml-3">{order.date}</span>
+                      <span className="font-mono text-xs font-bold text-stone-900">{order.orderCode}</span>
+                      <span className="text-[10px] font-sans text-stone-400 block sm:inline sm:ml-3">
+                        {new Intl.DateTimeFormat("vi-VN").format(new Date(order.createdAt))}
+                      </span>
                     </div>
-                    <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${order.statusColor}`}>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border text-amber-600 bg-amber-500/10 border-amber-500/20">
                       {order.status}
                     </span>
                   </div>
@@ -141,11 +154,13 @@ export default function AccountPage() {
                   <div className="flex justify-between items-center text-xs">
                     <div>
                       <span className="text-stone-400 text-[10px] font-mono uppercase tracking-wider block">{t.accountItemsPurchased}</span>
-                      <span className="font-sans font-medium text-stone-700">{order.items.join(", ")}</span>
+                      <span className="font-sans font-medium text-stone-700">
+                        {order.items.map((item) => `${item.productName} x${item.quantity}`).join(", ")}
+                      </span>
                     </div>
                     <div className="text-right">
                       <span className="text-stone-400 text-[10px] font-mono uppercase tracking-wider block">{t.accountCosmicValue}</span>
-                      <span className="font-display font-extrabold text-stone-900">{order.total}</span>
+                      <span className="font-display font-extrabold text-stone-900">{formatCurrency(order.totalAmount)}</span>
                     </div>
                   </div>
                 </div>

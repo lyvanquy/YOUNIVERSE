@@ -57,18 +57,18 @@ export default function InventoryPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Inventory</h2>
+          <h2>Kho hàng</h2>
           <p>Theo dõi tồn kho, cảnh báo low-stock và ghi log điều chỉnh.</p>
         </div>
       </div>
 
       <div className="card toolbar">
         <div className="filters">
-          <div className="field"><label>Search</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
+          <div className="field"><label>Tìm kiếm</label><input className="input" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} /></div>
           <div className="field">
-            <label>Low Stock</label>
+            <label>Sắp hết hàng</label>
             <select className="select" value={lowStock} onChange={(e) => { setLowStock(e.target.value); setPage(1); }}>
-              <option value="">All</option><option value="true">Low stock only</option><option value="false">Healthy only</option>
+              <option value="">Tất cả</option><option value="true">Chỉ sản phẩm sắp hết hàng</option><option value="false">Sản phẩm bình thường</option>
             </select>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function InventoryPage() {
         <>
           <div className="table-wrap">
             <table className="table">
-              <thead><tr><th>Product</th><th>Qty</th><th>Sold</th><th>Threshold</th><th>Logs</th><th></th></tr></thead>
+              <thead><tr><th>Sản phẩm</th><th>Số lượng</th><th>Đã bán</th><th>Mức báo động</th><th>Lịch sử</th><th></th></tr></thead>
               <tbody>
                 {query.data!.items.map((item) => (
                   <tr key={item.id}>
@@ -94,7 +94,7 @@ export default function InventoryPage() {
                         <div><strong>{item.product.name}</strong><div className="muted">{item.product.productLine} · {item.product.status}</div></div>
                       </div>
                     </td>
-                    <td><strong>{item.quantity}</strong> {item.isLowStock && <Badge tone="red">LOW</Badge>}</td>
+                    <td><strong>{item.quantity}</strong> {item.isLowStock && <Badge tone="red">HẾT</Badge>}</td>
                     <td>{item.soldQuantity}</td>
                     <td>{item.lowStockThreshold}</td>
                     <td>
@@ -105,7 +105,7 @@ export default function InventoryPage() {
                     <td>
                       <div className="row-actions">
                         <button className="button button--secondary" type="button" onClick={() => setSelected(item)}>
-                          <SlidersHorizontal size={15} /> Adjust
+                          <SlidersHorizontal size={15} /> Điều chỉnh
                         </button>
                       </div>
                     </td>
@@ -122,21 +122,21 @@ export default function InventoryPage() {
         <div className="modal-backdrop" onClick={() => setSelected(null)}>
           <form className="modal page" onSubmit={onSubmit} onClick={(e) => e.stopPropagation()}>
             <div className="modal__header">
-              <div><h3>Adjust Inventory</h3><p className="muted">{selected.product.name}</p></div>
-              <button className="button button--secondary" type="button" onClick={() => setSelected(null)}>Close</button>
+              <div><h3>Điều chỉnh tồn kho</h3><p className="muted">{selected.product.name}</p></div>
+              <button className="button button--secondary" type="button" onClick={() => setSelected(null)}>Đóng</button>
             </div>
             {error && <div className="page-state page-state--error" style={{ minHeight: 0 }}>{error}</div>}
             <div className="grid-2">
               <div className="field">
-                <label>Type</label>
+                <label>Loại điều chỉnh</label>
                 <select className="select" value={type} onChange={(e) => setType(e.target.value as InventoryChangeType)}>
-                  <option value="IMPORT">IMPORT</option><option value="EXPORT">EXPORT</option><option value="ADJUSTMENT">ADJUSTMENT</option>
+                  <option value="IMPORT">Nhập kho (IMPORT)</option><option value="EXPORT">Xuất kho (EXPORT)</option><option value="ADJUSTMENT">Điều chỉnh khác (ADJUSTMENT)</option>
                 </select>
               </div>
-              <div className="field"><label>Quantity</label><input className="input" type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} /></div>
+              <div className="field"><label>Số lượng</label><input className="input" type="number" min="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} /></div>
             </div>
-            <div className="field"><label>Note</label><textarea className="textarea" value={note} onChange={(e) => setNote(e.target.value)} /></div>
-            <button className="button" type="submit" disabled={adjust.isPending}>Save adjustment</button>
+            <div className="field"><label>Ghi chú</label><textarea className="textarea" value={note} onChange={(e) => setNote(e.target.value)} /></div>
+            <button className="button" type="submit" disabled={adjust.isPending}>Lưu điều chỉnh</button>
           </form>
         </div>
       )}

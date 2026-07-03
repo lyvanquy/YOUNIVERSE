@@ -9,7 +9,7 @@ import { Eye, EyeOff, Lock, Mail, User, Phone, Check, Heart } from "lucide-react
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated, user, language } = useYouniverseApp();
+  const { register, isAuthenticated, language } = useYouniverseApp();
   const t = translations[language];
 
   const [name, setName] = useState("");
@@ -43,10 +43,12 @@ export default function RegisterPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Redirect to home since registration is temporarily disabled
+  // Redirect authenticated users to their account page
   useEffect(() => {
-    router.push("/");
-  }, [router]);
+    if (isAuthenticated) {
+      router.push("/account");
+    }
+  }, [isAuthenticated, router]);
 
   const validateForm = () => {
     if (!name.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
@@ -96,7 +98,7 @@ export default function RegisterPage() {
     try {
       const res = await register(name, email, phone, password);
       if (res.success) {
-        // Redirection will be handled by the useEffect
+        router.push("/account");
       } else {
         setError(res.message || t.registerFailedError);
       }

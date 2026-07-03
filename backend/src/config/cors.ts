@@ -2,7 +2,8 @@ import type { CorsOptions } from "cors";
 
 import { env } from "./env";
 
-const allowedOrigins = env.FRONTEND_URL.split(",")
+const allowedOrigins = [env.FRONTEND_URL, env.ADMIN_URL]
+  .flatMap((value) => value.split(","))
   .map((origin) => origin.trim())
   .filter(Boolean);
 

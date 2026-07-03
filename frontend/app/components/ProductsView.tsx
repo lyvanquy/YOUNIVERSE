@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Sparkles, Heart, Compass, Search, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
+import { apiRequest, buildQuery, productLineToApi, type ApiProduct } from '../lib/api';
 
 interface ProductsViewProps {
   onNotifySoon: (charmName: string) => void;
@@ -13,47 +14,14 @@ type ProductLineFilter = 'all' | 'astra' | 'sirius' | 'polaris';
 type ProductLine = 'ASTRA' | 'SIRIUS' | 'POLARIS';
 type SortBy = 'newest' | 'price-asc' | 'price-desc';
 
-type ApiProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  productLine: ProductLine;
-  badge: string | null;
-  shortDescription: string;
-  description: string | null;
-  price: number;
-  salePrice: number | null;
-  sku: string | null;
-  images: Array<{
-    url: string;
-    alt: string | null;
-    isPrimary: boolean;
-  }>;
-  inventory: {
-    quantity: number;
-  } | null;
-};
-
-type ProductListResponse = {
-  success: boolean;
-  message: string;
-  data?: {
-    items: ApiProduct[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      totalPages: number;
-    };
+type ProductListData = {
+  items: ApiProduct[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
   };
-};
-
-const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000/api/v1').replace(/\/$/, '');
-
-const productLineToApi: Record<Exclude<ProductLineFilter, 'all'>, ProductLine> = {
-  astra: 'ASTRA',
-  sirius: 'SIRIUS',
-  polaris: 'POLARIS',
 };
 
 const sortToApi: Record<SortBy, string> = {
@@ -95,75 +63,6 @@ function ProductVisual({ product }: { product: ApiProduct }) {
     />
   );
 }
-
-const STATIC_PRODUCTS: ApiProduct[] = [
-  {
-    id: 'astra',
-    name: 'Charm Astra',
-    slug: 'charm-astra',
-    productLine: 'ASTRA',
-    badge: 'Unique',
-    shortDescription: 'A bold statement of identity, customized with your name, celestial symbols, and your unique elemental energy.',
-    description: 'Astra helps you own your unique name and ignite your inner flame.',
-    price: 129000,
-    salePrice: null,
-    sku: 'CHARM-ASTRA',
-    images: [
-      {
-        url: '/images/product-astra.jpg',
-        alt: 'Charm Astra',
-        isPrimary: true,
-      }
-    ],
-    inventory: {
-      quantity: 50,
-    }
-  },
-  {
-    id: 'sirius',
-    name: 'Charm Sirius',
-    slug: 'charm-sirius',
-    productLine: 'SIRIUS',
-    badge: 'Passion',
-    shortDescription: 'Encapsulate the little things you love, from simple everyday passions and sweet pets to your daily rituals.',
-    description: 'Sirius packs the joy you seek and lets your passion speak.',
-    price: 119000,
-    salePrice: null,
-    sku: 'CHARM-SIRIUS',
-    images: [
-      {
-        url: '/images/product-sirius.jpg',
-        alt: 'Charm Sirius',
-        isPrimary: true,
-      }
-    ],
-    inventory: {
-      quantity: 50,
-    }
-  },
-  {
-    id: 'polaris',
-    name: 'Charm Polaris',
-    slug: 'charm-polaris',
-    productLine: 'POLARIS',
-    badge: 'Inspiring',
-    shortDescription: 'Inspiring quotes that serve as a guiding compass for your soul.',
-    description: 'Polaris helps you trust the guiding quote and let your spirit float.',
-    price: 139000,
-    salePrice: null,
-    sku: 'CHARM-POLARIS',
-    images: [
-      {
-        url: '/images/product-polaris.jpg',
-        alt: 'Charm Polaris',
-        isPrimary: true,
-      }
-    ],
-    inventory: {
-      quantity: 50,
-    }
-  }
-];
 
 /* ─── Testimonial Carousel ─── */
 interface Testimonial {
@@ -786,56 +685,37 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
     setLoading(true);
     setError(null);
 
-    const timer = window.setTimeout(() => {
+    const controller = new AbortController();
+
+    const loadProducts = async () => {
       try {
-        // Filter by product line
-        let filtered = [...STATIC_PRODUCTS];
-        if (selectedLine !== 'all') {
-          const apiLine = productLineToApi[selectedLine];
-          filtered = filtered.filter(p => p.productLine === apiLine);
-        }
+        const data = await apiRequest<ProductListData>(
+          `/products${buildQuery({
+            page: 1,
+            limit: 50,
+            search: searchQuery,
+            line: productLineToApi(selectedLine),
+            sort: sortToApi[sortBy],
+          })}`,
+          { signal: controller.signal },
+        );
 
-        // Filter by search query (case-insensitive)
-        if (searchQuery.trim()) {
-          const query = searchQuery.trim().toLowerCase();
-          filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(query) || 
-            p.shortDescription.toLowerCase().includes(query) ||
-            p.description?.toLowerCase().includes(query)
-          );
-        }
-
-        // Sort by option
-        if (sortBy === 'price-asc') {
-          filtered.sort((a, b) => {
-            const priceA = a.salePrice ?? a.price;
-            const priceB = b.salePrice ?? b.price;
-            return priceA - priceB;
-          });
-        } else if (sortBy === 'price-desc') {
-          filtered.sort((a, b) => {
-            const priceA = a.salePrice ?? a.price;
-            const priceB = b.salePrice ?? b.price;
-            return priceB - priceA;
-          });
-        } else {
-          // Default sorting (newest/by ID)
-          // Since it's static, default order is the order defined in STATIC_PRODUCTS
-        }
-
-        setProducts(filtered);
+        setProducts(data.items);
       } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setProducts([]);
         setError(err instanceof Error ? err.message : 'Could not load products');
       } finally {
         setLoading(false);
       }
-    }, 250);
+    };
 
+    const timer = window.setTimeout(loadProducts, 250);
     return () => {
+      controller.abort();
       window.clearTimeout(timer);
     };
-  }, [searchQuery, selectedLine, sortBy]);
+  }, [searchQuery, selectedLine, sortBy, refreshKey]);
 
   return (
     <div className="pb-24 space-y-16 bg-neutral-50/30" id="products-view">

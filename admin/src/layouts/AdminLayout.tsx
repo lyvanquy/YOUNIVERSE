@@ -16,22 +16,22 @@ import { useAuth } from "../features/auth/AuthProvider";
 import { cx } from "../lib/ui";
 
 const navItems = [
-  { to: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/admin/products", label: "Products", icon: Package },
-  { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
-  { to: "/admin/inventory", label: "Inventory", icon: Boxes },
-  { to: "/admin/coupons", label: "Coupons", icon: BadgePercent },
-  { to: "/admin/users", label: "Users", icon: Users },
-  { to: "/admin/feedbacks", label: "Feedbacks", icon: MessageSquare },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
+  { to: "/admin/dashboard", label: "Tổng quan", icon: LayoutDashboard },
+  { to: "/admin/products", label: "Sản phẩm", icon: Package },
+  { to: "/admin/orders", label: "Đơn hàng", icon: ShoppingBag },
+  { to: "/admin/inventory", label: "Kho hàng", icon: Boxes },
+  { to: "/admin/coupons", label: "Mã giảm giá", icon: BadgePercent },
+  { to: "/admin/users", label: "Khách hàng", icon: Users },
+  { to: "/admin/feedbacks", label: "Phản hồi", icon: MessageSquare },
+  { to: "/admin/settings", label: "Cài đặt", icon: Settings },
 ];
 
 function pageTitle(pathname: string) {
-  if (pathname.includes("/products/new")) return "Create Product";
-  if (pathname.includes("/products/") && pathname.includes("/edit")) return "Edit Product";
-  if (pathname.includes("/orders/")) return "Order Detail";
+  if (pathname.includes("/products/new")) return "Thêm sản phẩm";
+  if (pathname.includes("/products/") && pathname.includes("/edit")) return "Chỉnh sửa sản phẩm";
+  if (pathname.includes("/orders/")) return "Chi tiết đơn hàng";
   const item = navItems.find((nav) => pathname.startsWith(nav.to));
-  return item?.label ?? "Dashboard";
+  return item?.label ?? "Tổng quan";
 }
 
 export default function AdminLayout() {
@@ -45,7 +45,7 @@ export default function AdminLayout() {
           <div className="brand-mark">YOU</div>
           <div>
             <strong>YOUniverse</strong>
-            <span>Admin</span>
+            <span>Quản trị</span>
           </div>
         </div>
 
@@ -75,7 +75,7 @@ export default function AdminLayout() {
           </div>
           <button className="button button--ghost button--full" type="button" onClick={auth.logout}>
             <LogOut size={16} />
-            Logout
+            Đăng xuất
           </button>
         </div>
       </aside>
@@ -83,12 +83,12 @@ export default function AdminLayout() {
       <div className="main-shell">
         <header className="topbar">
           <div>
-            <span className="breadcrumb">Admin / {pageTitle(location.pathname)}</span>
+            <span className="breadcrumb">Quản trị / {pageTitle(location.pathname)}</span>
             <h1>{pageTitle(location.pathname)}</h1>
           </div>
           <div className="topbar__right">
             <span className="status-dot" />
-            <span>Backend API</span>
+            <span>API Hệ thống</span>
           </div>
         </header>
         <main className="content">

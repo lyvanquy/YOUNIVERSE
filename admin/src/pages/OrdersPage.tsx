@@ -38,7 +38,7 @@ export default function OrdersPage() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h2>Orders</h2>
+          <h2>Đơn hàng</h2>
           <p>Theo dõi đơn hàng, thanh toán, trạng thái vận hành và xác nhận chuyển khoản.</p>
         </div>
       </div>
@@ -46,32 +46,32 @@ export default function OrdersPage() {
       <div className="card toolbar">
         <div className="filters">
           <div className="field">
-            <label>Search</label>
+            <label>Tìm kiếm</label>
             <div style={{ position: "relative" }}>
               <Search size={16} style={{ position: "absolute", left: 10, top: 12, color: "#71717a" }} />
               <input className="input" style={{ paddingLeft: 34 }} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
             </div>
           </div>
           <div className="field">
-            <label>Order Status</label>
+            <label>Trạng thái đơn hàng</label>
             <select className="select" value={status} onChange={(e) => { setStatus(e.target.value as OrderStatus | ""); setPage(1); }}>
-              <option value="">All</option>
+              <option value="">Tất cả</option>
               {["PENDING_PAYMENT", "PAID", "CONFIRMED", "PROCESSING", "SHIPPING", "COMPLETED", "CANCELLED", "REFUNDED"].map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
           </div>
           <div className="field">
-            <label>Payment</label>
+            <label>Thanh toán</label>
             <select className="select" value={paymentStatus} onChange={(e) => { setPaymentStatus(e.target.value as PaymentStatus | ""); setPage(1); }}>
-              <option value="">All</option>
+              <option value="">Tất cả</option>
               {["PENDING", "PAID", "FAILED", "CANCELLED", "REFUNDED"].map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
           </div>
-          <div className="field"><label>From</label><input className="input" type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
-          <div className="field"><label>To</label><input className="input" type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+          <div className="field"><label>Từ ngày</label><input className="input" type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+          <div className="field"><label>Đến ngày</label><input className="input" type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
         </div>
       </div>
 
@@ -87,11 +87,11 @@ export default function OrdersPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Order</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Payment</th>
-                  <th>Total</th>
+                  <th>Đơn hàng</th>
+                  <th>Khách hàng</th>
+                  <th>Trạng thái đơn hàng</th>
+                  <th>Thanh toán</th>
+                  <th>Tổng tiền</th>
                   <th></th>
                 </tr>
               </thead>
@@ -113,7 +113,7 @@ export default function OrdersPage() {
                     <td>
                       <div className="row-actions">
                         <Link className="button button--secondary" to={`/admin/orders/${order.id}`}>
-                          <Eye size={15} /> Detail
+                          <Eye size={15} /> Chi tiết
                         </Link>
                       </div>
                     </td>

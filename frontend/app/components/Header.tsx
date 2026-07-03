@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, Sparkles, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 
@@ -167,23 +167,22 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </button>
           </div>
 
-          {/* Temporarily hidden login functionality
           {isAuthenticated ? (
             <div className="flex items-center space-x-1.5 md:space-x-2">
               <Link
-                href={user?.role === 'ADMIN' ? '/admin' : '/account'}
-                id="header-account-btn"
+                href="/account"
+                id="header-account-btn-live"
                 className="group relative flex h-9 md:h-10 w-9 md:w-auto md:px-4 items-center justify-center rounded-full border border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white hover:border-stone-600 transition-all duration-300 shadow-sm focus:outline-none"
                 title={`Hi, ${user?.name}`}
               >
-                <span className="h-2 w-2 rounded-full bg-emerald-500 md:mr-2 animate-pulse" />
-                <span className="hidden md:inline font-sans text-xs font-semibold truncate max-w-[80px]">
+                <User className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline font-sans text-xs font-semibold truncate max-w-[90px]">
                   {user?.name.split(' ')[0]}
                 </span>
               </Link>
               <button
                 onClick={logout}
-                id="header-logout-btn"
+                id="header-logout-btn-live"
                 className="hidden md:flex h-10 w-10 items-center justify-center rounded-full border border-stone-700 bg-stone-900 text-rose-400 hover:text-rose-300 hover:bg-rose-950 hover:border-rose-700 focus:outline-none transition-all duration-300 shadow-sm cursor-pointer"
                 title="Log out"
               >
@@ -193,13 +192,12 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
           ) : (
             <Link
               href="/login"
-              id="header-login-btn"
-              className="group relative flex h-10 px-5 items-center justify-center rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:translate-y-[-1px] focus:outline-none cursor-pointer"
+              id="header-login-btn-live"
+              className="group relative hidden sm:flex h-10 px-4 md:px-5 items-center justify-center rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:translate-y-[-1px] focus:outline-none cursor-pointer whitespace-nowrap"
             >
               {t.login}
             </Link>
           )}
-          */}
 
           <button
             id="cart-btn"
@@ -280,17 +278,16 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
               </div>
             </div>
 
-            {/* Temporarily hidden login functionality on mobile
             <div className="border-t border-stone-800/60 pt-4 px-4">
               {isAuthenticated ? (
                 <div className="flex items-center justify-between">
                   <Link
-                    href={user?.role === 'ADMIN' ? '/admin' : '/account'}
+                    href="/account"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center space-x-2 text-white font-display font-bold text-base hover:underline"
                   >
-                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Dashboard ({user?.name.split(' ')[0]})</span>
+                    <User className="h-4 w-4" />
+                    <span>{user?.name.split(' ')[0]}</span>
                   </Link>
                   <button
                     onClick={() => {
@@ -313,7 +310,6 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 </Link>
               )}
             </div>
-            */}
           </div>
         </div>
       )}

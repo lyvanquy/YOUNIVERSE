@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { 
   Sparkles, 
   Heart, 
@@ -17,6 +17,7 @@ import { CORE_VALUES } from '../data';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 import UsecaseCarousel from './UsecaseCarousel';
+import { apiRequest } from '../lib/api';
 
 interface HomeViewProps {
   onGoAbout: () => void;
@@ -118,6 +119,8 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
   const [selectedCharms, setSelectedCharms] = useState<string[]>(['astra', 'sirius']);
   const [customName, setCustomName] = useState<string>('UNI');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null);
 
   // Dynamic glow border/shadow based on selected atmosphere
   const glowShadows = {
@@ -172,6 +175,32 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
     setTimeout(() => {
       setSuccessMessage(null);
     }, 4500);
+  };
+
+  const handleSubmitFeedback = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    setFeedbackLoading(true);
+    setFeedbackStatus(null);
+
+    try {
+      await apiRequest('/feedback', {
+        method: 'POST',
+        body: {
+          fullName: String(formData.get('fullName') ?? ''),
+          email: String(formData.get('email') ?? ''),
+          message: String(formData.get('message') ?? ''),
+        },
+      });
+      setFeedbackStatus(t.feedbackSuccess);
+      form.reset();
+    } catch (error) {
+      setFeedbackStatus(error instanceof Error ? error.message : 'Could not send feedback.');
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   return (
@@ -799,25 +828,27 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                   </span>
                 </div>
 
-                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); const form = e.target as HTMLFormElement; const s = document.getElementById('feedback-success'); if (s) { s.classList.remove('hidden'); setTimeout(() => s.classList.add('hidden'), 4000); } form.reset(); }}>
+                <form className="space-y-6" onSubmit={handleSubmitFeedback}>
                   <div className="space-y-2">
                     <label className="block font-display text-xs font-bold text-stone-600 uppercase tracking-wider">{t.feedbackNameLabel}</label>
-                    <input type="text" required placeholder={t.feedbackNamePlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300" />
+                    <input name="fullName" type="text" required placeholder={t.feedbackNamePlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300" />
                   </div>
                   <div className="space-y-2">
                     <label className="block font-display text-xs font-bold text-stone-600 uppercase tracking-wider">{t.feedbackEmailLabel}</label>
-                    <input type="email" required placeholder={t.feedbackEmailPlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300" />
+                    <input name="email" type="email" required placeholder={t.feedbackEmailPlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300" />
                   </div>
                   <div className="space-y-2">
                     <label className="block font-display text-xs font-bold text-stone-600 uppercase tracking-wider leading-relaxed">{t.feedbackStoryLabel}</label>
-                    <textarea required rows={5} placeholder={t.feedbackStoryPlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300 resize-none" />
+                    <textarea name="message" required rows={5} placeholder={t.feedbackStoryPlaceholder} className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3.5 text-stone-900 text-sm font-sans placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400/30 transition-all duration-300 resize-none" />
                   </div>
-                  <button type="submit" className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] active:translate-y-[0] cursor-pointer">
-                    {t.feedbackSubmit}
+                  <button disabled={feedbackLoading} type="submit" className="w-full inline-flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-sm font-black tracking-wider uppercase px-8 py-4 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:translate-y-[-2px] active:translate-y-[0] cursor-pointer disabled:opacity-60">
+                    {feedbackLoading ? (language === 'vi' ? 'Đang gửi...' : 'Sending...') : t.feedbackSubmit}
                   </button>
-                  <div id="feedback-success" className="hidden text-center py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20">
-                    <p className="text-emerald-500 text-sm font-sans font-medium">{t.feedbackSuccess}</p>
-                  </div>
+                  {feedbackStatus && (
+                    <div className="text-center py-3 rounded-xl bg-emerald-500/10 border border-emerald-400/20">
+                      <p className="text-emerald-500 text-sm font-sans font-medium">{feedbackStatus}</p>
+                    </div>
+                  )}
                 </form>
               </div>
             </div>
