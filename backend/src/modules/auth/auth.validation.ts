@@ -24,5 +24,15 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const googleLoginSchema = z.object({
+  credential: z.string().trim().min(1, "Google credential is required"),
+});
+
+export const updateAvatarSchema = z.object({
+  avatarUrl: z.string().trim().url("Invalid avatar URL").max(1000),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type GoogleLoginInput = z.infer<typeof googleLoginSchema>;
+export type UpdateAvatarInput = z.infer<typeof updateAvatarSchema>;

@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../../YouniverseApp";
 import { translations } from "../../locales";
 import { Eye, EyeOff, Lock, Mail, User, Phone, Check, Heart } from "lucide-react";
+import GoogleLoginButton from "../../components/GoogleLoginButton";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated, language } = useYouniverseApp();
+  const { register, googleLogin, isAuthenticated, language } = useYouniverseApp();
   const t = translations[language];
 
   const [name, setName] = useState("");
@@ -104,6 +105,25 @@ export default function RegisterPage() {
       }
     } catch (err) {
       setError(t.unexpectedError);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleCredential = async (credential: string) => {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await googleLogin(credential);
+      if (res.success) {
+        router.push("/account");
+      } else {
+        setError(res.message || t.registerFailedError);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.unexpectedError);
       console.error(err);
     } finally {
       setLoading(false);
@@ -380,6 +400,21 @@ export default function RegisterPage() {
                 </>
               )}
             </button>
+
+            <div className="flex items-center gap-3 py-2">
+              <div className="h-px flex-1 bg-stone-200" />
+              <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-stone-400">
+                {language === "vi" ? "hoặc" : "or"}
+              </span>
+              <div className="h-px flex-1 bg-stone-200" />
+            </div>
+
+            <GoogleLoginButton
+              onCredential={handleGoogleCredential}
+              text="signup_with"
+              locale={language}
+              disabled={loading}
+            />
           </form>
 
           <div className="text-center font-sans text-xs text-stone-500 pt-2 border-t border-dashed border-stone-200/80 w-full">

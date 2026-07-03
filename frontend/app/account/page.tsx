@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../YouniverseApp";
-import { User, ShoppingBag, MapPin, LogOut, Sparkles, Heart } from "lucide-react";
+import { Camera, User, ShoppingBag, MapPin, LogOut, Heart } from "lucide-react";
 import { translations } from "../locales";
 import { apiRequest, type ApiOrder } from "../lib/api";
 
@@ -12,11 +12,15 @@ const formatCurrency = (value: number) =>
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, logout, language } = useYouniverseApp();
+  const { user, token, isAuthenticated, logout, language, updateAvatar } = useYouniverseApp();
   const t = translations[language];
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [orders, setOrders] = useState<ApiOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [ordersError, setOrdersError] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
   // Route Guard: Redirect if not authenticated
   useEffect(() => {
@@ -35,6 +39,47 @@ export default function AccountPage() {
       .catch((error) => setOrdersError(error instanceof Error ? error.message : "Không tải được lịch sử đơn hàng."))
       .finally(() => setOrdersLoading(false));
   }, [isAuthenticated, token]);
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [user?.avatarUrl]);
+
+  const handleAvatarFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file || !token) return;
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError(language === "vi" ? "Vui lòng chọn một file ảnh." : "Please choose an image file.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError(language === "vi" ? "Ảnh đại diện tối đa 5MB." : "Avatar image must be 5MB or smaller.");
+      return;
+    }
+
+    setAvatarUploading(true);
+    setAvatarError(null);
+
+    try {
+      const body = new FormData();
+      body.set("file", file);
+
+      const uploaded = await apiRequest<{ url: string }>("/upload/image", {
+        method: "POST",
+        token,
+        body,
+      });
+
+      await updateAvatar(uploaded.url);
+    } catch (error) {
+      setAvatarError(error instanceof Error ? error.message : "Không cập nhật được ảnh đại diện.");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   if (!isAuthenticated || !user) {
     return (
@@ -65,9 +110,40 @@ export default function AccountPage() {
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808002_1px,transparent_1px),linear-gradient(to_bottom,#80808002_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
 
             <div className="flex items-center space-x-4 relative z-10">
-              <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-blue-50 to-blue-100/30 border border-blue-200 flex items-center justify-center shadow-inner">
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-blue-100/30 border border-blue-200 flex items-center justify-center shadow-inner group/avatar">
                 <div className="absolute inset-[-3px] rounded-full border border-dashed border-blue-400/40 animate-spin-slow" />
-                <User className="h-6 w-6 text-blue-500" />
+                {user.avatarUrl && !avatarLoadFailed ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarLoadFailed(true)}
+                    className="relative z-10 h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="relative z-10 h-7 w-7 text-blue-500" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => avatarInputRef.current?.click()}
+                  disabled={avatarUploading}
+                  className="absolute -bottom-1 -right-1 z-20 flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-700 shadow-sm transition hover:border-amber-400 hover:text-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label={language === "vi" ? "Cập nhật ảnh đại diện" : "Update avatar"}
+                  title={language === "vi" ? "Cập nhật ảnh đại diện" : "Update avatar"}
+                >
+                  {avatarUploading ? (
+                    <span className="h-3.5 w-3.5 rounded-full border-2 border-stone-900 border-t-transparent animate-spin" />
+                  ) : (
+                    <Camera className="h-3.5 w-3.5" />
+                  )}
+                </button>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleAvatarFileChange}
+                />
               </div>
               <div>
                 <h3 className="font-display text-lg font-black uppercase tracking-tight text-stone-900 truncate max-w-[160px]">
@@ -75,6 +151,12 @@ export default function AccountPage() {
                 </h3>
               </div>
             </div>
+
+            {avatarError && (
+              <div className="relative z-10 rounded-xl border border-rose-100 bg-rose-50/70 px-3 py-2 text-[11px] text-rose-600">
+                {avatarError}
+              </div>
+            )}
 
             <div className="space-y-4 pt-4 border-t border-stone-100 text-xs font-sans text-stone-600 relative z-10">
               <div>

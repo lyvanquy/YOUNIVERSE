@@ -42,6 +42,7 @@ export const env = Object.freeze({
   BACKEND_URL: process.env.BACKEND_URL ?? "http://localhost:4000",
   JWT_SECRET: process.env.JWT_SECRET ?? "change_this_secret",
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "1d",
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
   PAYMENT_RETURN_URL: process.env.PAYMENT_RETURN_URL ?? "http://localhost:3000/payment-result",
   PAYMENT_WEBHOOK_SECRET: process.env.PAYMENT_WEBHOOK_SECRET ?? "change_this_secret",
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME ?? "YOUniverse",

@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { useYouniverseApp } from "../../YouniverseApp";
 import { translations } from "../../locales";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
+import GoogleLoginButton from "../../components/GoogleLoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, language } = useYouniverseApp();
+  const { login, googleLogin, isAuthenticated, language } = useYouniverseApp();
   const t = translations[language];
 
   const [email, setEmail] = useState("");
@@ -69,6 +70,25 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError(t.unexpectedError);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleCredential = async (credential: string) => {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await googleLogin(credential);
+      if (res.success) {
+        router.push("/account");
+      } else {
+        setError(res.message || t.loginFailedError);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t.unexpectedError);
       console.error(err);
     } finally {
       setLoading(false);
@@ -268,6 +288,21 @@ export default function LoginPage() {
                 </>
               )}
             </button>
+
+            <div className="flex items-center gap-3 py-2">
+              <div className="h-px flex-1 bg-stone-200" />
+              <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-stone-400">
+                {language === "vi" ? "hoặc" : "or"}
+              </span>
+              <div className="h-px flex-1 bg-stone-200" />
+            </div>
+
+            <GoogleLoginButton
+              onCredential={handleGoogleCredential}
+              text="signin_with"
+              locale={language}
+              disabled={loading}
+            />
           </form>
 
           <div className="text-center font-sans text-xs text-stone-500 pt-2 w-full border-t border-dashed border-stone-200/80">

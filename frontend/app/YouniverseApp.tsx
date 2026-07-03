@@ -17,6 +17,7 @@ export type UserInfo = {
   name: string;
   email: string;
   phone?: string;
+  avatarUrl?: string;
 };
 
 type YouniverseAppContextValue = {
@@ -28,7 +29,9 @@ type YouniverseAppContextValue = {
   token: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  googleLogin: (credential: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  updateAvatar: (avatarUrl: string) => Promise<UserInfo>;
   logout: () => void;
 };
 
@@ -39,6 +42,7 @@ const toUserInfo = (user: ApiUser): UserInfo => ({
   name: user.fullName,
   email: user.email,
   phone: user.phone ?? undefined,
+  avatarUrl: user.avatarUrl ?? undefined,
 });
 
 export const useYouniverseApp = () => {
@@ -214,6 +218,21 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     return { success: true };
   };
 
+  const handleGoogleLogin = async (credential: string) => {
+    const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/google', {
+      method: 'POST',
+      body: { credential },
+    });
+    const nextUser = toUserInfo(data.user);
+
+    localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setToken(data.accessToken);
+    setUser(nextUser);
+    setIsAuthenticated(true);
+    return { success: true };
+  };
+
   const handleRegister = async (name: string, email: string, phone: string, password: string) => {
     const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/register', {
       method: 'POST',
@@ -233,6 +252,23 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     setUser(nextUser);
     setIsAuthenticated(true);
     return { success: true };
+  };
+
+  const handleUpdateAvatar = async (avatarUrl: string) => {
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const data = await apiRequest<{ user: ApiUser }>('/auth/me/avatar', {
+      method: 'PATCH',
+      token,
+      body: { avatarUrl },
+    });
+    const nextUser = toUserInfo(data.user);
+
+    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    setUser(nextUser);
+    return nextUser;
   };
 
   const handleLogout = () => {
@@ -255,7 +291,9 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         token,
         isAuthenticated,
         login: handleLogin,
+        googleLogin: handleGoogleLogin,
         register: handleRegister,
+        updateAvatar: handleUpdateAvatar,
         logout: handleLogout
       }}
     >
