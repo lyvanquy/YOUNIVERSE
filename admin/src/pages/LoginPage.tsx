@@ -8,8 +8,8 @@ export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState("admin@youniverse.local");
-  const [password, setPassword] = useState("Admin123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
