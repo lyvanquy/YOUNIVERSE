@@ -121,25 +121,13 @@ export const optionalAuthMiddleware: RequestHandler = async (req, res, next) => 
 
   try {
     validateCookieRequestOrigin(req, fromCookie);
-  } catch (error) {
-    next(error);
-    return;
-  }
-
-  let payload: JwtPayload;
-  try {
-    payload = decodeToken(token);
-  } catch (error) {
-    if (fromCookie) clearAuthCookie(res);
-    next(error);
-    return;
-  }
-
-  try {
+    const payload = decodeToken(token);
     req.user = await loadCurrentUser(payload);
     next();
   } catch (error) {
-    if (fromCookie) clearAuthCookie(res);
-    next(error);
+    if (fromCookie) {
+      clearAuthCookie(res);
+    }
+    next();
   }
 };
