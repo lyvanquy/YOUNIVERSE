@@ -5,29 +5,6 @@ import { parseGuestSessionId } from "../../common/utils/session";
 import * as paymentService from "./payment.service";
 import type { SubmitReceiptInput } from "./payment.validation";
 
-export const handleCallback: RequestHandler = async (req, res, next) => {
-  try {
-    const result = await paymentService.handlePaymentCallback(req.params.provider, req.query);
-
-    res.redirect(result.redirectUrl);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const handleWebhook: RequestHandler = async (req, res, next) => {
-  try {
-    const result = await paymentService.handlePaymentCallback(req.params.provider, req.body);
-
-    sendSuccess(res, {
-      message: "Payment callback processed",
-      data: result,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 /**
  * POST /api/v1/payments/receipt
  * Khách hàng gửi URL ảnh minh chứng chuyển khoản.

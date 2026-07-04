@@ -467,7 +467,7 @@ export default function OrderView() {
         throw new Error('Cart was not created.');
       }
 
-      const order = await apiRequest<{ orderCode: string; orderId: string; paymentProvider: string; paymentUrl?: string | null }>(
+      const order = await apiRequest<{ orderCode: string; orderId: string; paymentProvider: string }>(
         '/checkout/create-order',
         {
           method: 'POST',

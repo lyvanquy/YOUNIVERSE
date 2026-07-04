@@ -9,9 +9,6 @@ import { submitReceiptSchema } from "./payment.validation";
 
 const router = Router();
 
-router.get("/callback/:provider", paymentController.handleCallback);
-router.post("/webhook/:provider", paymentController.handleWebhook);
-
 /**
  * POST /api/v1/payments/receipt
  * Khách hàng (đã đăng nhập hoặc guest) submit ảnh bill chuyển khoản.

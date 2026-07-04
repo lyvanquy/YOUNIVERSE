@@ -66,8 +66,6 @@ export const env = Object.freeze({
   JWT_SECRET: parseSecret("JWT_SECRET", process.env.JWT_SECRET),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "1d",
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
-  PAYMENT_RETURN_URL: process.env.PAYMENT_RETURN_URL ?? "http://localhost:3000/payment-result",
-  PAYMENT_WEBHOOK_SECRET: parseSecret("PAYMENT_WEBHOOK_SECRET", process.env.PAYMENT_WEBHOOK_SECRET),
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME ?? "YOUniverse",
   EMAIL_FROM_ADDRESS: process.env.EMAIL_FROM_ADDRESS ?? "no-reply@youniverse.local",
   EMAIL_SMTP_HOST: process.env.EMAIL_SMTP_HOST ?? "",

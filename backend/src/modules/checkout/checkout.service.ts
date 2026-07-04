@@ -409,7 +409,7 @@ export const createOrder = async (input: CheckoutInput, identity: CheckoutIdenti
       throw new AppError("Payment transaction was not created", HTTP_STATUS.INTERNAL_SERVER_ERROR);
     }
 
-    const createdPayment = await paymentService.createPaymentForOrder({
+    await paymentService.createPaymentForOrder({
       orderId: order.id,
       paymentId: payment.id,
       provider: input.paymentProvider,
@@ -419,7 +419,6 @@ export const createOrder = async (input: CheckoutInput, identity: CheckoutIdenti
       orderCode: order.orderCode,
       orderId: order.id,
       paymentProvider: input.paymentProvider,
-      paymentUrl: createdPayment.paymentUrl,
     };
   }
 

@@ -11,7 +11,7 @@ export type OrderStatus =
   | "COMPLETED"
   | "CANCELLED"
   | "REFUNDED";
-export type PaymentProvider = "COD" | "BANK_TRANSFER" | "MOCK_ONLINE" | "VNPAY" | "MOMO" | "STRIPE";
+export type PaymentProvider = "COD" | "BANK_TRANSFER";
 export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "CANCELLED" | "REFUNDED";
 export type CouponType = "PERCENTAGE" | "FIXED_AMOUNT" | "FREE_SHIPPING";
 export type InventoryChangeType = "IMPORT" | "EXPORT" | "SALE" | "CANCEL_RETURN" | "ADJUSTMENT";
@@ -115,7 +115,6 @@ export type OrderDetail = OrderSummary & {
     amount: number;
     currency: string;
     providerTxnId: string | null;
-    paymentUrl: string | null;
     receiptUrl?: string | null;
     paidAt: string | null;
     failedReason: string | null;

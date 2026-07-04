@@ -51,10 +51,6 @@ enum OrderStatus {
 enum PaymentProvider {
   COD
   BANK_TRANSFER
-  MOCK_ONLINE
-  VNPAY
-  MOMO
-  STRIPE
 }
 
 enum PaymentStatus {
@@ -374,7 +370,6 @@ model PaymentTransaction {
   amount         Decimal         @db.Decimal(12, 2)
   currency       String          @default("VND")
   providerTxnId  String?
-  paymentUrl     String?
   receiptUrl     String?         // URL ảnh minh chứng chuyển khoản (BANK_TRANSFER)
   rawRequest     Json?
   rawResponse    Json?

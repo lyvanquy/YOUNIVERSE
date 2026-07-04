@@ -65,7 +65,6 @@ const toOrderDto = (order: OrderWithRelations | OrderDetailWithRelations) => ({
     amount: decimalToNumber(payment.amount),
     currency: payment.currency,
     providerTxnId: payment.providerTxnId,
-    paymentUrl: payment.paymentUrl,
     paidAt: payment.paidAt,
     failedReason: payment.failedReason,
     createdAt: payment.createdAt,

@@ -1,12 +1,9 @@
 import { PaymentProvider } from "@prisma/client";
 
-import { AppError } from "../../../common/errors/AppError";
-import { HTTP_STATUS } from "../../../common/errors/errorCodes";
 import type {
   CreatePaymentInput,
   CreatePaymentResult,
   PaymentProviderAdapter,
-  VerifyPaymentResult,
 } from "./payment-provider.interface";
 
 /**
@@ -33,13 +30,5 @@ export const bankTransferProvider: PaymentProviderAdapter = {
         currency: input.currency,
       },
     };
-  },
-
-  async verifyCallback(): Promise<VerifyPaymentResult> {
-    // Bank transfer không dùng callback tự động — được xác nhận bởi admin
-    throw new AppError(
-      "Bank transfer does not support automatic payment callbacks. Use admin confirmation endpoint instead.",
-      HTTP_STATUS.BAD_REQUEST,
-    );
   },
 };
