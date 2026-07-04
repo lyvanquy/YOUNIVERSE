@@ -10,7 +10,7 @@ import MarqueeSlogan from './components/MarqueeSlogan';
 import { TestimonialCarousel, MaterialShowcase, AstraShowcase, SiriusShowcase, PolarisShowcase, Visual4Steps } from './components/ProductsView';
 import CartDrawer from './components/CartDrawer';
 import { translations } from './locales';
-import { apiRequest, AUTH_TOKEN_KEY, USER_KEY, type ApiUser } from './lib/api';
+import { apiRequest, AUTH_SESSION_HINT_KEY, AUTH_TOKEN_KEY, USER_KEY, type ApiUser } from './lib/api';
 
 export type UserInfo = {
   id: string;
@@ -29,6 +29,7 @@ type YouniverseAppContextValue = {
   user: UserInfo | null;
   token: string | null;
   isAuthenticated: boolean;
+  isAuthInitialized: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
   googleLogin: (credential: string) => Promise<{ success: boolean; message?: string }>;
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; message?: string }>;
@@ -48,6 +49,14 @@ const toUserInfo = (user: ApiUser): UserInfo => ({
   address: user.address ?? undefined,
 });
 
+const saveSessionHint = (name: string | null) => {
+  if (name) {
+    document.cookie = `${AUTH_SESSION_HINT_KEY}=${encodeURIComponent(name)}; path=/; max-age=31536000; samesite=lax`;
+  } else {
+    document.cookie = `${AUTH_SESSION_HINT_KEY}=; path=/; max-age=0; samesite=lax`;
+  }
+};
+
 export const useYouniverseApp = () => {
   const context = useContext(YouniverseAppContext);
 
@@ -58,7 +67,15 @@ export const useYouniverseApp = () => {
   return context;
 };
 
-export default function YouniverseApp({ children }: { children: ReactNode }) {
+export default function YouniverseApp({
+  children,
+  initialLanguage,
+  initialSessionName,
+}: {
+  children: ReactNode;
+  initialLanguage: 'en' | 'vi';
+  initialSessionName: string | null;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -66,29 +83,38 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const showPublicLayout = !isAuthPage;
   const [cart, setCart] = useState<CustomJewelry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'vi'>('en');
-  const [mounted, setMounted] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'vi'>(initialLanguage);
   const t = translations[language];
 
-  // Load language from local storage on mount
+  // Migrate the old localStorage preference to a cookie once. The cookie lets
+  // the server render the correct language before hydration on future loads.
   useEffect(() => {
     try {
+      const hasLanguageCookie = document.cookie
+        .split('; ')
+        .some((item) => item.startsWith('youniverse_lang='));
+
+      if (hasLanguageCookie) return;
+
       const storedLang = localStorage.getItem('youniverse_lang');
       if (storedLang === 'en' || storedLang === 'vi') {
         setLanguage(storedLang);
+        document.cookie = `youniverse_lang=${storedLang}; path=/; max-age=31536000; samesite=lax`;
+      } else {
+        document.cookie = `youniverse_lang=${initialLanguage}; path=/; max-age=31536000; samesite=lax`;
       }
     } catch (e) {
-      console.warn('Could not load language from localStorage', e);
+      console.warn('Could not migrate the language preference', e);
     }
-    setMounted(true);
-  }, []);
+  }, [initialLanguage]);
 
   const updateLanguage = (lang: 'en' | 'vi') => {
     setLanguage(lang);
     try {
       localStorage.setItem('youniverse_lang', lang);
+      document.cookie = `youniverse_lang=${lang}; path=/; max-age=31536000; samesite=lax`;
     } catch (e) {
-      console.warn('Could not save language to localStorage', e);
+      console.warn('Could not save language preference', e);
     }
   };
 
@@ -111,6 +137,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthInitialized, setIsAuthInitialized] = useState(false);
   
   // Dialog modal states
   const [activeNotificationCharm, setActiveNotificationCharm] = useState<string | null>(null);
@@ -118,7 +145,8 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [orderPlacedSuccess, setOrderPlacedSuccess] = useState(false);
 
-  // Load cart and user auth from local storage on mount
+  // Load cart and user auth from local storage on mount. Until this finishes,
+  // the UI must not assume the visitor is logged out.
   useEffect(() => {
     try {
       const stored = localStorage.getItem('youniverse_cart');
@@ -128,32 +156,47 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
 
       const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
       const storedUser = localStorage.getItem(USER_KEY);
+      let parsedUser: UserInfo | null = null;
       if (storedUser) {
-        const parsed = JSON.parse(storedUser);
-        setUser(parsed);
+        parsedUser = JSON.parse(storedUser) as UserInfo;
+        setUser(parsedUser);
       }
 
       if (storedToken) {
         setToken(storedToken);
         setIsAuthenticated(Boolean(storedUser));
+        if (parsedUser) {
+          saveSessionHint(parsedUser.name);
+          // Render the cached signed-in state immediately while /auth/me
+          // validates and refreshes the user data in the background.
+          setIsAuthInitialized(true);
+        }
 
         apiRequest<{ user: ApiUser }>('/auth/me', { token: storedToken })
           .then((data) => {
             const nextUser = toUserInfo(data.user);
             localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+            saveSessionHint(nextUser.name);
             setUser(nextUser);
             setIsAuthenticated(true);
           })
           .catch(() => {
             localStorage.removeItem(AUTH_TOKEN_KEY);
             localStorage.removeItem(USER_KEY);
+            saveSessionHint(null);
             setToken(null);
             setUser(null);
             setIsAuthenticated(false);
-          });
+          })
+          .finally(() => setIsAuthInitialized(true));
+      } else {
+        saveSessionHint(null);
+        setIsAuthInitialized(true);
       }
     } catch (e) {
       console.warn('Could not load app state from localStorage', e);
+      saveSessionHint(null);
+      setIsAuthInitialized(true);
     }
   }, []);
 
@@ -215,6 +258,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
 
     localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    saveSessionHint(nextUser.name);
     setToken(data.accessToken);
     setUser(nextUser);
     setIsAuthenticated(true);
@@ -230,6 +274,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
 
     localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    saveSessionHint(nextUser.name);
     setToken(data.accessToken);
     setUser(nextUser);
     setIsAuthenticated(true);
@@ -251,6 +296,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
 
     localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    saveSessionHint(nextUser.name);
     setToken(data.accessToken);
     setUser(nextUser);
     setIsAuthenticated(true);
@@ -270,6 +316,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     const nextUser = toUserInfo(data.user);
 
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    saveSessionHint(nextUser.name);
     setUser(nextUser);
     return nextUser;
   };
@@ -291,6 +338,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
     const nextUser = toUserInfo(data.user);
 
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
+    saveSessionHint(nextUser.name);
     setUser(nextUser);
     return nextUser;
   };
@@ -298,6 +346,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
   const handleLogout = () => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
+    saveSessionHint(null);
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
@@ -314,6 +363,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
         user,
         token,
         isAuthenticated,
+        isAuthInitialized,
         login: handleLogin,
         googleLogin: handleGoogleLogin,
         register: handleRegister,
@@ -329,6 +379,7 @@ export default function YouniverseApp({ children }: { children: ReactNode }) {
           <Header 
             cartCount={cart.length}
             onOpenCart={() => setCartOpen(true)}
+            initialSessionName={initialSessionName}
           />
         )}
 

@@ -90,6 +90,7 @@ export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhos
 
 export const AUTH_TOKEN_KEY = "youniverse_access_token";
 export const USER_KEY = "youniverse_user";
+export const AUTH_SESSION_HINT_KEY = "youniverse_session_name";
 
 export function getStoredToken() {
   if (typeof window === "undefined") return null;

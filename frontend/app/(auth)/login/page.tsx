@@ -8,6 +8,22 @@ import { translations } from "../../locales";
 import { Eye, EyeOff, Lock, Mail, ArrowRight } from "lucide-react";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 
+const getSafeReturnTo = () => {
+  const fallback = "/";
+  const requestedPath = new URLSearchParams(window.location.search).get("returnTo");
+
+  if (!requestedPath) return fallback;
+
+  try {
+    const target = new URL(requestedPath, window.location.origin);
+    if (target.origin !== window.location.origin) return fallback;
+    if (target.pathname === "/login" || target.pathname === "/register") return fallback;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return fallback;
+  }
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const { login, googleLogin, isAuthenticated, language } = useYouniverseApp();
@@ -37,10 +53,10 @@ export default function LoginPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Redirect authenticated users to their account page
+  // Return authenticated users to the page they were viewing before login.
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/account");
+      router.replace(getSafeReturnTo());
     }
   }, [isAuthenticated, router]);
 
@@ -64,7 +80,7 @@ export default function LoginPage() {
     try {
       const res = await login(email, password);
       if (res.success) {
-        router.push("/account");
+        router.replace(getSafeReturnTo());
       } else {
         setError(res.message || t.loginFailedError);
       }
@@ -83,7 +99,7 @@ export default function LoginPage() {
     try {
       const res = await googleLogin(credential);
       if (res.success) {
-        router.push("/account");
+        router.replace(getSafeReturnTo());
       } else {
         setError(res.message || t.loginFailedError);
       }

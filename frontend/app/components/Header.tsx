@@ -10,14 +10,17 @@ import { translations } from '../locales';
 interface HeaderProps {
   cartCount: number;
   onOpenCart?: () => void;
+  initialSessionName: string | null;
 }
 
-export default function Header({ cartCount, onOpenCart }: HeaderProps) {
+export default function Header({ cartCount, onOpenCart, initialSessionName }: HeaderProps) {
   const pathname = usePathname();
-  const { isAuthenticated, user, logout, language, setLanguage } = useYouniverseApp();
+  const { isAuthenticated, isAuthInitialized, user, logout, language, setLanguage } = useYouniverseApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [animateCart, setAnimateCart] = useState(false);
+  const showAuthenticatedControls = isAuthenticated || (!isAuthInitialized && Boolean(initialSessionName));
+  const displayName = user?.name ?? initialSessionName;
   
   const t = translations[language];
 
@@ -167,17 +170,17 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </button>
           </div>
 
-          {isAuthenticated ? (
+          {showAuthenticatedControls ? (
             <div className="flex items-center space-x-1.5 md:space-x-2">
               <Link
                 href="/account"
                 id="header-account-btn-live"
                 className="group relative flex h-9 md:h-10 w-9 md:w-auto md:px-4 items-center justify-center rounded-full border border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800 hover:text-white hover:border-stone-600 transition-all duration-300 shadow-sm focus:outline-none"
-                title={`Hi, ${user?.name}`}
+                title={`Hi, ${displayName ?? ''}`}
               >
                 <User className="h-4 w-4 md:mr-2" />
                 <span className="hidden md:inline font-sans text-xs font-semibold truncate max-w-[90px]">
-                  {user?.name.split(' ')[0]}
+                  {displayName?.split(' ')[0]}
                 </span>
               </Link>
               <button
@@ -191,7 +194,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </div>
           ) : (
             <Link
-              href="/login"
+              href={`/login?returnTo=${encodeURIComponent(pathname)}`}
               id="header-login-btn-live"
               className="group relative hidden sm:flex h-10 px-4 md:px-5 items-center justify-center rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:translate-y-[-1px] focus:outline-none cursor-pointer whitespace-nowrap"
             >
@@ -281,7 +284,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </div>
 
             <div className="border-t border-stone-800/60 pt-4 px-4">
-              {isAuthenticated ? (
+              {showAuthenticatedControls ? (
                 <div className="flex items-center justify-between">
                   <Link
                     href="/account"
@@ -289,7 +292,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                     className="flex items-center space-x-2 text-white font-display font-bold text-base hover:underline"
                   >
                     <User className="h-4 w-4" />
-                    <span>{user?.name.split(' ')[0]}</span>
+                    <span>{displayName?.split(' ')[0]}</span>
                   </Link>
                   <button
                     onClick={() => {
@@ -304,7 +307,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
                 </div>
               ) : (
                 <Link
-                  href="/login"
+                  href={`/login?returnTo=${encodeURIComponent(pathname)}`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="block w-full text-center py-3 bg-white text-black font-display text-sm font-bold uppercase tracking-wider rounded-full hover:bg-stone-100 transition-all cursor-pointer"
                 >

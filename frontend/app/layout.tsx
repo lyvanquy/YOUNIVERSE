@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Nunito, Montserrat, Space_Grotesk, Inter } from "next/font/google";
 import YouniverseApp from "./YouniverseApp";
+import { AUTH_SESSION_HINT_KEY } from "./lib/api";
 import "./globals.css";
 
 const nunito = Nunito({
@@ -67,18 +69,37 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const storedLanguage = cookieStore.get("youniverse_lang")?.value;
+  const initialLanguage: "en" | "vi" = storedLanguage === "vi" ? "vi" : "en";
+  const encodedSessionName = cookieStore.get(AUTH_SESSION_HINT_KEY)?.value;
+  let initialSessionName: string | null = null;
+
+  if (encodedSessionName) {
+    try {
+      initialSessionName = decodeURIComponent(encodedSessionName).slice(0, 100);
+    } catch {
+      initialSessionName = null;
+    }
+  }
+
   return (
     <html 
-      lang="vi" 
-      className={`h-full antialiased ${nunito.variable} ${montserrat.variable} ${spaceGrotesk.variable} ${inter.variable}`}
+      lang={initialLanguage}
+      className={`h-full antialiased ${nunito.variable} ${montserrat.variable} ${spaceGrotesk.variable} ${inter.variable} ${initialLanguage === "vi" ? "lang-vi" : ""}`}
     >
       <body className="min-h-full flex flex-col">
-        <YouniverseApp>{children}</YouniverseApp>
+        <YouniverseApp
+          initialLanguage={initialLanguage}
+          initialSessionName={initialSessionName}
+        >
+          {children}
+        </YouniverseApp>
       </body>
     </html>
   );

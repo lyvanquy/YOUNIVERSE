@@ -12,7 +12,7 @@ const formatCurrency = (value: number) =>
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, logout, language, updateAvatar, updateProfile } = useYouniverseApp();
+  const { user, token, isAuthenticated, isAuthInitialized, logout, language, updateAvatar, updateProfile } = useYouniverseApp();
   const t = translations[language];
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [orders, setOrders] = useState<ApiOrder[]>([]);
@@ -222,10 +222,10 @@ export default function AccountPage() {
 
   // Route Guard: Redirect if not authenticated
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login");
+    if (isAuthInitialized && !isAuthenticated) {
+      router.replace("/login?returnTo=%2Faccount");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthInitialized, isAuthenticated, router]);
 
   useEffect(() => {
     if (!isAuthenticated || !token) return;
