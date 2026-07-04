@@ -310,7 +310,7 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
 
             {/* Right aesthetic visual interactive card (The missing banner is replaced with stellar craft) */}
             <div className="relative flex justify-center">
-              <div className="relative w-72 h-72 sm:w-80 sm:h-[320px] rounded-3xl overflow-hidden group hover:shadow-[0_20px_50px_rgba(59,130,246,0.12)] hover:border-blue-200/80 transition-all duration-500 hover:-translate-y-1">
+              <div className="relative w-72 h-96 sm:w-80 sm:h-[420px] rounded-3xl overflow-hidden group hover:shadow-[0_20px_50px_rgba(59,130,246,0.12)] hover:border-blue-200/80 transition-all duration-500 hover:-translate-y-1">
                 
                 {heroSlides.map((slide, idx) => {
                   const isActive = idx === heroCarouselIndex;
@@ -378,10 +378,10 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
                       <button
                         key={idx}
                         onClick={() => setHeroCarouselIndex(idx)}
-                        className={`h-2.5 rounded-full transition-all duration-500 focus:outline-none cursor-pointer ${
+                        className={`h-1.5 rounded-full transition-all duration-500 focus:outline-none cursor-pointer ${
                           isActive 
-                            ? `${activeColorClass} w-10` 
-                            : 'bg-stone-300/80 hover:bg-stone-400 w-5'
+                            ? `${activeColorClass} w-8` 
+                            : 'bg-stone-300/80 hover:bg-stone-400 w-4'
                         }`}
                         aria-label={`Go to slide ${idx + 1}`}
                         title={slide.title}
