@@ -12,26 +12,12 @@ export default function PolicyView() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none z-0" />
 
       {/* 1. Banner */}
-      <section className="relative overflow-hidden h-48 sm:h-64 rounded-3xl mx-4 sm:mx-6 lg:mx-8 max-w-7xl lg:mx-auto mt-6 shadow-sm border border-stone-200 bg-gradient-to-br from-stone-900 via-purple-950 to-stone-900 flex items-center justify-center z-10">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-        <div className="absolute top-6 right-8 text-purple-400 animate-twinkle">✦</div>
-        <div className="absolute bottom-8 left-10 text-amber-400 animate-twinkle duration-2000">✦</div>
-        <div className="mx-auto max-w-xl text-center space-y-3 relative z-10 px-4">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-4 py-1.5 mb-2">
-            <Shield className="h-3.5 w-3.5 text-purple-400" />
-            <span className="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-purple-300">
-              {language === 'vi' ? 'Chính sách' : 'Policies'}
-            </span>
-          </div>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-wider select-none">
-            {language === 'vi' ? 'Chính sách' : 'Our Policies'}
-          </h1>
-          <p className="font-sans text-stone-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-            {language === 'vi'
-              ? 'Đổi trả, bảo hành & vận chuyển'
-              : 'Returns, warranty & shipping'}
-          </p>
-        </div>
+      <section className="relative overflow-hidden h-48 sm:h-64 rounded-3xl mx-4 sm:mx-6 lg:mx-8 max-w-7xl lg:mx-auto mt-6 shadow-sm border border-stone-200 bg-black flex items-center justify-center z-10">
+        <img 
+          src="/images/banner-policy-new.png" 
+          alt="Our Policy Banner" 
+          className="w-full h-full object-cover"
+        />
       </section>
 
       {/* ═══════════════════════════════════════════════ */}
@@ -210,8 +196,8 @@ export default function PolicyView() {
               </div>
               <p className="font-sans text-stone-300 text-sm leading-relaxed">
                 {language === 'vi'
-                  ? 'Tất cả sản phẩm tại YOUniverse đều được làm thủ công và hoàn thiện bằng tay, nên mỗi bé móc khóa sẽ có một chút khác biệt riêng. Vì vậy, bạn iu có thể gặp những trường hợp như:'
-                  : 'All YOUniverse products are handmade and hand-finished, so each keychain has its own unique character. You may notice:'}
+                  ? 'Tất cả sản phẩm tại YOUniverse đều được làm thủ công, nên mỗi bé móc khóa sẽ có một chút khác biệt riêng. Vì vậy, bạn iu có thể gặp những trường hợp như:'
+                  : 'All YOUniverse products are handmade, so each keychain has its own unique character. You may notice:'}
               </p>
               <div className="space-y-2">
                 {(language === 'vi'

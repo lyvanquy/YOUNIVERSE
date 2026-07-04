@@ -85,34 +85,12 @@ export default function AboutView() {
       />
 
       {/* 1. Page Header Block */}
-      <section className="relative overflow-hidden h-48 sm:h-64 cursor-default rounded-3xl mx-4 sm:mx-6 lg:mx-8 max-w-7xl lg:mx-auto mt-6 shadow-sm border border-stone-850 bg-black flex items-center justify-center z-10">
-        {/* Banner background image */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/banner-about-us.png"
-            alt="Câu chuyện thương hiệu YOUniverse"
-            fill
-            priority
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            className="object-cover opacity-85"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/70" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
-        </div>
-
-        {/* Technical Corner Markers */}
-        <div className="absolute top-4 left-6 hidden sm:block font-mono text-[8px] text-stone-500 uppercase tracking-widest pointer-events-none select-none z-10">
-          [ 10.7626° N, 106.6602° E // HCMC_NODE ]
-        </div>
-
-        <div className="mx-auto max-w-xl text-center space-y-3 relative z-10 px-4">
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-white uppercase tracking-wider select-none drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]">
-            {t.aboutBannerTitle}
-          </h1>
-          <p className="font-sans text-stone-300 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-            {t.aboutBannerDesc}
-          </p>
-        </div>
+      <section className="relative overflow-hidden h-48 sm:h-64 cursor-default rounded-3xl mx-4 sm:mx-6 lg:mx-8 max-w-7xl lg:mx-auto mt-6 shadow-sm border border-stone-200 bg-black flex items-center justify-center z-10">
+        <img 
+          src="/images/banner-about-us-new.png" 
+          alt="Our Story Banner" 
+          className="w-full h-full object-cover"
+        />
       </section>
 
       {/* 2. Brand Name & Tagline */}

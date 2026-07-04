@@ -145,8 +145,18 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
           </Link>
         </div>
 
-        {/* Right Side: Language Toggle and Shopping Bag */}
+        {/* Right Side: Buy Now, Language Toggle and Auth */}
         <div className="flex items-center space-x-1.5 md:space-x-3 z-20">
+          {/* Buy Now CTA - Desktop */}
+          <Link
+            href="/order"
+            id="header-buy-now"
+            className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-black font-display text-[11px] font-black uppercase tracking-wider transition-all duration-300 hover:from-amber-400 hover:to-yellow-300 hover:shadow-[0_0_20px_rgba(251,191,36,0.4)] hover:-translate-y-[1px] active:translate-y-0 cursor-pointer"
+          >
+            <ShoppingBag className="h-3.5 w-3.5" />
+            <span>{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
+          </Link>
+
           {/* Language Toggle - hidden on mobile, shown on desktop */}
           <div className="hidden md:flex items-center rounded-full border border-stone-700/60 bg-stone-900/60 p-0.5" suppressHydrationWarning>
             <button
@@ -258,6 +268,18 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
                 </Link>
               );
             })}
+
+            {/* Mobile Buy Now CTA */}
+            <div className="border-t border-stone-800/60 pt-4 px-4">
+              <Link
+                href="/order"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-amber-500 to-amber-400 text-black font-display text-sm font-bold uppercase tracking-wider rounded-full hover:from-amber-400 hover:to-yellow-300 transition-all cursor-pointer"
+              >
+                <ShoppingBag className="h-4 w-4" />
+                <span>{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
+              </Link>
+            </div>
 
             {/* Mobile Language Toggle */}
             <div className="border-t border-stone-800/60 pt-4 px-4 flex items-center justify-between">

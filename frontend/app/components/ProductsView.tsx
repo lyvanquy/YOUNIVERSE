@@ -65,74 +65,32 @@ interface Testimonial {
 
 const TESTIMONIALS: Testimonial[] = [
   {
-    name: 'Minh Anh',
+    name: 'Minh Quang',
     image: '/images/photoshoot-1.png',
     charm: 'Charm Astra',
-    quote: 'Mình thích cái cảm giác mỗi lần ai đó hỏi về chiếc charm — nó như một cuộc trò chuyện không cần mở lời.',
+    quote: 'Thật ra ban đầu không kỳ vọng nhiều lắm, nhưng cầm lên tay thấy chắc hơn mình nghĩ. Nhìn vào charm là thấy đúng mình, không cần giải thích gì thêm.',
   },
   {
-    name: 'Thảo Vy',
+    name: 'Thuỳ Linh',
     image: '/images/photoshoot-2.png',
     charm: 'Charm Sirius',
-    quote: 'Sirius giúp mình gói ghém mọi thứ mình yêu thích vào một vật nhỏ xíu — dễ thương mà ý nghĩa vô cùng.',
+    quote: 'Hồi đầu cũng phân vân không biết chọn cái nào, nhưng chọn xong rồi thì thấy đúng luôn. Đeo lên rồi mới thấy cái nhỏ xíu vậy mà nói được nhiều thứ thiệt.',
   },
   {
-    name: 'Hải Đăng',
+    name: 'Hạnh Nguyên',
     image: '/images/photoshoot-3.png',
     charm: 'Charm Polaris',
-    quote: 'Câu quote trên charm Polaris luôn nhắc mình mỗi ngày rằng mình đang đi đúng hướng.',
+    quote: 'Nhìn ảnh trên mạng với cầm trên tay khác nhau nhiều lắm, ý là cầm trên tay đẹp hơn. Màu sắc tươi, in rõ nét, xinh hơn mình tưởng nhiều.',
   },
   {
-    name: 'Khánh Linh',
+    name: 'Ngọc Anh',
     image: '/images/photoshoot-4.png',
     charm: 'Charm Astra',
-    quote: 'Thiết kế handmade nên mỗi chiếc charm đều khác biệt — y như cá tính của mỗi người vậy.',
-  },
-  {
-    name: 'Phương Nghi',
-    image: '/images/photoshoot-5.png',
-    charm: 'Charm Sirius',
-    quote: 'Mình tặng charm cho bạn thân, cả hai đều xúc động vì nó chứa đựng bao kỷ niệm chung.',
-  },
-  {
-    name: 'An Nhiên',
-    image: '/images/photoshoot-6.png',
-    charm: 'Charm Polaris',
-    quote: 'YOUniverse không chỉ là phụ kiện, mà là cách mình thể hiện bản thân mà không cần nói một lời.',
+    quote: 'Mua tặng bạn thân nhân dịp sinh nhật, chọn theo đúng sở thích của bạn. Bạn nhận xong nhắn lại là thích lắm, xài ngay luôn không cất. Chắc lần sau order thêm cái cho bản thân mình luôn quá.',
   },
 ];
 
 export function TestimonialCarousel({ language }: { language: 'vi' | 'en' }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const cardWidth = 340; // px per card including gap
-  const maxIdx = TESTIMONIALS.length - 1;
-
-  const scrollTo = (idx: number) => {
-    const clamped = Math.max(0, Math.min(idx, maxIdx));
-    setActiveIdx(clamped);
-    scrollRef.current?.scrollTo({ left: clamped * cardWidth, behavior: 'smooth' });
-  };
-
-  // Auto-scroll
-  useEffect(() => {
-    if (isHovered) {
-      if (autoRef.current) clearInterval(autoRef.current);
-      return;
-    }
-    autoRef.current = setInterval(() => {
-      setActiveIdx(prev => {
-        const next = prev >= maxIdx ? 0 : prev + 1;
-        scrollRef.current?.scrollTo({ left: next * cardWidth, behavior: 'smooth' });
-        return next;
-      });
-    }, 4000);
-    return () => { if (autoRef.current) clearInterval(autoRef.current); };
-  }, [isHovered, maxIdx]);
-
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       {/* Section Header */}
@@ -145,84 +103,40 @@ export function TestimonialCarousel({ language }: { language: 'vi' | 'en' }) {
         </h2>
       </div>
 
-      {/* Carousel */}
-      <div
-        className="relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        {/* Scroll container */}
-        <div
-          ref={scrollRef}
-          className="flex gap-5 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {TESTIMONIALS.map((t, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 w-[300px] bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group/card"
-            >
-              {/* Customer photo */}
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src={t.image}
-                  alt={t.name}
-                  fill
-                  sizes="300px"
-                  className="object-cover transition-transform duration-500 group-hover/card:scale-105"
-                />
-              </div>
+      {/* 4-column Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {TESTIMONIALS.map((t, i) => (
+          <div
+            key={i}
+            className="bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group/card hover:-translate-y-1"
+          >
+            {/* Customer photo */}
+            <div className="h-52 overflow-hidden">
+              <img
+                src={t.image}
+                alt={t.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+              />
+            </div>
 
-              {/* Content */}
-              <div className="p-5 space-y-3">
-                <Quote className="h-4 w-4 text-amber-400/60" />
-                <p className="font-sans text-stone-600 text-xs leading-relaxed line-clamp-3 italic">
-                  "{t.quote}"
-                </p>
-                <div className="pt-2 border-t border-stone-100">
-                  <p className="font-display text-sm font-bold text-stone-900">{t.name}</p>
-                  <p className="font-sans text-[10px] text-amber-600 font-semibold uppercase tracking-wider">{t.charm}</p>
-                </div>
+            {/* Content */}
+            <div className="p-5 space-y-3">
+              <Quote className="h-4 w-4 text-amber-400/60" />
+              <p className="font-sans text-stone-600 text-xs leading-relaxed italic">
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <div className="pt-2 border-t border-stone-100">
+                <p className="font-display text-sm font-bold text-stone-900">{t.name}</p>
+                <p className="font-sans text-[10px] text-amber-600 font-semibold uppercase tracking-wider">{t.charm}</p>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Nav arrows */}
-        <button
-          onClick={() => scrollTo(activeIdx - 1)}
-          disabled={activeIdx === 0}
-          className="absolute left-0 top-24 -translate-x-3 w-8 h-8 rounded-full bg-white border border-stone-200 shadow-md flex items-center justify-center hover:bg-stone-50 disabled:opacity-0 transition-all cursor-pointer z-10"
-          aria-label="Previous"
-        >
-          <ChevronLeft className="h-4 w-4 text-stone-600" />
-        </button>
-        <button
-          onClick={() => scrollTo(activeIdx + 1)}
-          disabled={activeIdx >= maxIdx}
-          className="absolute right-0 top-24 translate-x-3 w-8 h-8 rounded-full bg-white border border-stone-200 shadow-md flex items-center justify-center hover:bg-stone-50 disabled:opacity-0 transition-all cursor-pointer z-10"
-          aria-label="Next"
-        >
-          <ChevronRight className="h-4 w-4 text-stone-600" />
-        </button>
-      </div>
-
-      {/* Dot indicators */}
-      <div className="flex justify-center gap-1.5 pt-6">
-        {TESTIMONIALS.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => scrollTo(i)}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-              i === activeIdx ? 'w-5 bg-amber-500' : 'w-1.5 bg-stone-300 hover:bg-stone-400'
-            }`}
-            aria-label={`Go to testimonial ${i + 1}`}
-          />
+          </div>
         ))}
       </div>
     </section>
   );
 }
+
 
 /* ─── Material Showcase ─── */
 export function MaterialShowcase({ language }: { language: 'vi' | 'en' }) {
@@ -383,10 +297,10 @@ export function AstraShowcase({ language }: { language: 'vi' | 'en' }) {
           {/* CTA */}
           <div className="pt-4">
             <a
-              href="/products"
+              href="/order"
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-display text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 cursor-pointer group"
             >
-              <span>{language === 'vi' ? 'Khám phá Astra' : 'Explore Astra'}</span>
+              <span>{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
             </a>
           </div>
@@ -446,10 +360,10 @@ export function SiriusShowcase({ language }: { language: 'vi' | 'en' }) {
           {/* CTA */}
           <div className="pt-4">
             <a
-              href="/products"
+              href="/order"
               className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-display text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 cursor-pointer group"
             >
-              <span>{language === 'vi' ? 'Khám phá Sirius' : 'Explore Sirius'}</span>
+              <span>{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
             </a>
           </div>
@@ -552,10 +466,10 @@ export function PolarisShowcase({ language }: { language: 'vi' | 'en' }) {
           {/* CTA */}
           <div className="pt-4">
             <a
-              href="/products"
+              href="/order"
               className="inline-flex items-center gap-2 bg-rose-500 hover:bg-rose-600 text-white font-display text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-full transition-all duration-300 hover:shadow-lg hover:translate-y-[-1px] active:translate-y-0 cursor-pointer group"
             >
-              <span>{language === 'vi' ? 'Khám phá Polaris' : 'Explore Polaris'}</span>
+              <span>{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
               <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
             </a>
           </div>
@@ -729,17 +643,11 @@ export default function ProductsView({ initialProducts, initialError = null }: P
       
       {/* 1. Header Banner of Our products */}
       <section className="relative overflow-hidden h-48 sm:h-64 cursor-default rounded-3xl mx-auto max-w-7xl mt-6 shadow-sm">
-        {/* Banner background image */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/banner-our-universe.png"
-            alt="Bộ sưu tập charm cá nhân hóa YOUniverse"
-            fill
-            priority
-            sizes="(max-width: 1280px) 100vw, 1280px"
-            className="object-cover"
-          />
-        </div>
+        <img 
+          src="/images/banner-products-new.png" 
+          alt="Start your YOUniverse Banner" 
+          className="w-full h-full object-cover"
+        />
       </section>
 
       {/* 2. Main Product Catalog Section with Filters */}
