@@ -28,7 +28,7 @@ const formatPrice = (v: number) =>
 type CheckoutPaymentProvider = 'COD' | 'BANK_TRANSFER';
 
 export default function OrderView() {
-  const { language, user } = useYouniverseApp();
+  const { language, user, isAuthenticated, isAuthInitialized } = useYouniverseApp();
   const router = useRouter();
   const t = translations[language];
 
@@ -208,11 +208,10 @@ export default function OrderView() {
         setAddress(locationStr);
         setCheckoutSuggestions([]);
       } else {
-        alert(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
+        console.warn(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
       }
     } catch (e) {
       console.warn("IP Geolocation fallback failed on checkout", e);
-      alert(language === "vi" ? "Không thể lấy vị trí hiện tại." : "Failed to retrieve current location.");
     } finally {
       setCheckoutLocating(false);
     }
@@ -1267,14 +1266,49 @@ export default function OrderView() {
           {/* ═══ STEP 4: COSMIC INVOICE + PAYMENT ═══ */}
           {currentStep === 4 && (
             <div className="space-y-8 animate-fade-in">
-              {/* Invoice header */}
-              <div className="text-center space-y-2">
-                <Sparkles className="h-6 w-6 text-amber-500 mx-auto" />
-                <h2 className="font-display text-2xl font-black text-stone-900 uppercase tracking-tight">
-                  {t.orderInvoiceTitle}
-                </h2>
-                <p className="font-sans text-stone-500 text-sm">{t.orderInvoiceSubtitle}</p>
-              </div>
+              {!isAuthInitialized ? (
+                <div className="min-h-[300px] flex flex-col items-center justify-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-stone-900 border-t-transparent" />
+                  <p className="font-sans text-xs text-stone-500 font-medium">
+                    {language === 'vi' ? 'Đang kiểm tra bảo mật...' : 'Checking cosmic credentials...'}
+                  </p>
+                </div>
+              ) : !isAuthenticated ? (
+                <div className="max-w-md mx-auto text-center space-y-6 py-10 animate-fade-in">
+                  <div className="text-6xl animate-bounce">🌌</div>
+                  <h3 className="font-display text-xl font-black uppercase text-stone-900 tracking-wide">
+                    {language === 'vi' ? 'Đăng nhập để đặt hàng' : 'Login to Proceed'}
+                  </h3>
+                  <p className="font-sans text-xs text-stone-500 leading-relaxed max-w-sm mx-auto">
+                    {language === 'vi'
+                      ? 'Vui lòng kết nối tài khoản vũ trụ của bạn để thanh toán, lưu lịch sử và kích hoạt chế độ theo dõi đơn hàng thời gian thực.'
+                      : 'Please connect your cosmic profile to check out, view history, and enable real-time order tracking.'}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button
+                      onClick={() => router.push(`/login?returnTo=${encodeURIComponent('/order')}`)}
+                      className="flex-1 bg-stone-950 hover:bg-black text-white py-3.5 px-6 rounded-2xl border-2 border-stone-900 shadow-[4px_4px_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 cursor-pointer font-display text-xs font-black uppercase tracking-wider transition-all"
+                    >
+                      {language === 'vi' ? 'Đăng nhập' : 'Login'}
+                    </button>
+                    <button
+                      onClick={() => router.push(`/register?returnTo=${encodeURIComponent('/order')}`)}
+                      className="flex-1 bg-white hover:bg-stone-50 text-stone-900 py-3.5 px-6 rounded-2xl border-2 border-stone-900 shadow-[4px_4px_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 cursor-pointer font-display text-xs font-black uppercase tracking-wider transition-all"
+                    >
+                      {language === 'vi' ? 'Đăng ký' : 'Register'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Invoice header */}
+                  <div className="text-center space-y-2">
+                    <Sparkles className="h-6 w-6 text-amber-500 mx-auto" />
+                    <h2 className="font-display text-2xl font-black text-stone-900 uppercase tracking-tight">
+                      {t.orderInvoiceTitle}
+                    </h2>
+                    <p className="font-sans text-stone-500 text-sm">{t.orderInvoiceSubtitle}</p>
+                  </div>
 
               {/* Invoice items */}
               <div className="bg-gradient-to-br from-stone-900 via-indigo-950 to-stone-900 rounded-2xl p-6 md:p-8 text-white space-y-4 relative overflow-hidden">
@@ -1630,6 +1664,8 @@ export default function OrderView() {
                   <span>{orderSubmitting ? (language === 'vi' ? 'Đang tạo đơn...' : 'Creating order...') : t.orderConfirmBtn}</span>
                 </button>
               </div>
+                </>
+              )}
             </div>
           )}
 

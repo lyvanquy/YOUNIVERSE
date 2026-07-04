@@ -8,6 +8,22 @@ import { translations } from "../../locales";
 import { Eye, EyeOff, Lock, Mail, User, Phone, Check, Heart } from "lucide-react";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 
+const getSafeReturnTo = () => {
+  const fallback = "/account";
+  const requestedPath = new URLSearchParams(window.location.search).get("returnTo");
+
+  if (!requestedPath) return fallback;
+
+  try {
+    const target = new URL(requestedPath, window.location.origin);
+    if (target.origin !== window.location.origin) return fallback;
+    if (target.pathname === "/login" || target.pathname === "/register") return fallback;
+    return `${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return fallback;
+  }
+};
+
 export default function RegisterPage() {
   const router = useRouter();
   const { register, googleLogin, isAuthenticated, language } = useYouniverseApp();
@@ -44,10 +60,10 @@ export default function RegisterPage() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Redirect authenticated users to their account page
+  // Return authenticated users to the page they were viewing before register.
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/account");
+      router.replace(getSafeReturnTo());
     }
   }, [isAuthenticated, router]);
 
@@ -99,7 +115,7 @@ export default function RegisterPage() {
     try {
       const res = await register(name, email, phone, password);
       if (res.success) {
-        router.push("/account");
+        router.replace(getSafeReturnTo());
       } else {
         setError(res.message || t.registerFailedError);
       }
@@ -118,7 +134,7 @@ export default function RegisterPage() {
     try {
       const res = await googleLogin(credential);
       if (res.success) {
-        router.push("/account");
+        router.replace(getSafeReturnTo());
       } else {
         setError(res.message || t.registerFailedError);
       }
@@ -420,7 +436,7 @@ export default function RegisterPage() {
           <div className="text-center font-sans text-xs text-stone-500 pt-2 border-t border-dashed border-stone-200/80 w-full">
             <span>{t.alreadyHaveIdentity} </span>
             <Link
-              href="/login"
+              href={`/login${typeof window !== 'undefined' ? window.location.search : ''}`}
               id="go-to-login"
               className="text-stone-900 font-bold hover:underline hover:text-rose-500 transition-colors font-semibold"
             >

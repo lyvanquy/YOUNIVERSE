@@ -324,7 +324,7 @@ export default function LoginPage() {
           <div className="text-center font-sans text-xs text-stone-500 pt-2 w-full border-t border-dashed border-stone-200/80">
             <span>{t.newToUniverse} </span>
             <Link
-              href="/register"
+              href={`/register${typeof window !== 'undefined' ? window.location.search : ''}`}
               id="go-to-register"
               className="text-stone-900 font-bold hover:underline hover:text-amber-500 transition-colors font-semibold"
             >

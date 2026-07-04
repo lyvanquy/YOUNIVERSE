@@ -128,10 +128,13 @@ export default function GoogleLoginButton({
     };
   }, []);
 
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Load script and initialize once
   useEffect(() => {
     let cancelled = false;
 
-    async function renderGoogleButton() {
+    async function initGoogle() {
       if (disabled) return;
 
       if (!GOOGLE_CLIENT_ID) {
@@ -142,11 +145,10 @@ export default function GoogleLoginButton({
       try {
         await loadGoogleScript();
 
-        if (cancelled || !buttonRef.current || !window.google?.accounts?.id) {
+        if (cancelled || !window.google?.accounts?.id) {
           return;
         }
 
-        buttonRef.current.innerHTML = "";
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: async (response) => {
@@ -170,16 +172,9 @@ export default function GoogleLoginButton({
           use_fedcm_for_prompt: true,
         });
 
-        window.google.accounts.id.renderButton(buttonRef.current, {
-          type: "standard",
-          theme: "outline",
-          size: "large",
-          text,
-          shape: "pill",
-          logo_alignment: "left",
-          width: containerWidth,
-          locale,
-        });
+        if (!cancelled) {
+          setIsInitialized(true);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Google login failed.");
@@ -187,12 +182,35 @@ export default function GoogleLoginButton({
       }
     }
 
-    renderGoogleButton();
+    initGoogle();
 
     return () => {
       cancelled = true;
     };
-  }, [disabled, locale, text, containerWidth]);
+  }, [disabled]);
+
+  // Render button when parameters or initialization state changes
+  useEffect(() => {
+    if (!isInitialized || !buttonRef.current || !window.google?.accounts?.id || disabled) {
+      return;
+    }
+
+    try {
+      buttonRef.current.innerHTML = "";
+      window.google.accounts.id.renderButton(buttonRef.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text,
+        shape: "pill",
+        logo_alignment: "left",
+        width: containerWidth,
+        locale,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google login failed.");
+    }
+  }, [isInitialized, disabled, locale, text, containerWidth]);
 
   return (
     <div className="space-y-2 w-full flex flex-col items-center justify-center">

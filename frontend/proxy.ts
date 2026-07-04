@@ -6,11 +6,11 @@ export function proxy(request: NextRequest) {
   const contentSecurityPolicy = `
     default-src 'self';
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${isDevelopment ? "'unsafe-eval'" : ""} https://accounts.google.com https://maps.googleapis.com https://maps.gstatic.com;
-    style-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline' https://accounts.google.com;
     img-src 'self' blob: data: https: http:;
     font-src 'self' data:;
     connect-src 'self' https: http: ws: wss:;
-    frame-src 'self' https://accounts.google.com;
+    frame-src 'self' https://accounts.google.com https://maps.google.com;
     worker-src 'self' blob:;
     object-src 'none';
     base-uri 'self';
@@ -30,6 +30,7 @@ export function proxy(request: NextRequest) {
   });
 
   response.headers.set("Content-Security-Policy", contentSecurityPolicy);
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   return response;
 }
 
@@ -44,3 +45,5 @@ export const config = {
     },
   ],
 };
+
+export default proxy;
