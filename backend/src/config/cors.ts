@@ -7,9 +7,12 @@ const allowedOrigins = [env.FRONTEND_URL, env.ADMIN_URL]
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+export const isAllowedOrigin = (origin: string | undefined): boolean =>
+  Boolean(origin && allowedOrigins.includes(origin));
+
 export const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || isAllowedOrigin(origin)) {
       callback(null, true);
       return;
     }

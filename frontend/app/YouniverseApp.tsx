@@ -10,7 +10,7 @@ import MarqueeSlogan from './components/MarqueeSlogan';
 import { TestimonialCarousel, MaterialShowcase, AstraShowcase, SiriusShowcase, PolarisShowcase, Visual4Steps } from './components/ProductsView';
 import CartDrawer from './components/CartDrawer';
 import { translations } from './locales';
-import { apiRequest, AUTH_SESSION_HINT_KEY, AUTH_TOKEN_KEY, USER_KEY, type ApiUser } from './lib/api';
+import { apiRequest, AUTH_SESSION_HINT_KEY, type ApiUser } from './lib/api';
 
 export type UserInfo = {
   id: string;
@@ -27,7 +27,6 @@ type YouniverseAppContextValue = {
   addCustomToCart: (item: CustomJewelry) => void;
   notifySoon: (charmName: string) => void;
   user: UserInfo | null;
-  token: string | null;
   isAuthenticated: boolean;
   isAuthInitialized: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
@@ -50,10 +49,11 @@ const toUserInfo = (user: ApiUser): UserInfo => ({
 });
 
 const saveSessionHint = (name: string | null) => {
+  const secure = window.location.protocol === 'https:' ? '; secure' : '';
   if (name) {
-    document.cookie = `${AUTH_SESSION_HINT_KEY}=${encodeURIComponent(name)}; path=/; max-age=31536000; samesite=lax`;
+    document.cookie = `${AUTH_SESSION_HINT_KEY}=${encodeURIComponent(name)}; path=/; max-age=86400; samesite=lax${secure}`;
   } else {
-    document.cookie = `${AUTH_SESSION_HINT_KEY}=; path=/; max-age=0; samesite=lax`;
+    document.cookie = `${AUTH_SESSION_HINT_KEY}=; path=/; max-age=0; samesite=lax${secure}`;
   }
 };
 
@@ -135,7 +135,6 @@ export default function YouniverseApp({
   }, [language]);
   
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
   
@@ -145,59 +144,45 @@ export default function YouniverseApp({
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [orderPlacedSuccess, setOrderPlacedSuccess] = useState(false);
 
-  // Load cart and user auth from local storage on mount. Until this finishes,
-  // the UI must not assume the visitor is logged out.
+  // Restore the server-managed HttpOnly session. No access token or personal
+  // profile data is persisted in browser storage.
   useEffect(() => {
+    let cancelled = false;
+
     try {
       const stored = localStorage.getItem('youniverse_cart');
       if (stored) {
         setCart(JSON.parse(stored));
       }
 
-      const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-      const storedUser = localStorage.getItem(USER_KEY);
-      let parsedUser: UserInfo | null = null;
-      if (storedUser) {
-        parsedUser = JSON.parse(storedUser) as UserInfo;
-        setUser(parsedUser);
-      }
-
-      if (storedToken) {
-        setToken(storedToken);
-        setIsAuthenticated(Boolean(storedUser));
-        if (parsedUser) {
-          saveSessionHint(parsedUser.name);
-          // Render the cached signed-in state immediately while /auth/me
-          // validates and refreshes the user data in the background.
-          setIsAuthInitialized(true);
-        }
-
-        apiRequest<{ user: ApiUser }>('/auth/me', { token: storedToken })
-          .then((data) => {
-            const nextUser = toUserInfo(data.user);
-            localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
-            saveSessionHint(nextUser.name);
-            setUser(nextUser);
-            setIsAuthenticated(true);
-          })
-          .catch(() => {
-            localStorage.removeItem(AUTH_TOKEN_KEY);
-            localStorage.removeItem(USER_KEY);
-            saveSessionHint(null);
-            setToken(null);
-            setUser(null);
-            setIsAuthenticated(false);
-          })
-          .finally(() => setIsAuthInitialized(true));
-      } else {
-        saveSessionHint(null);
-        setIsAuthInitialized(true);
-      }
+      // Remove sensitive values created by older frontend versions.
+      localStorage.removeItem('youniverse_access_token');
+      localStorage.removeItem('youniverse_user');
     } catch (e) {
       console.warn('Could not load app state from localStorage', e);
-      saveSessionHint(null);
-      setIsAuthInitialized(true);
     }
+
+    apiRequest<{ user: ApiUser }>('/auth/me')
+      .then((data) => {
+        if (cancelled) return;
+        const nextUser = toUserInfo(data.user);
+        saveSessionHint(nextUser.name);
+        setUser(nextUser);
+        setIsAuthenticated(true);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        saveSessionHint(null);
+        setUser(null);
+        setIsAuthenticated(false);
+      })
+      .finally(() => {
+        if (!cancelled) setIsAuthInitialized(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Save cart to local storage whenever it changes
@@ -250,39 +235,33 @@ export default function YouniverseApp({
   };
 
   const handleLogin = async (email: string, password: string) => {
-    const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/login', {
+    const data = await apiRequest<{ user: ApiUser }>('/auth/login', {
       method: 'POST',
       body: { email, password },
     });
     const nextUser = toUserInfo(data.user);
 
-    localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
     saveSessionHint(nextUser.name);
-    setToken(data.accessToken);
     setUser(nextUser);
     setIsAuthenticated(true);
     return { success: true };
   };
 
   const handleGoogleLogin = async (credential: string) => {
-    const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/google', {
+    const data = await apiRequest<{ user: ApiUser }>('/auth/google', {
       method: 'POST',
       body: { credential },
     });
     const nextUser = toUserInfo(data.user);
 
-    localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
     saveSessionHint(nextUser.name);
-    setToken(data.accessToken);
     setUser(nextUser);
     setIsAuthenticated(true);
     return { success: true };
   };
 
   const handleRegister = async (name: string, email: string, phone: string, password: string) => {
-    const data = await apiRequest<{ user: ApiUser; accessToken: string }>('/auth/register', {
+    const data = await apiRequest<{ user: ApiUser }>('/auth/register', {
       method: 'POST',
       body: {
         fullName: name,
@@ -294,41 +273,27 @@ export default function YouniverseApp({
     });
     const nextUser = toUserInfo(data.user);
 
-    localStorage.setItem(AUTH_TOKEN_KEY, data.accessToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
     saveSessionHint(nextUser.name);
-    setToken(data.accessToken);
     setUser(nextUser);
     setIsAuthenticated(true);
     return { success: true };
   };
 
   const handleUpdateAvatar = async (avatarUrl: string) => {
-    if (!token) {
-      throw new Error('Authentication required');
-    }
-
     const data = await apiRequest<{ user: ApiUser }>('/auth/me/avatar', {
       method: 'PATCH',
-      token,
       body: { avatarUrl },
     });
     const nextUser = toUserInfo(data.user);
 
-    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
     saveSessionHint(nextUser.name);
     setUser(nextUser);
     return nextUser;
   };
 
   const handleUpdateProfile = async (name: string, phone: string, address: string) => {
-    if (!token) {
-      throw new Error('Authentication required');
-    }
-
     const data = await apiRequest<{ user: ApiUser }>('/auth/me/profile', {
       method: 'PATCH',
-      token,
       body: {
         fullName: name,
         phone: phone || undefined,
@@ -337,20 +302,16 @@ export default function YouniverseApp({
     });
     const nextUser = toUserInfo(data.user);
 
-    localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
     saveSessionHint(nextUser.name);
     setUser(nextUser);
     return nextUser;
   };
 
   const handleLogout = () => {
-    if (token) {
-      void apiRequest('/auth/logout', { method: 'POST', token, keepalive: true }).catch(() => undefined);
-    }
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    void apiRequest('/auth/logout', { method: 'POST', keepalive: true }).catch(() => undefined);
+    localStorage.removeItem('youniverse_access_token');
+    localStorage.removeItem('youniverse_user');
     saveSessionHint(null);
-    setToken(null);
     setUser(null);
     setIsAuthenticated(false);
     router.push('/');
@@ -364,7 +325,6 @@ export default function YouniverseApp({
         addCustomToCart: handleAddCustomToCart,
         notifySoon: triggerNotifySoon,
         user,
-        token,
         isAuthenticated,
         isAuthInitialized,
         login: handleLogin,

@@ -28,7 +28,7 @@ const formatPrice = (v: number) =>
 type CheckoutPaymentProvider = 'COD' | 'BANK_TRANSFER';
 
 export default function OrderView() {
-  const { language, user, token } = useYouniverseApp();
+  const { language, user } = useYouniverseApp();
   const router = useRouter();
   const t = translations[language];
 
@@ -391,7 +391,6 @@ export default function OrderView() {
         const data = await apiRequest<{ cart: { id: string } }>('/cart/items', {
           method: 'POST',
           sessionId,
-          token,
           body: {
             productId: input.product.id,
             quantity: 1,
@@ -473,7 +472,6 @@ export default function OrderView() {
         {
           method: 'POST',
           sessionId,
-          token,
           body: {
             cartId,
             customer: {
@@ -498,14 +496,12 @@ export default function OrderView() {
         uploadBody.set('file', paymentFile);
         const uploaded = await apiRequest<{ url: string }>('/upload/image', {
           method: 'POST',
-          token,
           sessionId,
           body: uploadBody,
         });
 
         await apiRequest('/payments/receipt', {
           method: 'POST',
-          token,
           sessionId,
           body: {
             orderId: order.orderId,

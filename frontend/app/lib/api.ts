@@ -88,14 +88,7 @@ export class ApiError extends Error {
 
 export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1").replace(/\/$/, "");
 
-export const AUTH_TOKEN_KEY = "youniverse_access_token";
-export const USER_KEY = "youniverse_user";
 export const AUTH_SESSION_HINT_KEY = "youniverse_session_name";
-
-export function getStoredToken() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(AUTH_TOKEN_KEY);
-}
 
 export function getSessionId() {
   if (typeof window === "undefined") return "server";
@@ -124,30 +117,30 @@ export async function apiRequest<T>(
   path: string,
   options: Omit<RequestInit, "body"> & {
     body?: unknown;
-    token?: string | null;
     sessionId?: string | null;
   } = {},
 ): Promise<T> {
-  const headers = new Headers(options.headers);
-
-  if (options.token) {
-    headers.set("Authorization", `Bearer ${options.token}`);
+  const { body: rawBody, sessionId, ...requestOptions } = options;
+  const headers = new Headers(requestOptions.headers);
+  if (["/auth/login", "/auth/register", "/auth/google"].includes(path)) {
+    headers.set("x-auth-client", "storefront");
   }
 
-  if (options.sessionId) {
-    headers.set("x-session-id", options.sessionId);
+  if (sessionId) {
+    headers.set("x-session-id", sessionId);
   }
 
   let body: BodyInit | undefined;
-  if (options.body instanceof FormData) {
-    body = options.body;
-  } else if (options.body !== undefined) {
+  if (rawBody instanceof FormData) {
+    body = rawBody;
+  } else if (rawBody !== undefined) {
     headers.set("Content-Type", "application/json");
-    body = JSON.stringify(options.body);
+    body = JSON.stringify(rawBody);
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
+    ...requestOptions,
+    credentials: requestOptions.credentials ?? "include",
     headers,
     body,
   });

@@ -3,17 +3,27 @@ import type { RequestHandler } from "express";
 import { AppError } from "../../common/errors/AppError";
 import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { sendSuccess } from "../../common/utils/response";
+import { clearAuthCookie, setAuthCookie } from "../../common/utils/auth-cookie";
 import * as authService from "./auth.service";
 import type { GoogleLoginInput, LoginInput, RegisterInput, UpdateAvatarInput, UpdateProfileInput } from "./auth.validation";
+
+const isStorefrontRequest = (clientHeader: string | undefined): boolean => clientHeader === "storefront";
+
+const buildAuthResponse = <T extends { user: unknown; accessToken: string }>(
+  result: T,
+  storefront: boolean,
+) => storefront ? { user: result.user } : result;
 
 export const register: RequestHandler = async (req, res, next) => {
   try {
     const result = await authService.register(req.body as RegisterInput);
+    const storefront = isStorefrontRequest(req.headers["x-auth-client"] as string | undefined);
+    if (storefront) setAuthCookie(res, result.accessToken);
 
     sendSuccess(res, {
       statusCode: HTTP_STATUS.CREATED,
       message: "Register success",
-      data: result,
+      data: buildAuthResponse(result, storefront),
     });
   } catch (error) {
     next(error);
@@ -23,10 +33,12 @@ export const register: RequestHandler = async (req, res, next) => {
 export const login: RequestHandler = async (req, res, next) => {
   try {
     const result = await authService.login(req.body as LoginInput);
+    const storefront = isStorefrontRequest(req.headers["x-auth-client"] as string | undefined);
+    if (storefront) setAuthCookie(res, result.accessToken);
 
     sendSuccess(res, {
       message: "Login success",
-      data: result,
+      data: buildAuthResponse(result, storefront),
     });
   } catch (error) {
     next(error);
@@ -36,10 +48,12 @@ export const login: RequestHandler = async (req, res, next) => {
 export const googleLogin: RequestHandler = async (req, res, next) => {
   try {
     const result = await authService.loginWithGoogle(req.body as GoogleLoginInput);
+    const storefront = isStorefrontRequest(req.headers["x-auth-client"] as string | undefined);
+    if (storefront) setAuthCookie(res, result.accessToken);
 
     sendSuccess(res, {
       message: "Google login success",
-      data: result,
+      data: buildAuthResponse(result, storefront),
     });
   } catch (error) {
     next(error);
@@ -110,6 +124,7 @@ export const logout: RequestHandler = async (req, res, next) => {
     }
 
     await authService.revokeTokens(req.user.sub);
+    clearAuthCookie(res);
 
     sendSuccess(res, {
       message: "Logout success",

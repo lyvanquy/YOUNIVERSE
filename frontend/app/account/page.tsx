@@ -12,7 +12,7 @@ const formatCurrency = (value: number) =>
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, token, isAuthenticated, isAuthInitialized, logout, language, updateAvatar, updateProfile } = useYouniverseApp();
+  const { user, isAuthenticated, isAuthInitialized, logout, language, updateAvatar, updateProfile } = useYouniverseApp();
   const t = translations[language];
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [orders, setOrders] = useState<ApiOrder[]>([]);
@@ -228,15 +228,15 @@ export default function AccountPage() {
   }, [isAuthInitialized, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!isAuthenticated || !token) return;
+    if (!isAuthenticated) return;
 
     setOrdersLoading(true);
     setOrdersError(null);
-    apiRequest<{ items: ApiOrder[] }>("/orders/me?page=1&limit=20", { token })
+    apiRequest<{ items: ApiOrder[] }>("/orders/me?page=1&limit=20")
       .then((data) => setOrders(data.items))
       .catch((error) => setOrdersError(error instanceof Error ? error.message : "Không tải được lịch sử đơn hàng."))
       .finally(() => setOrdersLoading(false));
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     setAvatarLoadFailed(false);
@@ -246,7 +246,7 @@ export default function AccountPage() {
     const file = event.target.files?.[0];
     event.target.value = "";
 
-    if (!file || !token) return;
+    if (!file) return;
 
     if (!file.type.startsWith("image/")) {
       setAvatarError(language === "vi" ? "Vui lòng chọn một file ảnh." : "Please choose an image file.");
@@ -267,7 +267,6 @@ export default function AccountPage() {
 
       const uploaded = await apiRequest<{ url: string }>("/upload/image", {
         method: "POST",
-        token,
         body,
       });
 
