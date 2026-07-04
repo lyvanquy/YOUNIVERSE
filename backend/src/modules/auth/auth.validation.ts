@@ -3,9 +3,9 @@ import { z } from "zod";
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")
-  .refine((value) => Buffer.byteLength(value, "utf8") <= 72, "Password must be at most 72 bytes")
   .regex(/[A-Za-z]/, "Password must contain at least one letter")
-  .regex(/[0-9]/, "Password must contain at least one number");
+  .regex(/[0-9]/, "Password must contain at least one number")
+  .refine((value) => Buffer.byteLength(value, "utf8") <= 72, "Password must be at most 72 bytes");
 
 export const registerSchema = z
   .object({
