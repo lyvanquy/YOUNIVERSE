@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
+import { ShoppingBag, Menu, X, User, LogOut, Sparkles } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 
@@ -151,10 +151,13 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
           <Link
             href="/order"
             id="header-buy-now"
-            className="hidden md:flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-black font-display text-[11px] font-black uppercase tracking-wider transition-all duration-300 hover:from-amber-400 hover:to-yellow-300 hover:shadow-[0_0_20px_rgba(251,191,36,0.4)] hover:-translate-y-[1px] active:translate-y-0 cursor-pointer"
+            className="group/buy hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-[11px] font-black uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_28px_rgba(251,191,36,0.55)] hover:-translate-y-[2px] active:translate-y-0 cursor-pointer relative overflow-hidden"
           >
-            <ShoppingBag className="h-3.5 w-3.5" />
-            <span>{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
+            {/* Shine sweep effect */}
+            <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/buy:translate-x-full transition-transform duration-700 ease-in-out" />
+            <ShoppingBag className="h-3.5 w-3.5 relative z-10 transition-transform duration-300 group-hover/buy:scale-110" />
+            <span className="relative z-10">{language === 'vi' ? 'Mua ngay' : 'Buy Now'}</span>
+            <Sparkles className="h-3 w-3 relative z-10 opacity-0 -ml-1 group-hover/buy:opacity-100 group-hover/buy:ml-0 transition-all duration-300" />
           </Link>
 
           {/* Language Toggle - hidden on mobile, shown on desktop */}

@@ -66,7 +66,7 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Minh Quang',
-    image: '/images/testimonial-minh-quang.png',
+    image: '/images/testimonial-minh-quang.jpg',
     charm: 'Charm Astra',
     quote: 'Thật ra ban đầu không kỳ vọng nhiều lắm, nhưng cầm lên tay thấy chắc hơn mình nghĩ. Nhìn vào charm là thấy đúng mình, không cần giải thích gì thêm.',
   },
@@ -159,12 +159,10 @@ export function MaterialShowcase({ language }: { language: 'vi' | 'en' }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         {/* Left — Material Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group">
-          <Image
-            src="/images/photoshoot-3.png"
+          <img
+            src="/images/feedback-main.jpg"
             alt="Chất liệu co nhiệt thủ công của charm YOUniverse"
-            fill
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-1.5 shadow-sm">
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-700">

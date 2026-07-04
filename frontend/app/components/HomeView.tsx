@@ -310,7 +310,7 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
 
             {/* Right aesthetic visual interactive card (The missing banner is replaced with stellar craft) */}
             <div className="relative flex justify-center">
-              <div className="relative w-72 h-96 sm:w-80 sm:h-[420px] rounded-3xl overflow-hidden group hover:shadow-[0_20px_50px_rgba(59,130,246,0.12)] hover:border-blue-200/80 transition-all duration-500 hover:-translate-y-1">
+              <div className="relative w-72 h-72 sm:w-80 sm:h-[320px] rounded-3xl overflow-hidden group hover:shadow-[0_20px_50px_rgba(59,130,246,0.12)] hover:border-blue-200/80 transition-all duration-500 hover:-translate-y-1">
                 
                 {heroSlides.map((slide, idx) => {
                   const isActive = idx === heroCarouselIndex;
@@ -676,12 +676,12 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
             {[...Array(2)].map((_, setIdx) => (
               <div key={setIdx} className="flex gap-4 pr-4 shrink-0">
                 {[
-                  { src: '/images/photoshoot-1.jpg', w: 220, h: 300 },
                   { src: '/images/photoshoot-2.jpg', w: 360, h: 300 },
-                  { src: '/images/photoshoot-3.jpg', w: 280, h: 300 },
+                  { src: '/images/photoshoot-1.jpg', w: 220, h: 300 },
                   { src: '/images/photoshoot-4.jpg', w: 400, h: 300 },
-                  { src: '/images/photoshoot-5.jpg', w: 220, h: 300 },
+                  { src: '/images/photoshoot-3.jpg', w: 280, h: 300 },
                   { src: '/images/photoshoot-6.jpg', w: 340, h: 300 },
+                  { src: '/images/photoshoot-11.jpg', w: 220, h: 300 },
                 ].map((photo, i) => (
                   <div key={i} className={`group/photo relative rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out`} style={{ width: photo.w, height: photo.h }}>
                     <img src={photo.src} alt="YOUniverse charm" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
@@ -703,9 +703,9 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
                 {[
                   { src: '/images/photoshoot-7.jpg', w: 380, h: 280 },
                   { src: '/images/photoshoot-8.jpg', w: 220, h: 280 },
-                  { src: '/images/photoshoot-9.jpg', w: 340, h: 280 },
+                  { src: '/images/photoshoot-5.jpg', w: 340, h: 280 },
                   { src: '/images/photoshoot-10.jpg', w: 400, h: 280 },
-                  { src: '/images/photoshoot-11.jpg', w: 280, h: 280 },
+                  { src: '/images/photoshoot-9.jpg', w: 280, h: 280 },
                 ].map((photo, i) => (
                   <div key={i} className={`group/photo relative rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out`} style={{ width: photo.w, height: photo.h }}>
                     <img src={photo.src} alt="YOUniverse charm" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
@@ -736,9 +736,9 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
           const usecaseSlides = [
             { image: '/images/usecase-1.jpg', title: t.usecase1Title, desc: t.usecase1Desc },
             { image: '/images/usecase-2.jpg', title: t.usecase2Title, desc: t.usecase2Desc },
-            { image: '/images/usecase-3.png', title: t.usecase3Title, desc: t.usecase3Desc },
+            { image: '/images/usecase-3.jpg', title: t.usecase3Title, desc: t.usecase3Desc },
             { image: '/images/usecase-4.jpg', title: t.usecase5Title, desc: t.usecase5Desc },
-            { image: '/images/usecase-5.png', title: t.usecase6Title, desc: t.usecase6Desc },
+            { image: '/images/usecase-5.jpg', title: t.usecase6Title, desc: t.usecase6Desc },
           ];
 
           return (
@@ -763,7 +763,7 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
             {/* Left — Product Image Collage */}
             <div className="relative hidden lg:block">
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-black/40">
-                <Image src="/images/photoshoot-3.png" alt="Khách hàng chia sẻ câu chuyện cùng charm YOUniverse" fill sizes="50vw" className="object-cover" />
+                <img src="/images/feedback-main.jpg" alt="Khách hàng chia sẻ câu chuyện cùng charm YOUniverse" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8">
                   <p className="font-display text-2xl font-extrabold text-white uppercase tracking-wide leading-snug">
@@ -774,10 +774,10 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
                 </div>
               </div>
               <div className="absolute -top-6 -right-6 w-32 h-32 rounded-2xl overflow-hidden shadow-xl rotate-6 border-2 border-stone-200/60">
-                <Image src="/images/photoshoot-1.png" alt="" fill sizes="128px" className="object-cover" />
+                <img src="/images/feedback-small-1.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-4 -left-4 w-28 h-28 rounded-2xl overflow-hidden shadow-xl -rotate-6 border-2 border-stone-200/60">
-                <Image src="/images/photoshoot-5.png" alt="" fill sizes="112px" className="object-cover" />
+                <img src="/images/feedback-small-2.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
               </div>
             </div>
 
