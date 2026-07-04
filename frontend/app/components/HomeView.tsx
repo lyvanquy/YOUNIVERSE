@@ -734,12 +734,11 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
         {/* Carousel */}
         {(() => {
           const usecaseSlides = [
-            { image: '/images/photoshoot-1.png', title: t.usecase1Title, desc: t.usecase1Desc },
-            { image: '/images/photoshoot-2.png', title: t.usecase2Title, desc: t.usecase2Desc },
-            { image: '/images/photoshoot-3.png', title: t.usecase3Title, desc: t.usecase3Desc },
-            { image: '/images/photoshoot-4.png', title: t.usecase4Title, desc: t.usecase4Desc },
-            { image: '/images/photoshoot-5.png', title: t.usecase5Title, desc: t.usecase5Desc },
-            { image: '/images/photoshoot-6.png', title: t.usecase6Title, desc: t.usecase6Desc },
+            { image: '/images/usecase-1.jpg', title: t.usecase1Title, desc: t.usecase1Desc },
+            { image: '/images/usecase-2.jpg', title: t.usecase2Title, desc: t.usecase2Desc },
+            { image: '/images/usecase-3.png', title: t.usecase3Title, desc: t.usecase3Desc },
+            { image: '/images/usecase-4.jpg', title: t.usecase5Title, desc: t.usecase5Desc },
+            { image: '/images/usecase-5.png', title: t.usecase6Title, desc: t.usecase6Desc },
           ];
 
           return (

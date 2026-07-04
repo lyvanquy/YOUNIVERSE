@@ -66,25 +66,25 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Minh Quang',
-    image: '/images/photoshoot-1.png',
+    image: '/images/testimonial-minh-quang.png',
     charm: 'Charm Astra',
     quote: 'Thật ra ban đầu không kỳ vọng nhiều lắm, nhưng cầm lên tay thấy chắc hơn mình nghĩ. Nhìn vào charm là thấy đúng mình, không cần giải thích gì thêm.',
   },
   {
     name: 'Thuỳ Linh',
-    image: '/images/photoshoot-2.png',
+    image: '/images/testimonial-thuy-linh.jpg',
     charm: 'Charm Sirius',
     quote: 'Hồi đầu cũng phân vân không biết chọn cái nào, nhưng chọn xong rồi thì thấy đúng luôn. Đeo lên rồi mới thấy cái nhỏ xíu vậy mà nói được nhiều thứ thiệt.',
   },
   {
     name: 'Hạnh Nguyên',
-    image: '/images/photoshoot-3.png',
+    image: '/images/testimonial-hanh-nguyen.jpg',
     charm: 'Charm Polaris',
     quote: 'Nhìn ảnh trên mạng với cầm trên tay khác nhau nhiều lắm, ý là cầm trên tay đẹp hơn. Màu sắc tươi, in rõ nét, xinh hơn mình tưởng nhiều.',
   },
   {
     name: 'Ngọc Anh',
-    image: '/images/photoshoot-4.png',
+    image: '/images/testimonial-ngoc-anh.jpg',
     charm: 'Charm Astra',
     quote: 'Mua tặng bạn thân nhân dịp sinh nhật, chọn theo đúng sở thích của bạn. Bạn nhận xong nhắn lại là thích lắm, xài ngay luôn không cất. Chắc lần sau order thêm cái cho bản thân mình luôn quá.',
   },
