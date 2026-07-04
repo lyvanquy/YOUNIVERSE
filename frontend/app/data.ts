@@ -68,49 +68,57 @@ export const TEAM_MEMBERS: TeamMember[] = [
     name: 'Ms. Nguyen Linh Chi',
     nameVi: 'Nguyễn Linh Chi',
     phone: '0335173280',
-    role: 'Project Leader'
+    role: 'Project Leader',
+    image: '/images/team-chi.png',
   },
   {
     name: 'Mr. Tran Hai Dang',
     nameVi: 'Trần Hải Đăng',
     phone: '0795722279',
-    role: 'Lead of Digital Media & Website'
+    role: 'Lead of Digital Media & Website',
+    image: '/images/team-dang.png',
   },
   {
     name: 'Ms. Quach Kha Thi',
     nameVi: 'Quách Khả Thi',
     phone: '0858062402',
-    role: 'Lead of Market Research & Insights'
+    role: 'Lead of Market Research & Insights',
+    image: '/images/team-thi.png',
   },
   {
     name: 'Ms. Nguyen Ly An Nhien',
     nameVi: 'Nguyễn Lý An Nhiên',
     phone: '0334230606',
-    role: 'Lead of Operations'
+    role: 'Lead of Operations',
+    image: '/images/team-nhien.png',
   },
   {
     name: 'Ms. Nguyen Do Nhu Ha',
     nameVi: 'Nguyễn Đỗ Như Hà',
     phone: '0943484784',
-    role: 'Lead of Research & Development'
+    role: 'Lead of Research & Development',
+    image: '/images/team-ha.png',
   },
   {
     name: 'Ms. Le Nu Dan Vy',
     nameVi: 'Lê Nữ Đan Vy',
     phone: '0914575205',
-    role: 'Lead of Sales'
+    role: 'Lead of Sales',
+    image: '/images/team-vy.png',
   },
   {
     name: 'Ms. Duong Ngoc Phuong Nghi',
     nameVi: 'Dương Ngọc Phương Nghi',
     phone: '0346229446',
-    role: 'Lead of Production'
+    role: 'Lead of Production',
+    image: '/images/team-nghi.png',
   },
   {
     name: 'Ms. Tran Ngoc Thu',
     nameVi: 'Trần Ngọc Thư',
     phone: '0913450445',
-    role: 'Lead of Public Relations'
+    role: 'Lead of Public Relations',
+    image: '/images/team-thu.png',
   }
 ];
 
