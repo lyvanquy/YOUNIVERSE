@@ -191,8 +191,20 @@ const createAuthResponse = (user: User): AuthResponse => ({
     sub: user.id,
     email: user.email,
     role: user.role,
+    tokenVersion: user.tokenVersion,
   }),
 });
+
+export const revokeTokens = async (userId: string): Promise<void> => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      tokenVersion: {
+        increment: 1,
+      },
+    },
+  });
+};
 
 export const register = async (input: RegisterInput): Promise<AuthResponse> => {
   const existingUser = await prisma.user.findUnique({

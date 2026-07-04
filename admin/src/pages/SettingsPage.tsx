@@ -233,12 +233,11 @@ export default function SettingsPage() {
       </section>
 
       <section className="card tai-tho-card">
-        <h3>Tài khoản Quản trị mặc định</h3>
-        <p className="muted">Dữ liệu mẫu (Seed backend) mặc định tạo tài khoản quản trị:</p>
-        <pre className="mono" style={{ background: "#f5f5f4", padding: 14, borderRadius: 12, overflow: "auto" }}>
-{`Tên đăng nhập (email): admin@youniverse.local
-Mật khẩu (password): Admin123456`}
-        </pre>
+        <h3>Bảo mật tài khoản quản trị</h3>
+        <p className="muted">
+          Hệ thống không tạo tài khoản quản trị mặc định. Thông tin khởi tạo phải được cung cấp qua biến môi trường
+          SEED_ADMIN_EMAIL và SEED_ADMIN_PASSWORD khi chạy seed.
+        </p>
       </section>
     </form>
   );

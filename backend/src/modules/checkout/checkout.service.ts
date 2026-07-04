@@ -350,6 +350,7 @@ export const createOrder = async (input: CheckoutInput, identity: CheckoutIdenti
         data: {
           orderCode,
           userId: identity.userId ?? null,
+          guestSessionId: identity.userId ? null : identity.sessionId ?? null,
           couponId: preview.coupon?.id ?? null,
           customerName: preview.customer.fullName,
           customerEmail: preview.customer.email,
@@ -485,6 +486,7 @@ export const createOrder = async (input: CheckoutInput, identity: CheckoutIdenti
       data: {
         orderCode,
         userId: identity.userId ?? null,
+        guestSessionId: identity.userId ? null : identity.sessionId ?? null,
         couponId: preview.coupon?.id ?? null,
         customerName: preview.customer.fullName,
         customerEmail: preview.customer.email,

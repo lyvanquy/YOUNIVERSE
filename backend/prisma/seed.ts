@@ -96,15 +96,27 @@ const coupons = [
 ] as const;
 
 const seedAdmin = async () => {
-  const passwordHash = await bcrypt.hash("Admin123456", SALT_ROUNDS);
+  const email = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!email && !password) {
+    console.info("[seed] Admin credentials not provided; skipping admin creation.");
+    return;
+  }
+
+  if (!email || !password || password.length < 12) {
+    throw new Error("SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD (minimum 12 characters) are both required");
+  }
+
+  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
   await prisma.user.upsert({
     where: {
-      email: "admin@youniverse.local",
+      email,
     },
     create: {
       fullName: "YOUniverse Admin",
-      email: "admin@youniverse.local",
+      email,
       passwordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
@@ -112,6 +124,7 @@ const seedAdmin = async () => {
     },
     update: {
       fullName: "YOUniverse Admin",
+      passwordHash,
       role: UserRole.ADMIN,
       status: UserStatus.ACTIVE,
     },

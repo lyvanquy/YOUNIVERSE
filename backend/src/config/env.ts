@@ -34,17 +34,40 @@ const parseOptionalPort = (value: string | undefined, fallback: number): number 
   return port;
 };
 
+const NODE_ENV = parseNodeEnv(process.env.NODE_ENV);
+
+const parseSecret = (name: string, value: string | undefined): string => {
+  const secret = value?.trim() || "change_this_secret";
+
+  if (NODE_ENV !== "test" && (secret === "change_this_secret" || secret.length < 32)) {
+    throw new Error(`${name} must be a unique secret of at least 32 characters`);
+  }
+
+  return secret;
+};
+
+const parseTrustProxy = (value: string | undefined): number => {
+  const hops = Number(value ?? 0);
+
+  if (!Number.isInteger(hops) || hops < 0) {
+    throw new Error("TRUST_PROXY must be a non-negative integer");
+  }
+
+  return hops;
+};
+
 export const env = Object.freeze({
-  NODE_ENV: parseNodeEnv(process.env.NODE_ENV),
+  NODE_ENV,
   PORT: parsePort(process.env.PORT),
+  TRUST_PROXY: parseTrustProxy(process.env.TRUST_PROXY),
   FRONTEND_URL: process.env.FRONTEND_URL ?? "http://localhost:3000",
   ADMIN_URL: process.env.ADMIN_URL ?? "http://localhost:5173",
   BACKEND_URL: process.env.BACKEND_URL ?? "http://localhost:4000",
-  JWT_SECRET: process.env.JWT_SECRET ?? "change_this_secret",
+  JWT_SECRET: parseSecret("JWT_SECRET", process.env.JWT_SECRET),
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN ?? "1d",
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ?? "",
   PAYMENT_RETURN_URL: process.env.PAYMENT_RETURN_URL ?? "http://localhost:3000/payment-result",
-  PAYMENT_WEBHOOK_SECRET: process.env.PAYMENT_WEBHOOK_SECRET ?? "change_this_secret",
+  PAYMENT_WEBHOOK_SECRET: parseSecret("PAYMENT_WEBHOOK_SECRET", process.env.PAYMENT_WEBHOOK_SECRET),
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME ?? "YOUniverse",
   EMAIL_FROM_ADDRESS: process.env.EMAIL_FROM_ADDRESS ?? "no-reply@youniverse.local",
   EMAIL_SMTP_HOST: process.env.EMAIL_SMTP_HOST ?? "",

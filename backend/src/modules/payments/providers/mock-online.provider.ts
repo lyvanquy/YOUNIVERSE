@@ -38,6 +38,12 @@ const buildSignaturePayload = (payload: MockPayload): string =>
 const signPayload = (payload: MockPayload): string =>
   crypto.createHmac("sha256", env.PAYMENT_WEBHOOK_SECRET).update(buildSignaturePayload(payload)).digest("hex");
 
+const assertMockProviderEnabled = (): void => {
+  if (env.NODE_ENV === "production") {
+    throw new AppError("Mock payment provider is disabled", HTTP_STATUS.BAD_REQUEST);
+  }
+};
+
 const timingSafeEqualHex = (actual: string, expected: string): boolean => {
   const actualBuffer = Buffer.from(actual, "hex");
   const expectedBuffer = Buffer.from(expected, "hex");
@@ -53,10 +59,11 @@ export const mockOnlineProvider: PaymentProviderAdapter = {
   provider: PaymentProvider.MOCK_ONLINE,
 
   canCreatePayment() {
-    return true;
+    return env.NODE_ENV !== "production";
   },
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    assertMockProviderEnabled();
     const transactionId = `MOCK-${input.orderCode}-${Date.now()}`;
     const payload: MockPayload = {
       orderCode: input.orderCode,
@@ -85,6 +92,7 @@ export const mockOnlineProvider: PaymentProviderAdapter = {
   },
 
   async verifyCallback(payload: unknown): Promise<VerifyPaymentResult> {
+    assertMockProviderEnabled();
     if (!payload || typeof payload !== "object") {
       throw new AppError("Invalid mock payment payload", HTTP_STATUS.BAD_REQUEST);
     }

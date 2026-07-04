@@ -17,11 +17,11 @@ Admin mặc định đọc backend tại:
 VITE_API_URL=http://localhost:4000/api/v1
 ```
 
-Seed backend hiện có tài khoản admin:
+Tạo hoặc cập nhật admin bằng biến môi trường trước khi chạy seed backend:
 
 ```txt
-email: admin@youniverse.local
-password: Admin123456
+SEED_ADMIN_EMAIL=your-admin@example.com
+SEED_ADMIN_PASSWORD=<strong-random-password>
 ```
 
 ## Modules

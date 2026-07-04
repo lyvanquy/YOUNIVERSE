@@ -499,12 +499,14 @@ export default function OrderView() {
         const uploaded = await apiRequest<{ url: string }>('/upload/image', {
           method: 'POST',
           token,
+          sessionId,
           body: uploadBody,
         });
 
         await apiRequest('/payments/receipt', {
           method: 'POST',
           token,
+          sessionId,
           body: {
             orderId: order.orderId,
             receiptUrl: uploaded.url,

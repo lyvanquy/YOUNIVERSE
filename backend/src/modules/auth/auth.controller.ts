@@ -103,9 +103,19 @@ export const updateProfile: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const logout: RequestHandler = (_req, res) => {
-  sendSuccess(res, {
-    message: "Logout success",
-    data: null,
-  });
+export const logout: RequestHandler = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw new AppError("Authentication required", HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    await authService.revokeTokens(req.user.sub);
+
+    sendSuccess(res, {
+      message: "Logout success",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
 };

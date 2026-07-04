@@ -28,6 +28,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isBooting, setIsBooting] = useState(Boolean(token));
 
   const logout = () => {
+    if (token) {
+      void apiRequest("/auth/logout", { method: "POST", token, keepalive: true }).catch(() => undefined);
+    }
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);

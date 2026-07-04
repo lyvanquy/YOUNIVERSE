@@ -344,6 +344,9 @@ export default function YouniverseApp({
   };
 
   const handleLogout = () => {
+    if (token) {
+      void apiRequest('/auth/logout', { method: 'POST', token, keepalive: true }).catch(() => undefined);
+    }
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     saveSessionHint(null);

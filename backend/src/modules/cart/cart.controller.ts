@@ -3,18 +3,11 @@ import type { Request, RequestHandler } from "express";
 import { AppError } from "../../common/errors/AppError";
 import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { sendSuccess } from "../../common/utils/response";
+import { parseGuestSessionId } from "../../common/utils/session";
 import * as cartService from "./cart.service";
 import type { AddCartItemInput, ApplyCouponInput, MergeCartInput, UpdateCartItemInput } from "./cart.validation";
 
-const getSessionId = (req: Request): string | undefined => {
-  const value = req.headers["x-session-id"];
-
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-};
+const getSessionId = (req: Request): string | undefined => parseGuestSessionId(req.headers["x-session-id"]);
 
 const getCartIdentity = (req: Request) => ({
   userId: req.user?.sub,

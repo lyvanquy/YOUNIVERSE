@@ -1,7 +1,9 @@
 import type { RequestHandler } from "express";
 
 import { sendSuccess } from "../../common/utils/response";
+import { parseGuestSessionId } from "../../common/utils/session";
 import * as paymentService from "./payment.service";
+import type { SubmitReceiptInput } from "./payment.validation";
 
 export const handleCallback: RequestHandler = async (req, res, next) => {
   try {
@@ -33,10 +35,11 @@ export const handleWebhook: RequestHandler = async (req, res, next) => {
  */
 export const submitReceipt: RequestHandler = async (req, res, next) => {
   try {
-    const { orderId, receiptUrl } = req.body as { orderId: string; receiptUrl: string };
+    const { orderId, receiptUrl } = req.body as SubmitReceiptInput;
     const userId = req.user?.sub;
+    const sessionId = parseGuestSessionId(req.headers["x-session-id"]);
 
-    const result = await paymentService.uploadPaymentReceipt(orderId, receiptUrl, undefined, userId);
+    const result = await paymentService.uploadPaymentReceipt(orderId, receiptUrl, sessionId, userId);
 
     sendSuccess(res, {
       message: "Payment receipt submitted successfully. Our team will verify your transfer shortly.",

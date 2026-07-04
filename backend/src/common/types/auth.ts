@@ -6,4 +6,6 @@ export type AuthUser = {
   role: UserRole;
 };
 
-export type JwtPayload = AuthUser;
+export type JwtPayload = AuthUser & {
+  tokenVersion: number;
+};

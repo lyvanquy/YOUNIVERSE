@@ -84,9 +84,7 @@ Hệ thống được chia làm 3 phần chính nằm trong cùng một reposito
    ```bash
    npm run prisma:seed
    ```
-   *Thao tác này sẽ tạo tài khoản Admin mặc định:*
-   * **Email:** `admin@youniverse.local`
-   * **Mật khẩu:** `Admin123456`
+   *Để chủ động tạo/cập nhật admin khi seed, đặt `SEED_ADMIN_EMAIL` và `SEED_ADMIN_PASSWORD` trong `backend/.env`. Không có tài khoản hoặc mật khẩu mặc định.*
 6. Khởi động server phát triển (chạy tại cổng `4000`):
    ```bash
    npm run dev
@@ -147,7 +145,6 @@ Khi tất cả các dịch vụ được chạy ở chế độ phát triển:
 
 ---
 
-## 🔒 Tài khoản mặc định thử nghiệm
-* **Vai trò:** Admin Dashboard / API Auth
-* **Email:** `admin@youniverse.local`
-* **Mật khẩu:** `Admin123456`
+## 🔒 Tài khoản quản trị
+
+Tài khoản quản trị chỉ được tạo qua các biến môi trường `SEED_ADMIN_EMAIL` và `SEED_ADMIN_PASSWORD` khi chạy seed. Không commit hoặc ghi mật khẩu thật vào tài liệu.

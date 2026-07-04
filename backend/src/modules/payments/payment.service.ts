@@ -413,6 +413,7 @@ export const uploadPaymentReceipt = async (
       order: {
         select: {
           userId: true,
+          guestSessionId: true,
           orderCode: true,
         },
       },
@@ -428,17 +429,32 @@ export const uploadPaymentReceipt = async (
 
   // Kiểm tra quyền: chỉ chủ order mới được upload
   const orderUserId = payment.order.userId;
-  if (orderUserId && userId && orderUserId !== userId) {
+  const ownsAuthenticatedOrder = Boolean(orderUserId && userId === orderUserId);
+  const ownsGuestOrder = Boolean(
+    !orderUserId &&
+      payment.order.guestSessionId &&
+      sessionId &&
+      payment.order.guestSessionId === sessionId,
+  );
+
+  if (!ownsAuthenticatedOrder && !ownsGuestOrder) {
     throw new AppError("You do not have permission to update this payment", HTTP_STATUS.FORBIDDEN);
+  }
+
+  const normalizedReceiptUrl = new URL(receiptUrl);
+  const backendUrl = new URL(env.BACKEND_URL);
+
+  if (normalizedReceiptUrl.origin !== backendUrl.origin || !normalizedReceiptUrl.pathname.startsWith("/uploads/")) {
+    throw new AppError("Receipt URL must reference an uploaded image", HTTP_STATUS.BAD_REQUEST);
   }
 
   const updated = await prisma.paymentTransaction.update({
     where: { id: payment.id },
-    data: { receiptUrl },
+    data: { receiptUrl: normalizedReceiptUrl.toString() },
   });
 
   return {
     paymentId: updated.id,
-    receiptUrl: updated.receiptUrl ?? receiptUrl,
+    receiptUrl: updated.receiptUrl ?? normalizedReceiptUrl.toString(),
   };
 };

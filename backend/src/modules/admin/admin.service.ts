@@ -81,6 +81,7 @@ const toPaymentDto = (payment: OrderWithRelations["payments"][number]) => ({
   currency: payment.currency,
   providerTxnId: payment.providerTxnId,
   paymentUrl: payment.paymentUrl,
+  receiptUrl: payment.receiptUrl,
   paidAt: payment.paidAt,
   failedReason: payment.failedReason,
   createdAt: payment.createdAt,

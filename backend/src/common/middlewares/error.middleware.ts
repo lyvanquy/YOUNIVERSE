@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
+import multer from "multer";
 
 import { AppError } from "../errors/AppError";
 import { HTTP_STATUS } from "../errors/errorCodes";
@@ -11,11 +12,27 @@ export const notFoundMiddleware: RequestHandler = (req, _res, next) => {
 
 export const errorMiddleware: ErrorRequestHandler = (error, _req, res, _next) => {
   const isAppError = error instanceof AppError;
-  const statusCode = isAppError ? error.statusCode : HTTP_STATUS.INTERNAL_SERVER_ERROR;
-  const message = isAppError ? error.message : "Internal server error";
+  const isMulterError = error instanceof multer.MulterError;
+  const isPayloadTooLarge =
+    (isMulterError && error.code === "LIMIT_FILE_SIZE") ||
+    (typeof error === "object" && error !== null && "status" in error && error.status === 413);
+  const statusCode = isPayloadTooLarge
+    ? HTTP_STATUS.PAYLOAD_TOO_LARGE
+    : isMulterError
+      ? HTTP_STATUS.BAD_REQUEST
+      : isAppError
+        ? error.statusCode
+        : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+  const message = isPayloadTooLarge
+    ? "Request payload is too large"
+    : isMulterError
+      ? "Invalid upload request"
+      : isAppError
+        ? error.message
+        : "Internal server error";
   const details = isAppError ? error.errors : undefined;
 
-  if (!isAppError || statusCode >= HTTP_STATUS.INTERNAL_SERVER_ERROR) {
+  if ((!isAppError && !isMulterError && !isPayloadTooLarge) || statusCode >= HTTP_STATUS.INTERNAL_SERVER_ERROR) {
     console.error(error);
   }
 

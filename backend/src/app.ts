@@ -5,8 +5,10 @@ import express from "express";
 import helmet from "helmet";
 
 import { corsOptions } from "./config/cors";
+import { env } from "./config/env";
 import { errorMiddleware, notFoundMiddleware } from "./common/middlewares/error.middleware";
 import { requestLogger } from "./common/middlewares/request-logger.middleware";
+import { apiRateLimit } from "./common/middlewares/rate-limit.middleware";
 import adminRoutes from "./modules/admin/admin.routes";
 import authRoutes from "./modules/auth/auth.routes";
 import cartRoutes from "./modules/cart/cart.routes";
@@ -22,6 +24,10 @@ import uploadRoutes from "./modules/upload/upload.routes";
 
 const app = express();
 
+if (env.TRUST_PROXY > 0) {
+  app.set("trust proxy", env.TRUST_PROXY);
+}
+
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -31,6 +37,7 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
+app.use("/api", apiRateLimit);
 
 // Serve uploaded files statically
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");

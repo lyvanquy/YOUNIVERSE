@@ -1,18 +1,11 @@
 import type { Request, RequestHandler } from "express";
 
 import { sendSuccess } from "../../common/utils/response";
+import { parseGuestSessionId } from "../../common/utils/session";
 import * as checkoutService from "./checkout.service";
 import type { CheckoutInput } from "./checkout.validation";
 
-const getSessionId = (req: Request): string | undefined => {
-  const value = req.headers["x-session-id"];
-
-  if (Array.isArray(value)) {
-    return value[0];
-  }
-
-  return value;
-};
+const getSessionId = (req: Request): string | undefined => parseGuestSessionId(req.headers["x-session-id"]);
 
 const getCheckoutIdentity = (req: Request) => ({
   userId: req.user?.sub,
