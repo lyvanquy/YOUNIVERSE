@@ -16,7 +16,7 @@ const getSessionId = (req: Request): string | undefined => {
 
 const getCheckoutIdentity = (req: Request) => ({
   userId: req.user?.sub,
-  sessionId: req.user ? undefined : getSessionId(req),
+  sessionId: getSessionId(req),
 });
 
 export const validateCheckout: RequestHandler = async (req, res, next) => {

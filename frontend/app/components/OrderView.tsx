@@ -391,6 +391,7 @@ export default function OrderView() {
         const data = await apiRequest<{ cart: { id: string } }>('/cart/items', {
           method: 'POST',
           sessionId,
+          token,
           body: {
             productId: input.product.id,
             quantity: 1,

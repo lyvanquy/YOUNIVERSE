@@ -69,6 +69,17 @@ type CheckoutLineItem = {
 };
 
 const getSessionScopedWhere = (input: CheckoutInput, identity: CheckoutIdentity): Prisma.CartWhereInput => {
+  if (identity.userId && identity.sessionId) {
+    return {
+      id: input.cartId,
+      status: CartStatus.ACTIVE,
+      OR: [
+        { userId: identity.userId },
+        { sessionId: identity.sessionId },
+      ],
+    };
+  }
+
   if (identity.userId) {
     return {
       id: input.cartId,

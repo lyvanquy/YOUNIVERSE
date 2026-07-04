@@ -199,6 +199,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
             </Link>
           )}
 
+          {/* Cart button hidden as requested
           <button
             id="cart-btn"
             onClick={onOpenCart}
@@ -214,6 +215,7 @@ export default function Header({ cartCount, onOpenCart }: HeaderProps) {
               </span>
             )}
           </button>
+          */}
         </div>
       </div>
 
