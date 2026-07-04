@@ -117,7 +117,13 @@ export class ApiError extends Error {
   }
 }
 
-export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1").replace(/\/$/, "");
+const publicApiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+
+export const API_BASE_URL = (
+  typeof window === "undefined"
+    ? process.env.API_INTERNAL_URL ?? publicApiUrl
+    : publicApiUrl
+).replace(/\/$/, "");
 
 export const AUTH_SESSION_HINT_KEY = "youniverse_session_name";
 
