@@ -1,61 +1,49 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ZoomIn, Minus, Plus, HelpCircle } from 'lucide-react-native';
 import { AppTheme } from '../../src/config/theme';
 import { useCartStore } from '../../src/store/useCartStore';
+import api from '../../src/services/api';
 
 export default function ProductDetailScreen() {
   const { slug } = useLocalSearchParams();
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
 
+  const [product, setProduct] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
-  // Giả lập lấy chi tiết sản phẩm
-  const _getProductData = () => {
-    if (slug === "chuoi-chong-duoi") {
-      return {
-        name: "Chuối Chống Đuối",
-        price: 30000,
-        badge: "Best Seller",
-        brief: "Chuối tiêu sấy dẻo tự nhiên 100% không đường.",
-        description: "Chuối Chống Đuối nhà S'mood được sấy lạnh khép kín giúp giữ nguyên chất dinh dưỡng. Miếng chuối thơm phức dẻo ngọt tự nhiên, không tẩm ướp đường hóa học, cung cấp nguồn năng lượng lành mạnh ngay lập tức khi bạn đuối sức.",
-        specs: "• Khối lượng: 150g\n• Hạn sử dụng: 6 tháng từ ngày sản xuất\n• Thành phần: 100% Chuối chín tự nhiên",
-      };
-    }
-    if (slug === "khoai-kho-khao") {
-      return {
-        name: "Khoai Khờ Khạo",
-        price: 28000,
-        badge: "New",
-        brief: "Khoai lang vàng sấy giòn thơm bùi.",
-        description: "Khoai Khờ Khạo ngọt bùi giòn rụm được tuyển chọn từ những củ khoai lang Đà Lạt tươi ngon nhất. Sấy chân không hiện đại giúp khoai giữ màu sắc tự nhiên và hương thơm ngậy đặc trưng.",
-        specs: "• Khối lượng: 120g\n• Hạn sử dụng: 6 tháng từ ngày sản xuất\n• Thành phần: 98% Khoai lang, 2% dầu thực vật",
-      };
-    }
-    return {
-      name: "Món ăn vặt S'mood",
-      price: 32000,
-      badge: "Hot",
-      brief: "Món ăn vặt thơm ngon mang lại tâm trạng mượt mà.",
-      description: "Sản phẩm được tuyển chọn kỹ lượng mang lại hương vị thơm ngon đặc trưng độc nhất vô nhị chỉ có tại nhà S'mood.",
-      specs: "• Khối lượng: 100g\n• Hạn sử dụng: 6 tháng",
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get(`/products/${slug}`);
+        // Endpoint trả về envelope { success: true, message: '...', data: { product: {...} } }
+        const data = response.data.data?.product || response.data.product;
+        setProduct(data);
+      } catch (error) {
+        console.warn("Không thể tải chi tiết sản phẩm:", error);
+        Alert.alert("Lỗi", "Không tìm thấy thông tin sản phẩm.");
+      } finally {
+        setIsLoading(false);
+      }
     };
-  };
-
-  const product = _getProductData();
-  const formatMoney = (amount: number) => {
-    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
-  };
+    if (slug) {
+      fetchProductDetails();
+    }
+  }, [slug]);
 
   const handleAddToCart = () => {
+    if (!product) return;
     addItem({
+      id: product.id,
       slug: slug as string,
       name: product.name,
-      price: product.price,
+      price: Number(product.price),
       quantity: quantity,
-      badge: product.badge,
+      badge: product.badge || undefined,
     });
     Alert.alert('Giỏ hàng', `Đã thêm ${quantity} x ${product.name} vào giỏ hàng!`, [
       { text: 'Xem giỏ hàng', onPress: () => router.push('/cart') },
@@ -63,12 +51,52 @@ export default function ProductDetailScreen() {
     ]);
   };
 
+  const getProductImageUrl = () => {
+    if (!product) return null;
+    const primaryImg = product.images?.find((img: any) => img.isPrimary) || product.images?.[0];
+    if (!primaryImg) return null;
+    const url = primaryImg.url;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // Ghép URL host Backend
+    return `${api.defaults.baseURL?.replace('/api/v1', '')}${url}`;
+  };
+
+  const formatMoney = (amount: number) => {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
+  };
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={AppTheme.colors.primaryGreen} />
+        <Text style={styles.loadingText}>Đang lấy thông tin sản phẩm...</Text>
+      </View>
+    );
+  }
+
+  if (!product) {
+    return (
+      <View style={styles.emptyContainer}>
+        <HelpCircle color="#D6D3D1" size={50} />
+        <Text style={styles.emptyText}>Sản phẩm không khả dụng hoặc đã bị gỡ bỏ.</Text>
+      </View>
+    );
+  }
+
+  const imageUrl = getProductImageUrl();
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* 1. Zoomable Image Area */}
         <View style={styles.imageArea}>
-          <HelpCircle color={AppTheme.colors.primaryGreen} size={90} opacity={0.2} />
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
+          ) : (
+            <HelpCircle color={AppTheme.colors.primaryGreen} size={90} opacity={0.2} />
+          )}
           <TouchableOpacity style={styles.zoomButton}>
             <ZoomIn color={AppTheme.colors.white} size={14} />
             <Text style={styles.zoomText}>Chạm để xem ảnh lớn</Text>
@@ -77,24 +105,30 @@ export default function ProductDetailScreen() {
 
         {/* 2. Info block */}
         <View style={styles.infoBlock}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{product.badge}</Text>
-          </View>
+          {product.badge ? (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{product.badge}</Text>
+            </View>
+          ) : null}
           <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productPrice}>{formatMoney(product.price)}</Text>
+          <Text style={styles.productPrice}>{formatMoney(Number(product.price))}</Text>
           
           <View style={styles.divider} />
 
           {/* 3. Description segments */}
           <Text style={styles.sectionTitle}>Tóm tắt sản phẩm</Text>
-          <Text style={styles.briefText}>{product.brief}</Text>
+          <Text style={styles.briefText}>{product.shortDescription || "Không có tóm tắt sản phẩm."}</Text>
 
           <Text style={styles.sectionTitle}>Mô tả chi tiết</Text>
-          <Text style={styles.descText}>{product.description}</Text>
+          <Text style={styles.descText}>{product.description || "Chưa có mô tả chi tiết cho sản phẩm này."}</Text>
 
           <View style={styles.specsContainer}>
-            <Text style={styles.specsTitle}>Thông số kỹ thuật:</Text>
-            <Text style={styles.specsText}>{product.specs}</Text>
+            <Text style={styles.specsTitle}>Thông số sản phẩm:</Text>
+            <Text style={styles.specsText}>
+              • SKU: {product.sku || "N/A"}{"\n"}
+              • Dòng sản phẩm: {product.productLine || "N/A"}{"\n"}
+              • Trạng thái kho: {product.inventory?.quantity ? `${product.inventory.quantity} sản phẩm có sẵn` : "Liên hệ"}
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -141,6 +175,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF9F6',
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   zoomButton: {
     position: 'absolute',
@@ -274,5 +313,25 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: AppTheme.colors.white,
     letterSpacing: 1.2,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: AppTheme.colors.backgroundLight,
+  },
+  loadingText: {
+    marginTop: 12,
+    color: AppTheme.colors.textMuted,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: AppTheme.colors.backgroundLight,
+  },
+  emptyText: {
+    marginTop: 12,
+    color: AppTheme.colors.textMuted,
   },
 });

@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface CartItem {
+  id: string; // ID sản phẩm trong Database
   slug: string;
   name: string;
   price: number;

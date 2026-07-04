@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Modal } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Wallet, QrCode, CheckCircle2 } from 'lucide-react-native';
 import { AppTheme } from '../src/config/theme';
 import { useCartStore } from '../src/store/useCartStore';
+import api from '../src/services/api';
 
 export default function CheckoutScreen() {
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
+  const items = useCartStore((state) => state.items);
+  const appliedCoupon = useCartStore((state) => state.appliedCoupon);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -16,16 +19,94 @@ export default function CheckoutScreen() {
   const [note, setNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'QR'>('COD');
   
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
-  const handleOrder = () => {
+  const handleOrder = async () => {
     if (!name.trim() || !phone.trim() || !email.trim() || !address.trim()) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ các thông tin giao hàng bắt buộc (*)');
       return;
     }
 
-    // Đặt hàng thành công
-    setIsSuccessModalVisible(true);
+    if (items.length === 0) {
+      Alert.alert('Lỗi', 'Giỏ hàng của bạn đang trống.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // 1. Tạo session ID tạm thời giống hệt quy trình của Next.js Storefront
+      const sessionId = `order-${Math.random().toString(36).substring(2, 15)}-${Date.now()}`;
+      let cartId = '';
+
+      // 2. Thêm tuần tự từng item trong local cart của Mobile vào database cart trên backend
+      for (const item of items) {
+        const response = await api.post('/cart/items', {
+          productId: item.id, // Sử dụng ID thật của sản phẩm lấy từ Database
+          quantity: item.quantity,
+          customText: null,
+          customData: null,
+        }, {
+          headers: {
+            'x-session-id': sessionId,
+          }
+        });
+        
+        // Nhận lại cartId
+        cartId = response.data.data?.cart?.id || response.data.cart?.id;
+      }
+
+      if (!cartId) {
+        throw new Error('Không thể khởi tạo giỏ hàng trên máy chủ.');
+      }
+
+      // 3. Nếu có coupon áp dụng ở local, gọi API đồng bộ coupon lên server cart
+      if (appliedCoupon) {
+        const cleanCode = appliedCoupon.split(' ')[0].toUpperCase();
+        try {
+          await api.post('/cart/apply-coupon', {
+            code: cleanCode,
+          }, {
+            headers: {
+              'x-session-id': sessionId,
+            }
+          });
+        } catch (couponErr) {
+          console.warn("Không áp dụng được coupon trên server:", couponErr);
+        }
+      }
+
+      // 4. Gọi API thanh toán tạo đơn hàng chính thức
+      const paymentProvider = paymentMethod === 'COD' ? 'COD' : 'BANK_TRANSFER';
+      await api.post('/checkout/create-order', {
+        cartId,
+        customer: {
+          fullName: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+        },
+        shipping: {
+          addressLine: address.trim(),
+          ward: null,
+          district: null,
+          province: null,
+        },
+        paymentProvider,
+        note: note.trim() || null,
+      }, {
+        headers: {
+          'x-session-id': sessionId,
+        }
+      });
+
+      // Hiển thị modal đặt hàng thành công
+      setIsSuccessModalVisible(true);
+    } catch (error: any) {
+      console.warn("Lỗi đặt hàng API:", error);
+      Alert.alert('Thất bại', error.response?.data?.message || 'Không thể tạo đơn hàng trên hệ thống. Vui lòng kiểm tra kết nối mạng.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleModalClose = () => {
@@ -47,6 +128,7 @@ export default function CheckoutScreen() {
             placeholder="Họ tên người nhận..."
             value={name}
             onChangeText={setName}
+            editable={!isSubmitting}
           />
 
           {/* Phone */}
@@ -57,6 +139,7 @@ export default function CheckoutScreen() {
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
+            editable={!isSubmitting}
           />
 
           {/* Email */}
@@ -68,6 +151,7 @@ export default function CheckoutScreen() {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            editable={!isSubmitting}
           />
 
           {/* Address */}
@@ -77,6 +161,7 @@ export default function CheckoutScreen() {
             placeholder="Số nhà, tên đường, phường/xã..."
             value={address}
             onChangeText={setAddress}
+            editable={!isSubmitting}
           />
 
           {/* Notes */}
@@ -88,6 +173,7 @@ export default function CheckoutScreen() {
             onChangeText={setNote}
             multiline
             numberOfLines={3}
+            editable={!isSubmitting}
           />
 
           {/* Payment selector */}
@@ -95,7 +181,8 @@ export default function CheckoutScreen() {
 
           <TouchableOpacity 
             style={[styles.paymentTile, paymentMethod === 'COD' && styles.paymentTileActive]}
-            onPress={() => setPaymentMethod('COD')}
+            onPress={() => !isSubmitting && setPaymentMethod('COD')}
+            disabled={isSubmitting}
           >
             <Wallet color={paymentMethod === 'COD' ? AppTheme.colors.primaryGreen : AppTheme.colors.textMuted} size={24} />
             <View style={styles.paymentInfo}>
@@ -107,7 +194,8 @@ export default function CheckoutScreen() {
 
           <TouchableOpacity 
             style={[styles.paymentTile, paymentMethod === 'QR' && styles.paymentTileActive]}
-            onPress={() => setPaymentMethod('QR')}
+            onPress={() => !isSubmitting && setPaymentMethod('QR')}
+            disabled={isSubmitting}
           >
             <QrCode color={paymentMethod === 'QR' ? AppTheme.colors.primaryGreen : AppTheme.colors.textMuted} size={24} />
             <View style={styles.paymentInfo}>
@@ -124,8 +212,13 @@ export default function CheckoutScreen() {
         <TouchableOpacity 
           style={styles.orderBtn}
           onPress={handleOrder}
+          disabled={isSubmitting}
         >
-          <Text style={styles.orderBtnText}>XÁC NHẬN ĐẶT HÀNG</Text>
+          {isSubmitting ? (
+            <ActivityIndicator color={AppTheme.colors.white} size="small" />
+          ) : (
+            <Text style={styles.orderBtnText}>XÁC NHẬN ĐẶT HÀNG</Text>
+          )}
         </TouchableOpacity>
       </View>
 
