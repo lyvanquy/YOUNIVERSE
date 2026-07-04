@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, type FormEvent, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Sparkles, Bell, Send, Check } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { CustomJewelry } from './types';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -25,7 +25,6 @@ type YouniverseAppContextValue = {
   language: 'en' | 'vi';
   setLanguage: (lang: 'en' | 'vi') => void;
   addCustomToCart: (item: CustomJewelry) => void;
-  notifySoon: (charmName: string) => void;
   user: UserInfo | null;
   isAuthenticated: boolean;
   isAuthInitialized: boolean;
@@ -99,6 +98,8 @@ export default function YouniverseApp({
       const storedLang = localStorage.getItem('youniverse_lang');
       if (storedLang === 'en' || storedLang === 'vi') {
         setLanguage(storedLang);
+        document.documentElement.lang = storedLang;
+        document.documentElement.classList.toggle('lang-vi', storedLang === 'vi');
         document.cookie = `youniverse_lang=${storedLang}; path=/; max-age=31536000; samesite=lax`;
       } else {
         document.cookie = `youniverse_lang=${initialLanguage}; path=/; max-age=31536000; samesite=lax`;
@@ -110,6 +111,8 @@ export default function YouniverseApp({
 
   const updateLanguage = (lang: 'en' | 'vi') => {
     setLanguage(lang);
+    document.documentElement.lang = lang;
+    document.documentElement.classList.toggle('lang-vi', lang === 'vi');
     try {
       localStorage.setItem('youniverse_lang', lang);
       document.cookie = `youniverse_lang=${lang}; path=/; max-age=31536000; samesite=lax`;
@@ -138,10 +141,6 @@ export default function YouniverseApp({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthInitialized, setIsAuthInitialized] = useState(false);
   
-  // Dialog modal states
-  const [activeNotificationCharm, setActiveNotificationCharm] = useState<string | null>(null);
-  const [registrationEmail, setRegistrationEmail] = useState('');
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [orderPlacedSuccess, setOrderPlacedSuccess] = useState(false);
 
   // Restore the server-managed HttpOnly session. No access token or personal
@@ -203,28 +202,6 @@ export default function YouniverseApp({
   const handleRemoveCartItem = (indexToRemove: number) => {
     const updated = cart.filter((_, idx) => idx !== indexToRemove);
     updateCart(updated);
-  };
-
-  const handleSloganClick = () => {
-    router.push('/about');
-  };
-
-  const triggerNotifySoon = (charmName: string) => {
-    setActiveNotificationCharm(charmName);
-    setRegistrationSuccess(false);
-    setRegistrationEmail('');
-  };
-
-  const handleSubmitEmailNotification = (e: FormEvent) => {
-    e.preventDefault();
-    if (!registrationEmail.trim()) return;
-    
-    // Simulate successful API call to save email
-    setRegistrationSuccess(true);
-    setTimeout(() => {
-      setActiveNotificationCharm(null);
-      setRegistrationSuccess(false);
-    }, 3500);
   };
 
   const handleCheckoutDraftOrder = () => {
@@ -323,7 +300,6 @@ export default function YouniverseApp({
         language,
         setLanguage: updateLanguage,
         addCustomToCart: handleAddCustomToCart,
-        notifySoon: triggerNotifySoon,
         user,
         isAuthenticated,
         isAuthInitialized,
@@ -353,7 +329,7 @@ export default function YouniverseApp({
           {/* Dynamic Running text slogan after banner or pages as requested (Page 4 & 7) */}
           {pathname !== '/' && pathname !== '/order' && pathname !== '/policy' && showPublicLayout && (
             <section className="my-6">
-              <MarqueeSlogan onSloganClick={handleSloganClick} variant={pathname === '/products' ? 'newArrivals' : 'default'} />
+              <MarqueeSlogan href={pathname === '/products' ? '/order' : '/about'} variant={pathname === '/products' ? 'newArrivals' : 'default'} />
             </section>
           )}
 
@@ -400,82 +376,7 @@ export default function YouniverseApp({
         onCheckout={handleCheckoutDraftOrder}
       />
 
-      {/* 5. Glowing Coming Soon Notification Dialog Modal */}
-      {activeNotificationCharm && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 overflow-hidden" id="notif-modal">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setActiveNotificationCharm(null)} />
-          
-          <div className="relative w-full max-w-md bg-white/85 backdrop-blur-xl border border-stone-200/60 rounded-[32px] p-6 md:p-8 shadow-2xl z-10 text-left animate-fade-in space-y-6 overflow-hidden">
-            
-            {/* Tech coordinates grid backdrop */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808003_1px,transparent_1px),linear-gradient(to_bottom,#80808003_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none z-0" />
-
-            <div className="flex justify-between items-start relative z-10">
-              <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                {t.earlyAccess}
-              </span>
-              <button 
-                onClick={() => setActiveNotificationCharm(null)}
-                className="text-stone-400 hover:text-black font-semibold font-mono transition-colors text-xs hover:underline cursor-pointer focus:outline-none"
-              >
-                {t.close}
-              </button>
-            </div>
-
-            <div className="space-y-3 relative z-10">
-              <div className="flex items-center space-x-2 text-amber-500">
-                <Bell className="h-5 w-5 animate-bounce" />
-                <h3 className="font-display text-xl font-extrabold text-stone-900 uppercase tracking-tight">
-                  {t.registerInterest.replace('{name}', activeNotificationCharm || '')}
-                </h3>
-              </div>
-              
-              <p className="font-sans text-xs text-stone-500 leading-relaxed">
-                {t.earlyAccessDesc.replace('{name}', activeNotificationCharm || '')}
-              </p>
-            </div>
-
-            {registrationSuccess ? (
-              <div className="bg-emerald-500 text-white rounded-xl p-4 flex items-center space-x-3 text-xs md:text-sm shadow-inner transition-all relative z-10">
-                <Check className="h-5 w-5 shrink-0 animate-bounce" />
-                <span className="font-semibold">{t.successRegister}</span>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmitEmailNotification} className="space-y-4 relative z-10">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="notif-email">
-                    {t.emailLabel}
-                  </label>
-                  <input
-                    id="notif-email"
-                    type="email"
-                    required
-                    value={registrationEmail}
-                    onChange={(e) => setRegistrationEmail(e.target.value)}
-                    placeholder="email-cua-ban@gmail.com"
-                    className="w-full border border-stone-200 rounded-xl px-4 py-3 text-xs font-sans text-black focus:border-stone-400 focus:outline-none bg-stone-50/50"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full rounded-full bg-stone-950 hover:bg-black text-white py-3.5 px-4 font-display text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(0,0,0,0.15)] flex items-center justify-center space-x-2 cursor-pointer"
-                >
-                  <Send className="h-4 w-4" />
-                  <span>{t.confirmNotif}</span>
-                </button>
-              </form>
-            )}
-
-            <div className="text-center font-mono text-[9px] text-stone-400 relative z-10">
-              {t.securedText}
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {/* 6. Success Alert toast after custom drafts order placement */}
+      {/* 5. Success alert after custom draft order placement */}
       {orderPlacedSuccess && (
         <div className="fixed bottom-6 right-6 z-[120] max-w-sm w-full bg-stone-950/90 backdrop-blur-xl text-white p-5 rounded-2xl border border-stone-805 shadow-[0_15px_35px_rgba(0,0,0,0.35)] space-y-4 animate-slide-in text-left overflow-hidden group">
           

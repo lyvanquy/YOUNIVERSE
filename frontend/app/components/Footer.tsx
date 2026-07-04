@@ -1,10 +1,12 @@
 import { Phone } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { TEAM_MEMBERS } from '../data';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
 
 export default function Footer() {
-  const { language, setLanguage } = useYouniverseApp();
+  const { language } = useYouniverseApp();
   const t = translations[language];
 
   return (
@@ -17,9 +19,11 @@ export default function Footer() {
           {/* Col 1: YOUniverse Logo + Slogan */}
           <div className="space-y-6">
             <div className="flex items-center space-x-3">
-              <img 
-                src="/images/logo-youniverse.png" 
-                alt="YOUniverse Logo" 
+              <Image
+                src="/images/logo-youniverse.png"
+                alt="YOUniverse"
+                width={160}
+                height={80}
                 className="h-12 w-auto object-contain"
               />
               <div>
@@ -35,6 +39,16 @@ export default function Footer() {
             <p className="text-sm text-stone-400 leading-relaxed font-sans">
               {t.footerLogoDesc}
             </p>
+
+            <nav aria-label={language === 'vi' ? 'Liên kết nhanh' : 'Quick links'}>
+              <ul className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-stone-400">
+                <li><Link href="/" className="hover:text-white">{t.home}</Link></li>
+                <li><Link href="/products" className="hover:text-white">{t.ourUniverse}</Link></li>
+                <li><Link href="/about" className="hover:text-white">{t.aboutUs}</Link></li>
+                <li><Link href="/policy" className="hover:text-white">{t.ourPolicy}</Link></li>
+                <li><Link href="/order" className="hover:text-white">{language === 'vi' ? 'Đặt hàng' : 'Order'}</Link></li>
+              </ul>
+            </nav>
           </div>
 
           {/* Col 2: Address & Social connections */}

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface UsecaseSlide {
@@ -79,11 +80,13 @@ export default function UsecaseCarousel({ slides }: UsecaseCarouselProps) {
                 }`}>
                   
                   {/* Image */}
-                  <div className="aspect-[3/4] overflow-hidden">
-                    <img
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <Image
                       src={slide.image}
                       alt={slide.title}
-                      className={`w-full h-full object-cover transition-transform duration-700 ${
+                      fill
+                      sizes="(max-width: 768px) 82vw, 33vw"
+                      className={`object-cover transition-transform duration-700 ${
                         isHovered ? 'scale-110' : 'scale-100'
                       }`}
                     />

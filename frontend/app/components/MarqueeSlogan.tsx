@@ -1,13 +1,15 @@
 import { useState, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 
 interface MarqueeSloganProps {
-  onSloganClick: () => void;
+  href: string;
   variant?: 'default' | 'newArrivals';
 }
 
-export default function MarqueeSlogan({ onSloganClick, variant = 'default' }: MarqueeSloganProps) {
+export default function MarqueeSlogan({ href, variant = 'default' }: MarqueeSloganProps) {
   const { language } = useYouniverseApp();
   
   const isNewArrivals = variant === 'newArrivals';
@@ -45,15 +47,15 @@ export default function MarqueeSlogan({ onSloganClick, variant = 'default' }: Ma
       <div className="relative flex w-full overflow-hidden">
         {isNewArrivals ? (
           /* NEW ARRIVALS variant — logo + large text */
-          <button
-            onClick={onSloganClick}
+          <Link
+            href={href}
             className="flex animate-marquee-ltr whitespace-nowrap py-0.5 hover:text-amber-500 focus:outline-none cursor-pointer transition-colors duration-300"
           >
             {[...Array(2)].map((_, setIdx) => (
               <span key={setIdx} className="inline-flex items-center pr-2">
                 {[...Array(6)].map((_, i) => (
                   <span key={i} className="inline-flex items-center gap-6 px-4">
-                    <img src="/images/logo-youniverse.png" alt="YOUniverse" className="h-5 w-auto object-contain" />
+                    <Image src="/images/logo-youniverse.png" alt="" width={80} height={40} className="h-5 w-auto object-contain" />
                     <span className="font-display text-xs md:text-sm font-black uppercase tracking-widest text-black select-none">
                       New Arrivals
                     </span>
@@ -62,11 +64,11 @@ export default function MarqueeSlogan({ onSloganClick, variant = 'default' }: Ma
                 ))}
               </span>
             ))}
-          </button>
+          </Link>
         ) : (
           /* Default variant — Unspoken Desires slogan */
-          <button
-            onClick={onSloganClick}
+          <Link
+            href={href}
             className="flex animate-marquee-ltr whitespace-nowrap text-base md:text-lg font-display font-black uppercase tracking-widest text-black py-0.5 hover:text-amber-500 focus:outline-none cursor-pointer transition-colors duration-300"
           >
             <span className="inline-block pr-2">
@@ -75,7 +77,7 @@ export default function MarqueeSlogan({ onSloganClick, variant = 'default' }: Ma
             <span className="inline-block pr-2">
               {repeats}
             </span>
-          </button>
+          </Link>
         )}
       </div>
 

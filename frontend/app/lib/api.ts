@@ -13,6 +13,12 @@ export type ApiUser = {
 
 export type ApiProduct = {
   id: string;
+  categoryId?: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
   name: string;
   slug: string;
   productLine: "ASTRA" | "SIRIUS" | "POLARIS";
@@ -23,14 +29,39 @@ export type ApiProduct = {
   salePrice: number | null;
   sku: string | null;
   images: Array<{
+    id?: string;
     url: string;
     alt: string | null;
+    sortOrder?: number;
     isPrimary: boolean;
   }>;
   inventory: {
     quantity: number;
+    reservedQuantity?: number;
+    soldQuantity?: number;
     lowStockThreshold?: number;
   } | null;
+  status?: string;
+  isFeatured?: boolean;
+  allowCustomize?: boolean;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ProductListData = {
+  items: ApiProduct[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+export type ProductDetailData = {
+  product: ApiProduct;
 };
 
 export type ApiOrder = {
@@ -113,9 +144,16 @@ export function buildQuery(params: Record<string, string | number | boolean | nu
   return text ? `?${text}` : "";
 }
 
+type NextFetchOptions = Omit<RequestInit, "body"> & {
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
+};
+
 export async function apiRequest<T>(
   path: string,
-  options: Omit<RequestInit, "body"> & {
+  options: NextFetchOptions & {
     body?: unknown;
     sessionId?: string | null;
   } = {},

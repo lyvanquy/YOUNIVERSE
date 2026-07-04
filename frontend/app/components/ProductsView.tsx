@@ -1,39 +1,26 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { Sparkles, Heart, Compass, Search, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
 import { translations } from '../locales';
-import { apiRequest, buildQuery, productLineToApi, type ApiProduct } from '../lib/api';
+import { apiRequest, buildQuery, productLineToApi, type ApiProduct, type ProductListData } from '../lib/api';
 
 interface ProductsViewProps {
-  onNotifySoon: (charmName: string) => void;
+  initialProducts: ApiProduct[];
+  initialError?: string | null;
 }
 
 type ProductLineFilter = 'all' | 'astra' | 'sirius' | 'polaris';
 type ProductLine = 'ASTRA' | 'SIRIUS' | 'POLARIS';
 type SortBy = 'newest' | 'price-asc' | 'price-desc';
 
-type ProductListData = {
-  items: ApiProduct[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-};
-
 const sortToApi: Record<SortBy, string> = {
   newest: 'newest',
   'price-asc': 'price-low-high',
   'price-desc': 'price-high-low',
-};
-
-const lineTaglines: Record<ProductLine, string> = {
-  ASTRA: 'Own your unique name, ignite your inner flame.',
-  SIRIUS: 'Pack the joy you seek, let your passion speak.',
-  POLARIS: 'Trust the guiding quote, let your spirit float.',
 };
 
 const lineFallbackImages: Record<ProductLine, string> = {
@@ -58,6 +45,10 @@ function ProductVisual({ product }: { product: ApiProduct }) {
     <img
       src={imageUrl}
       alt={primaryImage?.alt ?? product.name}
+      width={800}
+      height={600}
+      loading="lazy"
+      decoding="async"
       onError={() => setImageFailed(true)}
       className="absolute inset-0 h-full w-full object-cover opacity-100 transition-transform duration-500 ease-out group-hover:scale-105"
     />
@@ -172,11 +163,13 @@ export function TestimonialCarousel({ language }: { language: 'vi' | 'en' }) {
               className="flex-shrink-0 w-[300px] bg-white rounded-2xl border border-stone-200/80 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 group/card"
             >
               {/* Customer photo */}
-              <div className="h-48 overflow-hidden">
-                <img
+              <div className="relative h-48 overflow-hidden">
+                <Image
                   src={t.image}
                   alt={t.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                  fill
+                  sizes="300px"
+                  className="object-cover transition-transform duration-500 group-hover/card:scale-105"
                 />
               </div>
 
@@ -252,10 +245,12 @@ export function MaterialShowcase({ language }: { language: 'vi' | 'en' }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         {/* Left — Material Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group">
-          <img
+          <Image
             src="/images/photoshoot-3.png"
-            alt="Premium Heat-Shrink Plastic Material"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            alt="Chất liệu co nhiệt thủ công của charm YOUniverse"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-4 py-1.5 shadow-sm">
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-stone-700">
@@ -330,10 +325,12 @@ export function AstraShowcase({ language }: { language: 'vi' | 'en' }) {
 
         {/* Left — Product Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group order-2 lg:order-1">
-          <img
+          <Image
             src="/images/product-astra.jpg"
-            alt="Charm Astra"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            alt="Charm Astra cá nhân hóa tên riêng"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           {/* Floating line badge */}
           <div className="absolute top-4 left-4 bg-blue-600 rounded-full px-4 py-1.5 shadow-lg">
@@ -460,10 +457,12 @@ export function SiriusShowcase({ language }: { language: 'vi' | 'en' }) {
 
         {/* Right — Product Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group">
-          <img
+          <Image
             src="/images/product-sirius.jpg"
-            alt="Charm Sirius"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            alt="Charm Sirius thể hiện sở thích cá nhân"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           {/* Floating line badge */}
           <div className="absolute top-4 right-4 bg-amber-500 rounded-full px-4 py-1.5 shadow-lg">
@@ -486,10 +485,12 @@ export function PolarisShowcase({ language }: { language: 'vi' | 'en' }) {
 
         {/* Left — Product Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group order-2 lg:order-1">
-          <img
+          <Image
             src="/images/product-polaris.jpg"
-            alt="Charm Polaris"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            alt="Charm Polaris mang thông điệp truyền cảm hứng"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute top-4 left-4 bg-rose-500 rounded-full px-4 py-1.5 shadow-lg">
             <span className="font-display text-[10px] font-bold uppercase tracking-wider text-white">
@@ -669,19 +670,25 @@ export function Visual4Steps({ language }: { language: 'vi' | 'en' }) {
   );
 }
 
-export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
+export default function ProductsView({ initialProducts, initialError = null }: ProductsViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLine, setSelectedLine] = useState<ProductLineFilter>('all');
   const [sortBy, setSortBy] = useState<SortBy>('newest');
   const [sortOpen, setSortOpen] = useState(false);
-  const [products, setProducts] = useState<ApiProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [products, setProducts] = useState<ApiProduct[]>(initialProducts);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(initialError);
   const [refreshKey, setRefreshKey] = useState(0);
+  const isFirstRender = useRef(true);
   const { language } = useYouniverseApp();
   const t = translations[language];
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -724,10 +731,13 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
       <section className="relative overflow-hidden h-48 sm:h-64 cursor-default rounded-3xl mx-auto max-w-7xl mt-6 shadow-sm">
         {/* Banner background image */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/images/banner-our-universe.png" 
-            alt="YOUniverse Our UNIverse Banner" 
-            className="w-full h-full object-cover"
+          <Image
+            src="/images/banner-our-universe.png"
+            alt="Bộ sưu tập charm cá nhân hóa YOUniverse"
+            fill
+            priority
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            className="object-cover"
           />
         </div>
       </section>
@@ -737,9 +747,9 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
         
         {/* Headline */}
         <div className="text-center">
-          <h2 className="font-display text-3xl font-extrabold tracking-tight text-black uppercase" id="headline-our-products">
+          <h1 className="font-display text-3xl font-extrabold tracking-tight text-black uppercase" id="headline-our-products">
             {language === 'vi' ? 'SẢN PHẨM CỦA CHÚNG TÔI' : 'OUR PRODUCTS'}
-          </h2>
+          </h1>
           <div className="h-1 w-16 bg-amber-500 mx-auto mt-3 rounded" />
         </div>
 
@@ -750,6 +760,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
             <input
+              aria-label={language === 'vi' ? 'Tìm kiếm sản phẩm' : 'Search products'}
               type="text"
               placeholder={language === 'vi' ? "Tìm kiếm charm (ví dụ: tên, mô tả)..." : "Search charms (e.g. name, description)..."}
               value={searchQuery}
@@ -804,6 +815,8 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
               return (
                 <button
                   key={line}
+                  type="button"
+                  aria-pressed={isActive}
                   onClick={() => setSelectedLine(line)}
                   className={`group flex items-center space-x-1.5 px-4 py-2 rounded-full border text-[10px] font-bold font-display tracking-wider uppercase transition-all duration-300 cursor-pointer ${
                     isActive ? activeClass : inactiveClass
@@ -824,6 +837,8 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
               {/* Dropdown Toggle Button */}
               <button
                 type="button"
+                aria-haspopup="listbox"
+                aria-expanded={sortOpen}
                 onClick={() => setSortOpen(!sortOpen)}
                 className="flex items-center justify-between space-x-3 bg-white border border-stone-200 hover:border-stone-400 rounded-full px-4.5 py-2 text-xs font-sans font-medium text-stone-700 hover:text-black transition-all cursor-pointer min-w-[160px]"
               >
@@ -913,8 +928,6 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
               const isSirius = prod.productLine === 'SIRIUS';
               const currentPrice = prod.salePrice ?? prod.price;
               const stockQuantity = prod.inventory?.quantity ?? 0;
-              const productCode = prod.sku ?? prod.slug.toUpperCase();
-
               const translatedBadge = isAstra ? t.charmAstraBadge : isSirius ? t.charmSiriusBadge : t.charmPolarisBadge;
               const translatedTagline = isAstra ? t.charmAstraTagline : isSirius ? t.charmSiriusTagline : t.charmPolarisTagline;
               const translatedDescription = isAstra ? t.charmAstraDesc : isSirius ? t.charmSiriusDesc : t.charmPolarisDesc;
@@ -925,7 +938,7 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
               const btnTextColor = isAstra ? 'text-blue-600 hover:text-blue-700' : isSirius ? 'text-amber-600 hover:text-amber-700' : 'text-rose-600 hover:text-rose-700';
 
               return (
-                <div
+                <article
                   key={prod.id}
                   id={`product-card-${prod.slug}`}
                   className="flex flex-col items-center text-center cursor-default group/card"
@@ -983,7 +996,9 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
 
                     {/* Description */}
                     <p className="font-sans text-stone-500 text-xs leading-relaxed line-clamp-3">
-                      {translatedDescription || prod.shortDescription || prod.description}
+                      {language === 'vi'
+                        ? translatedDescription
+                        : (prod.shortDescription || prod.description || translatedDescription)}
                     </p>
 
                     {/* Price */}
@@ -997,26 +1012,27 @@ export default function ProductsView({ onNotifySoon }: ProductsViewProps) {
 
                   {/* Apple-style button pair */}
                   <div className="flex items-center justify-center gap-4 pt-5">
-                    <button
-                      onClick={() => onNotifySoon(prod.name)}
+                    <Link
+                      href={`/products/${encodeURIComponent(prod.slug)}`}
                       className={`${btnBg} active:scale-95 text-white font-sans text-xs font-semibold px-6 py-2.5 rounded-full tracking-wide shadow-sm hover:shadow transition-all cursor-pointer`}
                     >
                       {language === 'vi' ? 'Tìm hiểu thêm' : 'Learn more'}
-                    </button>
-                    <a
+                    </Link>
+                    <Link
                       href="/order"
                       className={`${btnTextColor} text-xs font-semibold font-sans flex items-center gap-0.5 cursor-pointer group/link`}
                     >
                       <span>{language === 'vi' ? 'Mua' : 'Buy'}</span>
                       <span className="inline-block transform group-hover/link:translate-x-0.5 transition-transform">&gt;</span>
-                    </a>
+                    </Link>
                   </div>
 
-                  {/* Launching text */}
-                  <p className={`text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} text-stone-400 pt-4`}>
-                    {language === 'vi' ? 'Chính thức ra mắt mùa hè này' : 'Launching officially this summer'}
+                  <p className={`text-[9px] ${language === 'vi' ? 'font-sans' : 'font-mono'} pt-4 ${stockQuantity > 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                    {stockQuantity > 0
+                      ? (language === 'vi' ? 'Còn hàng' : 'In stock')
+                      : (language === 'vi' ? 'Tạm hết hàng' : 'Out of stock')}
                   </p>
-                </div>
+                </article>
               );
             })}
 

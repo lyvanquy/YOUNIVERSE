@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ShoppingBag, Menu, X, User, LogOut } from 'lucide-react';
@@ -130,14 +131,16 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
           <Link
             id="logo-brand"
-            href="/order"
+            href="/"
             onClick={() => setMobileMenuOpen(false)}
             className="group flex items-center justify-center focus:outline-none"
           >
-            <img 
-              src="/images/logo-youniverse-transparent.png" 
-              alt="YOUniverse Logo" 
-              className="object-contain h-16 md:h-20 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]"
+            <Image
+              src="/images/logo-youniverse-transparent.png"
+              alt="YOUniverse - Trang chủ"
+              width={320}
+              height={160}
+              className="h-16 w-auto object-contain md:h-20 transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]"
             />
           </Link>
         </div>

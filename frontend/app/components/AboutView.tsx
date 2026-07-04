@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, type FormEvent } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Star, Quote, Eye, Flame, Sparkles, Phone } from 'lucide-react';
 import { CORE_VALUES, TEAM_MEMBERS } from '../data';
@@ -87,10 +88,13 @@ export default function AboutView() {
       <section className="relative overflow-hidden h-48 sm:h-64 cursor-default rounded-3xl mx-4 sm:mx-6 lg:mx-8 max-w-7xl lg:mx-auto mt-6 shadow-sm border border-stone-850 bg-black flex items-center justify-center z-10">
         {/* Banner background image */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/images/banner-about-us.png" 
-            alt="YOUniverse About Us Banner" 
-            className="w-full h-full object-cover opacity-85"
+          <Image
+            src="/images/banner-about-us.png"
+            alt="Câu chuyện thương hiệu YOUniverse"
+            fill
+            priority
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            className="object-cover opacity-85"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/70" />
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
@@ -554,10 +558,12 @@ export default function AboutView() {
                         {/* Full-width avatar/photo container */}
                         <div className="relative w-full h-[240px] rounded-2xl overflow-hidden shrink-0 border border-stone-200/50 shadow-sm">
                           {member.image ? (
-                            <img 
+                            <Image
                               src={member.image} 
-                              alt={member.name} 
-                              className="w-full h-full object-cover"
+                              alt={`${member.name} - thành viên YOUniverse`}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 25vw"
+                              className="object-cover"
                             />
                           ) : (
                             <div className={`w-full h-full bg-gradient-to-br ${theme.gradient} flex items-center justify-center relative`}>
@@ -723,10 +729,12 @@ export default function AboutView() {
           
           {/* Left — Product Image */}
           <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] min-h-[400px] group">
-            <img
+            <Image
               src="/images/photoshoot-1.png"
-              alt="YOUniverse Products"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              alt="Sản phẩm charm thủ công YOUniverse"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">

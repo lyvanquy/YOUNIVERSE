@@ -258,13 +258,13 @@ export default function LoginPage() {
                 <label className="text-[9px] font-mono uppercase tracking-widest text-stone-400 font-bold block" htmlFor="login-password">
                   {t.passwordLabelLogin}
                 </label>
-                <Link
-                  href="#"
+                <button
+                  type="button"
                   onClick={() => alert(language === 'vi' ? "Vui lòng liên hệ với trưởng nhóm UEH.ISB để thiết lập lại mật khẩu." : "Please contact UEH.ISB team leader to reset password.")}
                   className="text-[9px] font-sans text-stone-450 hover:underline hover:text-amber-500 transition-colors font-semibold"
                 >
                   {t.forgotPassword}
-                </Link>
+                </button>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-stone-400">

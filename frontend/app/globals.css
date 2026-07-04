@@ -14,7 +14,7 @@
 }
 
 @theme {
-  --font-sans: var(--font-montserrat), var(--font-inter), sans-serif;
+  --font-sans: var(--font-montserrat), sans-serif;
   --font-display: "YOUTH", var(--font-space-grotesk), sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   --color-background: var(--background);

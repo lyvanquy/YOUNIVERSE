@@ -5,7 +5,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/api/'],
     },
     sitemap: 'https://youniverse.io.vn/sitemap.xml',
+    host: 'https://youniverse.io.vn',
   };
 }

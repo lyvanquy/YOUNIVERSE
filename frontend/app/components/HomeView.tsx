@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { 
   Sparkles, 
   Heart, 
@@ -20,12 +22,10 @@ import UsecaseCarousel from './UsecaseCarousel';
 import { apiRequest } from '../lib/api';
 
 interface HomeViewProps {
-  onGoAbout: () => void;
-  onGoProducts: () => void;
   onAddCustomToCart: (jewelry: CustomJewelry) => void;
 }
 
-export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }: HomeViewProps) {
+export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
   const { language } = useYouniverseApp();
   const t = translations[language];
   // Ref-based cursor following for 120 FPS performance (zero React re-renders!)
@@ -237,10 +237,13 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       <section className="relative overflow-hidden bg-black py-20 px-4 md:px-8 tracking-wide rounded-3xl mx-4 sm:mx-6 lg:mx-8 max-w-7xl lg:mx-auto mt-6 shadow-sm border border-stone-850 z-10">
         {/* Banner background image */}
         <div className="absolute inset-0 z-0">
-          <img 
-            src="/images/home-banner.png" 
-            alt="YOUniverse Home Banner" 
-            className="w-full h-full object-cover opacity-60"
+          <Image
+            src="/images/home-banner.png"
+            alt="Charm và phụ kiện cá nhân hóa YOUniverse"
+            fill
+            priority
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            className="object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/80" />
         </div>
@@ -283,10 +286,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               {/* CTA Buttons */}
               <div className="flex flex-row items-center gap-3 pt-2">
                 {/* Primary CTA - Big prominent shimmer */}
-                <button
+                <Link
                   id="hero-go-products"
-                  onClick={onGoProducts}
-                  suppressHydrationWarning
+                  href="/products"
                   className="group/btn relative rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-[length:200%_100%] animate-shimmer text-black font-display text-xs font-black tracking-wide uppercase px-5 py-3 transition-all duration-300 hover:shadow-[0_10px_40px_rgba(251,191,36,0.45)] hover:translate-y-[-3px] active:translate-y-[0] text-center cursor-pointer overflow-hidden whitespace-nowrap shadow-[0_4px_20px_rgba(251,191,36,0.25)]"
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
@@ -294,11 +296,10 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                     <span>{t.heroBtn1}</span>
                     <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all duration-300 shrink-0" />
                   </span>
-                </button>
+                </Link>
                 {/* Secondary CTA - Big glass style */}
-                <button
-                  onClick={onGoAbout}
-                  suppressHydrationWarning
+                <Link
+                  href="/about"
                   className="group/btn2 rounded-full bg-white/[0.08] backdrop-blur-md hover:bg-white/[0.15] border border-white/25 hover:border-white/50 text-white font-display text-xs font-bold tracking-wide uppercase px-5 py-3 transition-all duration-300 hover:translate-y-[-3px] hover:shadow-[0_10px_30px_rgba(255,255,255,0.08)] active:translate-y-[0] text-center cursor-pointer whitespace-nowrap"
                 >
                   <span className="flex items-center justify-center gap-2">
@@ -306,7 +307,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                     <span>{t.heroBtn2}</span>
                     <ChevronRight className="h-4 w-4 opacity-0 -ml-2 group-hover/btn2:opacity-100 group-hover/btn2:ml-0 transition-all duration-300 shrink-0" />
                   </span>
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -336,10 +337,13 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                       className={`absolute inset-0 p-6 pb-12 flex flex-col justify-between transition-all duration-1000 ease-in-out ${slideTransformClass}`}
                     >
                       {/* Full Background Slide Image */}
-                      <img 
-                        src={slide.imageUrl} 
-                        alt={slide.title} 
-                        className="absolute inset-0 w-full h-full object-cover select-none z-0 transition-transform duration-1000 group-hover:scale-105" 
+                      <Image
+                        src={slide.imageUrl}
+                        alt={`${slide.title} YOUniverse`}
+                        fill
+                        priority={idx === 0}
+                        sizes="(max-width: 640px) 288px, 320px"
+                        className="object-cover select-none z-0 transition-transform duration-1000 group-hover:scale-105"
                       />
 
                       {/* Legibility gradient overlay - subtle for cinematic styling */}
@@ -405,7 +409,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       </section>
 
       {/* Slogan marquee right below Hero Banner */}
-      <MarqueeSlogan onSloganClick={onGoAbout} />
+      <MarqueeSlogan href="/about" />
 
       {/* Brand Introduction — "The Silent Communicator" */}
       <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-16 md:mt-24" id="brand-intro-section">
@@ -535,9 +539,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       <section className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-20 md:mt-28 space-y-10" id="charm-lines-section">
         
         <div className="text-center space-y-3">
-          <h3 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
+          <h2 className="font-display text-3xl font-extrabold tracking-tight text-stone-900 uppercase">
             {t.planetTitle}
-          </h3>
+          </h2>
           <p className="font-sans text-stone-500 text-xs tracking-wider mx-auto">
             {t.planetSubtitle}
           </p>
@@ -579,12 +583,12 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
             const translatedDescription = charm.id === 'astra' ? t.charmAstraDesc : charm.id === 'sirius' ? t.charmSiriusDesc : t.charmPolarisDesc;
 
             return (
-              <div
+              <Link
                 key={charm.id}
+                href="/products"
                 id={`charm-card-${charm.id}`}
                 onMouseEnter={() => setActiveCharmIndex(index)}
                 onMouseLeave={() => setActiveCharmIndex(null)}
-                onClick={onGoProducts}
                 className={`group shrink-0 w-[88%] md:w-auto snap-center md:snap-align-none relative h-[420px] rounded-[32px] transition-all duration-500 md:hover:-translate-y-1.5 cursor-pointer shadow-sm ${borderColors}`}
               >
                 {/* Flowing Gradient Border (on hover) */}
@@ -597,7 +601,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                 <div className="relative z-20 h-full w-full overflow-hidden rounded-[32px]">
 
                   {/* Full-card product image */}
-                  <img 
+                  <Image
                     src={
                       charm.id === 'astra' 
                         ? '/images/charm-stock-1.jpg' 
@@ -605,8 +609,10 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                           ? '/images/charm-stock-2.jpg' 
                           : '/images/charm-stock-3.jpg'
                     } 
-                    alt={charm.name} 
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110" 
+                    alt={`${charm.name} - charm cá nhân hóa YOUniverse`}
+                    fill
+                    sizes="(max-width: 768px) 88vw, 33vw"
+                    className="object-cover transition-transform duration-700 md:group-hover:scale-110"
                   />
 
                   {/* Gradient overlay - stronger on hover/mobile to make text readable */}
@@ -646,7 +652,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
 
@@ -677,30 +683,30 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               <div key={setIdx} className="flex gap-4 pr-4 shrink-0">
                 {/* Portrait */}
                 <div className="group/photo relative w-[220px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-1.png" alt="Photoshoot 1" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-1.png" alt="Charm cá nhân hóa YOUniverse trong đời sống" fill sizes="220px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Landscape */}
                 <div className="group/photo relative w-[360px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-2.png" alt="Photoshoot 2" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-2.png" alt="Bộ charm thủ công YOUniverse" fill sizes="360px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Portrait */}
                 <div className="group/photo relative w-[220px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-3.png" alt="Photoshoot 3" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-3.png" alt="Phụ kiện charm YOUniverse làm thủ công" fill sizes="220px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Landscape */}
                 <div className="group/photo relative w-[400px] h-[300px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-4.png" alt="Photoshoot 4" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-4.png" alt="Charm YOUniverse thể hiện cá tính riêng" fill sizes="400px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
               </div>
@@ -715,37 +721,37 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               <div key={setIdx} className="flex gap-4 pr-4 shrink-0">
                 {/* Landscape */}
                 <div className="group/photo relative w-[380px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-4.png" alt="Photoshoot 4" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-4.png" alt="Charm YOUniverse thể hiện cá tính riêng" fill sizes="380px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Portrait */}
                 <div className="group/photo relative w-[200px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-5.png" alt="Photoshoot 5" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-5.png" alt="Charm cá nhân hóa dành cho Gen Z" fill sizes="200px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Landscape */}
                 <div className="group/photo relative w-[340px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-6.png" alt="Photoshoot 6" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-6.png" alt="Phụ kiện charm kể câu chuyện cá nhân" fill sizes="340px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Portrait */}
                 <div className="group/photo relative w-[220px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-1.png" alt="Photoshoot 1" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-1.png" alt="Charm cá nhân hóa YOUniverse trong đời sống" fill sizes="220px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
                 {/* Landscape */}
                 <div className="group/photo relative w-[360px] h-[280px] rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out">
-                  <img src="/images/photoshoot-2.png" alt="Photoshoot 2" className="w-full h-full object-cover transition-transform duration-700 group-hover/photo:scale-110" />
+                  <Image src="/images/photoshoot-2.png" alt="Bộ charm thủ công YOUniverse" fill sizes="360px" className="object-cover transition-transform duration-700 group-hover/photo:scale-110" />
                   <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-all duration-500 z-10">
-                    <img src="/images/logo-youniverse-transparent.png" alt="YOUniverse" className="h-10 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
+                    <Image src="/images/logo-youniverse-transparent.png" alt="" width={120} height={60} className="h-10 w-auto drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                   </div>
                 </div>
               </div>
@@ -760,9 +766,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
         
         {/* Section Header */}
         <div className="text-center space-y-3 mb-12 px-4">
-          <h3 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-white uppercase">
+          <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-white uppercase">
             {t.usecaseTitle}
-          </h3>
+          </h2>
         </div>
 
         {/* Carousel */}
@@ -788,9 +794,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-3 mb-14">
-            <h3 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-stone-900 uppercase">
+            <h2 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-stone-900 uppercase">
               {t.feedbackTitle}
-            </h3>
+            </h2>
             <p className="font-sans text-stone-500 text-sm tracking-wider">{t.feedbackSubtitle}</p>
           </div>
 
@@ -798,7 +804,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
             {/* Left — Product Image Collage */}
             <div className="relative hidden lg:block">
               <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl shadow-black/40">
-                <img src="/images/photoshoot-3.png" alt="YOUniverse Charm" className="w-full h-full object-cover" />
+                <Image src="/images/photoshoot-3.png" alt="Khách hàng chia sẻ câu chuyện cùng charm YOUniverse" fill sizes="50vw" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8">
                   <p className="font-display text-2xl font-extrabold text-white uppercase tracking-wide leading-snug">
@@ -809,10 +815,10 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
                 </div>
               </div>
               <div className="absolute -top-6 -right-6 w-32 h-32 rounded-2xl overflow-hidden shadow-xl rotate-6 border-2 border-stone-200/60">
-                <img src="/images/photoshoot-1.png" alt="" className="w-full h-full object-cover" />
+                <Image src="/images/photoshoot-1.png" alt="" fill sizes="128px" className="object-cover" />
               </div>
               <div className="absolute -bottom-4 -left-4 w-28 h-28 rounded-2xl overflow-hidden shadow-xl -rotate-6 border-2 border-stone-200/60">
-                <img src="/images/photoshoot-5.png" alt="" className="w-full h-full object-cover" />
+                <Image src="/images/photoshoot-5.png" alt="" fill sizes="112px" className="object-cover" />
               </div>
             </div>
 
@@ -860,9 +866,9 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
       <section className="relative z-10 mt-20 md:mt-28 overflow-hidden" id="cta-marquee-section">
 
         {/* YOUniverse Running Text Marquee */}
-        <div 
-          className="relative py-4 bg-stone-950 cursor-pointer group/marquee overflow-hidden"
-          onClick={onGoAbout}
+        <Link
+          href="/about"
+          className="relative block w-full py-4 bg-stone-950 cursor-pointer group/marquee overflow-hidden"
         >
           {/* Row scrolling Right to Left */}
           <div className="flex animate-photo-scroll whitespace-nowrap">
@@ -889,7 +895,7 @@ export default function HomeView({ onGoAbout, onGoProducts, onAddCustomToCart }:
               </span>
             </div>
           </div>
-        </div>
+        </Link>
       </section>
 
 

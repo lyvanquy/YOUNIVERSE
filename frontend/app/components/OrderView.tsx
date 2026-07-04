@@ -661,7 +661,7 @@ export default function OrderView() {
                     : 'w-24 h-24 md:w-36 md:h-36 rounded-2xl border-stone-600'
                 }`}
               >
-                <img src={src} alt={`Charm sample ${i + 1}`} className="w-full h-full object-cover" />
+                <img src={src} alt={`Mẫu charm YOUniverse ${i + 1}`} width={352} height={352} loading="lazy" decoding="async" className="w-full h-full object-cover" />
               </div>
             ))}
 
@@ -772,7 +772,7 @@ export default function OrderView() {
                       >
                         {/* Charm image circle */}
                         <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-stone-900 mb-4 group-hover:scale-105 transition-transform duration-300">
-                          <img src={sys.image} alt={language === 'vi' ? sys.nameVi : sys.nameEn} className="w-full h-full object-cover" />
+                          <img src={sys.image} alt={language === 'vi' ? sys.nameVi : sys.nameEn} width={192} height={192} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         </div>
                         {/* Emoji + name */}
                         <p className="text-2xl mb-1">{sys.emoji}</p>
@@ -805,7 +805,7 @@ export default function OrderView() {
                   <div className="flex gap-4 justify-center">
                     <div className="text-center space-y-2">
                       <div className="w-28 h-28 md:w-32 md:h-32 rounded-xl overflow-hidden border-2 border-stone-300 mx-auto relative">
-                        <img src={selectedAstra?.image || ''} alt="Original" className="w-full h-full object-cover" />
+                        <img src={selectedAstra?.image || ''} alt={language === 'vi' ? 'Charm trước khi khắc tên' : 'Charm before engraving'} width={256} height={256} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       </div>
                       <span className="font-display text-[10px] font-black uppercase tracking-wider text-stone-500">
                         {t.orderStep1EngraveCompareOriginal}
@@ -813,7 +813,7 @@ export default function OrderView() {
                     </div>
                     <div className="text-center space-y-2">
                       <div className="w-28 h-28 md:w-32 md:h-32 rounded-xl overflow-hidden border-2 border-blue-500 shadow-[3px_3px_0_rgba(37,99,235,0.4)] mx-auto relative">
-                        <img src={selectedAstra?.image || ''} alt="With engraving" className="w-full h-full object-cover" />
+                        <img src={selectedAstra?.image || ''} alt={language === 'vi' ? 'Charm sau khi khắc tên' : 'Charm after engraving'} width={256} height={256} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         {/* Text overlay simulation */}
                         <div className="absolute inset-0 bg-black/25 flex items-end justify-center pb-2">
                           <span className="font-display text-white text-xs font-bold tracking-wider bg-black/50 px-2 py-0.5 rounded">
@@ -955,7 +955,7 @@ export default function OrderView() {
                         >
                           {/* Image */}
                           <div className="aspect-square overflow-hidden">
-                            <img src={charm.image} alt={language === 'vi' ? charm.nameVi : charm.nameEn} className="w-full h-full object-cover" />
+                            <img src={charm.image} alt={language === 'vi' ? charm.nameVi : charm.nameEn} width={320} height={320} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                           </div>
                           {/* Info + add button */}
                           <div className="p-4 flex items-center justify-between">
@@ -1225,7 +1225,7 @@ export default function OrderView() {
                           }`}
                         >
                           <div className="w-20 h-20 mx-auto rounded-xl overflow-hidden border-2 border-stone-300 mb-3">
-                            <img src={charm.image} alt={language === 'vi' ? charm.nameVi : charm.nameEn} className="w-full h-full object-cover" />
+                            <img src={charm.image} alt={language === 'vi' ? charm.nameVi : charm.nameEn} width={160} height={160} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                           </div>
                           <p className="text-2xl mb-1">{charm.emoji}</p>
                           <p className="font-display text-xs font-black text-stone-900">
@@ -1535,6 +1535,10 @@ export default function OrderView() {
                           <img
                             src={paymentSetting.bankTransferQrImageUrl}
                             alt={language === 'vi' ? 'QR chuyển khoản' : 'Bank transfer QR'}
+                            width={384}
+                            height={384}
+                            loading="lazy"
+                            decoding="async"
                             className="h-full w-full object-contain p-2"
                           />
                         ) : (
@@ -1577,7 +1581,7 @@ export default function OrderView() {
                       >
                         {paymentReceipt ? (
                           <div className="relative w-full h-full">
-                            <img src={paymentReceipt} alt="Receipt" className="w-full h-full object-contain rounded-xl p-2" />
+                            <img src={paymentReceipt} alt={language === 'vi' ? 'Biên lai thanh toán đã tải lên' : 'Uploaded payment receipt'} width={640} height={384} decoding="async" className="w-full h-full object-contain rounded-xl p-2" />
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); setPaymentReceipt(null); setPaymentFile(null); setPaymentFileName(''); }}
