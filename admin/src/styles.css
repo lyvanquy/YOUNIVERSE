@@ -286,7 +286,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .auth-brand {
-  background: var(--sidebar-bg);
+  background: linear-gradient(135deg, #1f1214 0%, #0d0708 100%);
   color: #fff;
   padding: 64px 56px;
   display: flex;
@@ -304,7 +304,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 400px;
   height: 400px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(234,179,8,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(234,179,8,0.15) 0%, transparent 70%);
   top: -80px;
   right: -120px;
   pointer-events: none;
@@ -316,7 +316,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 300px;
   height: 300px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(244,63,94,0.12) 0%, transparent 70%);
   bottom: -60px;
   left: -80px;
   pointer-events: none;
@@ -327,8 +327,8 @@ h1, h2, h3, h4, h5, h6 {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 28px 28px;
   pointer-events: none;
 }
@@ -369,7 +369,7 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
   font-size: 10px;
   font-weight: 500;
-  color: var(--sidebar-text);
+  color: rgba(255, 255, 255, 0.45);
   letter-spacing: 0.12em;
   margin-top: 2px;
 }
@@ -392,7 +392,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .auth-brand p {
   max-width: 400px;
-  color: #71717a;
+  color: rgba(255, 255, 255, 0.65);
   line-height: 1.75;
   font-size: 14px;
   position: relative;
@@ -412,7 +412,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 10px;
   font-size: 13px;
-  color: #a1a1aa;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .auth-brand__feature-dot {
