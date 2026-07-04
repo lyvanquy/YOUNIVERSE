@@ -104,8 +104,8 @@ const seedAdmin = async () => {
     return;
   }
 
-  if (!email || !password || password.length < 12) {
-    throw new Error("SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD (minimum 12 characters) are both required");
+  if (!email || !password || password.length < 8) {
+    throw new Error("SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD (minimum 8 characters) are both required");
   }
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
