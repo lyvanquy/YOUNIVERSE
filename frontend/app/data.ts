@@ -194,10 +194,9 @@ export const SIRIUS_CHARMS: SiriusCharm[] = [
 ];
 
 export const POLARIS_QUOTES: PolarisQuote[] = [
-  { id: 'q1', textEn: 'Be yourself; everyone else is already taken.', textVi: 'Hãy là chính mình; ai cũng đã có người khác rồi.' },
-  { id: 'q2', textEn: 'The only way to do great work is to love what you do.', textVi: 'Cách duy nhất để làm việc tuyệt vời là yêu những gì bạn làm.' },
-  { id: 'q3', textEn: 'Stars can\'t shine without darkness.', textVi: 'Sao không thể tỏa sáng nếu thiếu bóng tối.' },
-  { id: 'q4', textEn: 'In the middle of difficulty lies opportunity.', textVi: 'Giữa khó khăn là cơ hội.' },
-  { id: 'q5', textEn: 'Your vibe attracts your tribe.', textVi: 'Tần số của bạn thu hút cộng đồng của bạn.' },
-  { id: 'q6', textEn: 'Dream big. Start small. Act now.', textVi: 'Mơ lớn. Bắt đầu nhỏ. Hành động ngay.' },
+  { id: 'q1', textEn: "I'm pretty, your fault", textVi: 'Tôi xinh, Lỗi bạn' },
+  { id: 'q2', textEn: 'Classy & Picky', textVi: 'Sang và Khó tính' },
+  { id: 'q3', textEn: 'Sassy & Foodie', textVi: 'Kiêu và Ham ăn' },
+  { id: 'q4', textEn: 'Goofy & Carefree', textVi: 'Hâm và Vô tư' },
+  { id: 'q5', textEn: 'Gentle & Talented', textVi: 'Hiền và Nhiều tài' },
 ];
