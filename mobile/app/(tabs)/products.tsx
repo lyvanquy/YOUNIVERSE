@@ -39,6 +39,7 @@ export default function ProductListScreen() {
     : products.filter((p) => p.category?.name === selectedCategory);
 
   const handleAddQuickToCart = (item: any) => {
+    const imageUrl = getProductImageUrl(item);
     addItem({
       id: item.id,
       slug: item.slug,
@@ -46,6 +47,7 @@ export default function ProductListScreen() {
       price: Number(item.price),
       quantity: 1,
       badge: item.badge || undefined,
+      image: imageUrl || undefined,
     });
     Alert.alert('Giỏ hàng', `Đã thêm 1 x ${item.name} vào giỏ hàng!`);
   };
@@ -95,7 +97,7 @@ export default function ProductListScreen() {
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={AppTheme.colors.primaryGreen} />
+          <ActivityIndicator size="large" color={AppTheme.colors.accentYellow} />
           <Text style={styles.loadingText}>Đang tải sản phẩm từ vũ trụ...</Text>
         </View>
       ) : products.length === 0 ? (
@@ -133,7 +135,7 @@ export default function ProductListScreen() {
                 <View style={styles.cardDetails}>
                   <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
                   <View style={styles.cardFooter}>
-                    {/* <Text style={styles.cardPrice}>{formatMoney(Number(item.price))}</Text> */}
+                    <Text style={styles.cardPrice}>{formatMoney(Number(item.price))}</Text>
                     <TouchableOpacity 
                       style={styles.quickAddBtn}
                       onPress={() => handleAddQuickToCart(item)}

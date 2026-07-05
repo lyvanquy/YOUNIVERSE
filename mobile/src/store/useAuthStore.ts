@@ -19,6 +19,7 @@ interface AuthState {
   register: (fullName: String, email: string, phone: string, password: String) => Promise<void>;
   logout: () => Promise<void>;
   initializeAuth: () => Promise<void>;
+  updateProfile: (fullName: string, phone: string, address: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -74,6 +75,25 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (_) {}
     await SecureStore.deleteItemAsync('auth_token');
     set({ user: null, isAuthenticated: false });
+  },
+
+  updateProfile: async (fullName, phone, address) => {
+    const response = await api.patch('/auth/me/profile', {
+      fullName,
+      phone: phone || undefined,
+      address: address || undefined,
+    });
+    const { user } = response.data.data || response.data;
+    set({
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        address: user.address,
+      }
+    });
   },
 
   initializeAuth: async () => {

@@ -5,19 +5,22 @@ import { AppTheme } from '../src/config/theme';
 
 const BLOGS = [
   {
-    title: "Ăn vặt thế nào để không lo tăng cân?",
+    title: "Ý nghĩa sâu sắc của 3 dòng charm Astra, Sirius và Polaris",
     date: "04/07/2026",
-    summary: "Mẹo nhỏ chọn các món sấy tự nhiên và chia nhỏ khẩu phần giúp bạn duy trì vóc dáng hoàn hảo mà vẫn thỏa mãn cơn thèm ăn.",
+    category: "Kiến thức",
+    summary: "Tìm hiểu cách 3 dòng charm kết hợp với nhau tạo nên một bản đồ nội tâm hoàn hảo đại diện cho cá tính của bạn.",
   },
   {
-    title: "Hành trình nông trại S'mood: Từ vườn đến gói snack",
+    title: "Gen Z và xu hướng phụ kiện cá nhân hóa 'Speak Without Words'",
     date: "30/06/2026",
-    summary: "Khám phá quy trình tuyển chọn chuối chín tự nhiên tại các nhà vườn và công nghệ sấy khép kín lưu giữ hương vị tuyệt vời.",
+    category: "Xu hướng",
+    summary: "Lên tiếng mà không cần cất lời. Khám phá cách các bạn trẻ sử dụng phụ kiện để thể hiện bản ngã thầm kín.",
   },
   {
-    title: "Làm thế nào để lấy lại năng lượng tức thì khi cạn kiệt?",
+    title: "Chất liệu Nhựa co nhiệt (Heat-Shrink Plastic) trong chế tác thủ công",
     date: "15/06/2026",
-    summary: "Những lưu ý dinh dưỡng quan trọng giúp bạn bừng tỉnh tinh thần vượt qua cơn buồn ngủ chiều muộn nơi công sở.",
+    category: "Chế tác",
+    summary: "Hành trình từ những hình vẽ phẳng thô sơ được co lại dưới nhiệt độ cao để trở thành những hành tinh cứng cáp, bền bỉ.",
   }
 ];
 
@@ -28,7 +31,7 @@ export default function BlogScreen() {
         <View key={idx} style={styles.blogCard}>
           <View style={styles.cardHeader}>
             <View style={styles.categoryBadge}>
-              <Text style={styles.categoryBadgeText}>Dinh dưỡng</Text>
+              <Text style={styles.categoryBadgeText}>{blog.category}</Text>
             </View>
             <View style={styles.dateRow}>
               <Calendar color={AppTheme.colors.textMuted} size={12} />

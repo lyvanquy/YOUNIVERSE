@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Trash2, Minus, Plus, ShoppingCart, HelpCircle } from 'lucide-react-native';
 import { AppTheme } from '../../src/config/theme';
@@ -12,7 +12,7 @@ export default function CartScreen() {
   const [couponCode, setCouponCode] = useState('');
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingFee = 30000;
+  const shippingFee = subtotal >= 500000 ? 0 : 30000;
   const total = Math.max(0, subtotal - discount + shippingFee);
 
   const formatMoney = (amount: number) => {
@@ -53,7 +53,11 @@ export default function CartScreen() {
             {items.map((item) => (
               <View key={item.slug} style={styles.itemCard}>
                 <View style={styles.itemImage}>
-                  <HelpCircle color={AppTheme.colors.primaryGreen} size={30} opacity={0.3} />
+                  {item.image ? (
+                    <Image source={{ uri: item.image }} style={styles.image as any} resizeMode="cover" />
+                  ) : (
+                    <HelpCircle color={AppTheme.colors.primaryGreen} size={30} opacity={0.3} />
+                  )}
                 </View>
                 <View style={styles.itemInfo}>
                   <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
@@ -208,6 +212,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   itemInfo: {
     flex: 1,

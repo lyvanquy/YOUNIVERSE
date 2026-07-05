@@ -12,7 +12,7 @@ export const isAllowedOrigin = (origin: string | undefined): boolean =>
 
 export const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin || isAllowedOrigin(origin)) {
+    if (env.NODE_ENV === "development" || !origin || isAllowedOrigin(origin)) {
       callback(null, true);
       return;
     }

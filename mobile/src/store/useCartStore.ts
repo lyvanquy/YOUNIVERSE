@@ -9,6 +9,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   badge?: string;
+  image?: string;
 }
 
 interface CartState {

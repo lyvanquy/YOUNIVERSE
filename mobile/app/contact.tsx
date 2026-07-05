@@ -14,7 +14,7 @@ export default function ContactScreen() {
       return;
     }
 
-    Alert.alert('Thành công', 'Cảm ơn phản hồi của bạn! S\'mood sẽ phản hồi sớm nhất qua email.', [
+    Alert.alert('Thành công', 'Cảm ơn phản hồi của bạn! YOUniverse sẽ phản hồi sớm nhất qua email.', [
       {
         text: 'OK',
         onPress: () => {
@@ -34,17 +34,17 @@ export default function ContactScreen() {
       {_buildInfoTile(
         <MapPin color={AppTheme.colors.primaryGreen} size={22} />,
         "Ghé thăm tụi mình tại",
-        "123 Đường Vũ Trụ, Cầu Giấy, Hà Nội"
+        "279 Nguyễn Tri Phương, Phường 5, Quận 10, TP.HCM"
       )}
       {_buildInfoTile(
         <Clock color={AppTheme.colors.primaryGreen} size={22} />,
-        "Giờ tụi mình có mood làm việc",
+        "Giờ tụi mình hoạt động",
         "Thứ Hai - Thứ Bảy: 8:00 AM - 18:00 PM"
       )}
       {_buildInfoTile(
         <PhoneCall color={AppTheme.colors.primaryGreen} size={22} />,
-        "Bạn cần gấp?",
-        "Hotline: 1900 1234\nEmail: contact@smood.io.vn"
+        "Bạn cần hỗ trợ gấp?",
+        "Hotline: 1900 1234\nEmail: contact@youniverse.io.vn"
       )}
 
       <View style={styles.divider} />
@@ -63,7 +63,7 @@ export default function ContactScreen() {
       <Text style={styles.label}>Địa chỉ email *</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email để S'mood phản hồi..."
+        placeholder="Email để YOUniverse phản hồi..."
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"

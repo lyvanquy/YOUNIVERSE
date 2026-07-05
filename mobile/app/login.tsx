@@ -25,7 +25,7 @@ export default function LoginScreen() {
     try {
       await login(email.trim(), password);
       Alert.alert('Thành công', 'Đăng nhập thành công!', [
-        { text: 'OK', onPress: () => router.replace('/home') }
+        { text: 'OK', onPress: () => router.replace('/(tabs)') }
       ]);
     } catch (e: any) {
       Alert.alert('Thất bại', e.response?.data?.message || 'Email hoặc mật khẩu không đúng');
@@ -104,7 +104,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Google sign-in */}
-        <TouchableOpacity style={styles.googleBtn} onPress={() => router.replace('/home')}>
+        <TouchableOpacity style={styles.googleBtn} onPress={() => router.replace('/(tabs)')}>
           <Globe color="#EF4444" size={20} />
           <Text style={styles.googleBtnText}>Đăng nhập bằng Google</Text>
         </TouchableOpacity>

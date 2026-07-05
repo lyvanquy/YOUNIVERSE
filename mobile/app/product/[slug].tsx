@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ZoomIn, Minus, Plus, HelpCircle } from 'lucide-react-native';
+import { ZoomIn, Minus, Plus, HelpCircle, Sparkles, X } from 'lucide-react-native';
 import { AppTheme } from '../../src/config/theme';
 import { useCartStore } from '../../src/store/useCartStore';
 import api from '../../src/services/api';
@@ -14,13 +14,13 @@ export default function ProductDetailScreen() {
   const [product, setProduct] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+  const [zoomVisible, setZoomVisible] = useState(false);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
         setIsLoading(true);
         const response = await api.get(`/products/${slug}`);
-        // Endpoint trả về envelope { success: true, message: '...', data: { product: {...} } }
         const data = response.data.data?.product || response.data.product;
         setProduct(data);
       } catch (error) {
@@ -37,6 +37,7 @@ export default function ProductDetailScreen() {
 
   const handleAddToCart = () => {
     if (!product) return;
+    const imageUrl = getProductImageUrl();
     addItem({
       id: product.id,
       slug: slug as string,
@@ -44,6 +45,7 @@ export default function ProductDetailScreen() {
       price: Number(product.price),
       quantity: quantity,
       badge: product.badge || undefined,
+      image: imageUrl || undefined,
     });
     Alert.alert('Giỏ hàng', `Đã thêm ${quantity} x ${product.name} vào giỏ hàng!`, [
       { text: 'Xem giỏ hàng', onPress: () => router.push('/cart') },
@@ -59,7 +61,6 @@ export default function ProductDetailScreen() {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    // Ghép URL host Backend
     return `${api.defaults.baseURL?.replace('/api/v1', '')}${url}`;
   };
 
@@ -70,7 +71,7 @@ export default function ProductDetailScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={AppTheme.colors.primaryGreen} />
+        <ActivityIndicator size="large" color={AppTheme.colors.accentYellow} />
         <Text style={styles.loadingText}>Đang lấy thông tin sản phẩm...</Text>
       </View>
     );
@@ -91,17 +92,17 @@ export default function ProductDetailScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* 1. Zoomable Image Area */}
-        <View style={styles.imageArea}>
+        <TouchableOpacity style={styles.imageArea} activeOpacity={0.9} onPress={() => setZoomVisible(true)}>
           {imageUrl ? (
             <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="contain" />
           ) : (
             <HelpCircle color={AppTheme.colors.primaryGreen} size={90} opacity={0.2} />
           )}
-          <TouchableOpacity style={styles.zoomButton}>
+          <View style={styles.zoomButton}>
             <ZoomIn color={AppTheme.colors.white} size={14} />
-            <Text style={styles.zoomText}>Chạm để xem ảnh lớn</Text>
-          </TouchableOpacity>
-        </View>
+            <Text style={styles.zoomText}>Chạm để phóng to</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* 2. Info block */}
         <View style={styles.infoBlock}>
@@ -111,7 +112,7 @@ export default function ProductDetailScreen() {
             </View>
           ) : null}
           <Text style={styles.productName}>{product.name}</Text>
-          {/* <Text style={styles.productPrice}>{formatMoney(Number(product.price))}</Text> */}
+          <Text style={styles.productPrice}>{formatMoney(Number(product.price))}</Text>
           
           <View style={styles.divider} />
 
@@ -135,21 +136,13 @@ export default function ProductDetailScreen() {
 
       {/* 4. Sticky Bottom Action Selector */}
       <View style={styles.bottomStickyBar}>
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity 
-            style={styles.quantityBtn}
-            onPress={() => setQuantity(Math.max(1, quantity - 1))}
-          >
-            <Minus color={AppTheme.colors.darkText} size={16} />
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity 
-            style={styles.quantityBtn}
-            onPress={() => setQuantity(quantity + 1)}
-          >
-            <Plus color={AppTheme.colors.darkText} size={16} />
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity 
+          style={styles.customizeBtn}
+          onPress={() => router.push(`/order?product=${slug}`)}
+        >
+          <Sparkles color={AppTheme.colors.primaryGreen} size={15} />
+          <Text style={styles.customizeBtnText}>CÁ NHÂN HÓA</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.addToCartBtn}
@@ -158,6 +151,24 @@ export default function ProductDetailScreen() {
           <Text style={styles.addToCartBtnText}>THÊM VÀO GIỎ</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Zoom Modal */}
+      <Modal
+        visible={zoomVisible}
+        transparent
+        onRequestClose={() => setZoomVisible(false)}
+      >
+        <TouchableOpacity style={styles.zoomOverlay} activeOpacity={1} onPress={() => setZoomVisible(false)}>
+          <View style={styles.zoomModalContent}>
+            {imageUrl ? (
+              <Image source={{ uri: imageUrl }} style={styles.zoomedImage as any} resizeMode="contain" />
+            ) : null}
+            <TouchableOpacity style={styles.closeZoomBtn} onPress={() => setZoomVisible(false)}>
+              <X color={AppTheme.colors.white} size={28} />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -215,13 +226,13 @@ const styles = StyleSheet.create({
     color: AppTheme.colors.primaryGreen,
   },
   productName: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '900',
     color: AppTheme.colors.darkText,
     marginBottom: 8,
   },
   productPrice: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: AppTheme.colors.primaryGreen,
   },
@@ -238,7 +249,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   briefText: {
-    fontSize: 14,
+    fontSize: 13.5,
     color: AppTheme.colors.darkText,
     lineHeight: 20,
   },
@@ -283,33 +294,33 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     elevation: 10,
   },
-  quantityContainer: {
+  customizeBtn: {
+    flex: 1.1,
     flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    backgroundColor: AppTheme.colors.accentYellow,
     borderRadius: 100,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
-  quantityBtn: {
-    padding: 10,
-  },
-  quantityText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    paddingHorizontal: 12,
-    color: AppTheme.colors.darkText,
+  customizeBtnText: {
+    fontSize: 13,
+    fontWeight: '900',
+    color: AppTheme.colors.primaryGreen,
+    letterSpacing: 1,
   },
   addToCartBtn: {
-    flex: 1,
+    flex: 0.9,
     backgroundColor: AppTheme.colors.primaryGreen,
     borderRadius: 100,
     paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 16,
+    marginLeft: 10,
   },
   addToCartBtnText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '900',
     color: AppTheme.colors.white,
     letterSpacing: 1.2,
@@ -333,5 +344,30 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 12,
     color: AppTheme.colors.textMuted,
+  },
+  /* Zoom Modal Styles */
+  zoomOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  zoomModalContent: {
+    width: '100%',
+    height: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  zoomedImage: {
+    width: '100%',
+    height: '100%',
+  },
+  closeZoomBtn: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    padding: 10,
+    zIndex: 10,
   },
 });

@@ -31,7 +31,7 @@ export default function RegisterScreen() {
     try {
       await register(fullName.trim(), email.trim(), phone.trim(), password);
       Alert.alert('Thành công', 'Đăng ký tài khoản thành công!', [
-        { text: 'OK', onPress: () => router.replace('/home') }
+        { text: 'OK', onPress: () => router.replace('/(tabs)') }
       ]);
     } catch (e: any) {
       Alert.alert('Thất bại', e.response?.data?.message || 'Không thể đăng ký. Email có thể đã tồn tại.');
@@ -45,7 +45,7 @@ export default function RegisterScreen() {
       <View style={styles.content}>
         <Text style={styles.title}>Tạo tài khoản mới</Text>
         <Text style={styles.subtitle}>
-          Trở thành thành viên của gia đình S'mood để nhận nhiều ưu đãi đặc biệt.
+          Trở thành thành viên của gia đình YOUniverse để nhận nhiều ưu đãi đặc biệt.
         </Text>
 
         {/* Full Name Input */}

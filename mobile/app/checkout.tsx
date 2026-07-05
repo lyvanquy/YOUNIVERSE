@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Wallet, QrCode, CheckCircle2 } from 'lucide-react-native';
+import { Wallet, QrCode, CheckCircle2, Info, Landmark } from 'lucide-react-native';
 import { AppTheme } from '../src/config/theme';
 import { useCartStore } from '../src/store/useCartStore';
+import { useAuthStore } from '../src/store/useAuthStore';
 import api from '../src/services/api';
 
 export default function CheckoutScreen() {
@@ -11,6 +12,8 @@ export default function CheckoutScreen() {
   const clearCart = useCartStore((state) => state.clearCart);
   const items = useCartStore((state) => state.items);
   const appliedCoupon = useCartStore((state) => state.appliedCoupon);
+  const discount = useCartStore((state) => state.discount);
+  const user = useAuthStore((state) => state.user);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -21,6 +24,25 @@ export default function CheckoutScreen() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+
+  // Pre-populate fields with logged-in user profile details
+  useEffect(() => {
+    if (user) {
+      if (user.fullName && !name) setName(user.fullName);
+      if (user.phone && !phone) setPhone(user.phone);
+      if (user.email && !email) setEmail(user.email);
+      if (user.address && !address) setAddress(user.address);
+    }
+  }, [user]);
+
+  // Compute pricing
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shippingFee = subtotal >= 500000 ? 0 : 30000;
+  const total = Math.max(0, subtotal - discount + shippingFee);
+
+  const formatMoney = (amount: number) => {
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
+  };
 
   const handleOrder = async () => {
     if (!name.trim() || !phone.trim() || !email.trim() || !address.trim()) {
@@ -112,7 +134,7 @@ export default function CheckoutScreen() {
   const handleModalClose = () => {
     setIsSuccessModalVisible(false);
     clearCart();
-    router.replace('/home');
+    router.replace('/(tabs)');
   };
 
   return (
@@ -176,6 +198,46 @@ export default function CheckoutScreen() {
             editable={!isSubmitting}
           />
 
+          {/* Order Summary Box */}
+          <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Đơn hàng của bạn</Text>
+          <View style={styles.summaryBox}>
+            {items.map((item) => (
+              <View key={item.slug} style={styles.summaryItemRow}>
+                <Text style={styles.summaryItemLabel}>
+                  {item.name} x {item.quantity}
+                </Text>
+                <Text style={styles.summaryItemVal}>
+                  {formatMoney(item.price * item.quantity)}
+                </Text>
+              </View>
+            ))}
+            
+            {discount > 0 && (
+              <View style={styles.summaryItemRow}>
+                <Text style={[styles.summaryItemLabel, { color: AppTheme.colors.red }]}>
+                  Mã giảm giá ({appliedCoupon}):
+                </Text>
+                <Text style={[styles.summaryItemVal, { color: AppTheme.colors.red }]}>
+                  -{formatMoney(discount)}
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.summaryItemRow}>
+              <Text style={styles.summaryItemLabel}>Phí vận chuyển:</Text>
+              <Text style={styles.summaryItemVal}>
+                {shippingFee === 0 ? 'Miễn phí' : formatMoney(shippingFee)}
+              </Text>
+            </View>
+
+            <View style={styles.summaryDivider} />
+
+            <View style={styles.summaryItemRow}>
+              <Text style={styles.priceLabel}>Tổng cộng cần thanh toán:</Text>
+              <Text style={styles.priceVal}>{formatMoney(total)}</Text>
+            </View>
+          </View>
+
           {/* Payment selector */}
           <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Phương thức thanh toán</Text>
 
@@ -204,6 +266,37 @@ export default function CheckoutScreen() {
             </View>
             <View style={[styles.radio, paymentMethod === 'QR' && styles.radioActive]} />
           </TouchableOpacity>
+
+          {/* QR details */}
+          {paymentMethod === 'QR' && (
+            <View style={styles.bankBox}>
+              <Landmark color={AppTheme.colors.primaryGreen} size={30} style={styles.bankIcon} />
+              <Text style={styles.bankTitle}>Quét QR Chuyển Khoản Ngân Hàng</Text>
+              
+              {/* VietQR dynamic QR image */}
+              <View style={styles.qrContainer}>
+                <Image 
+                  source={{ uri: 'https://img.vietqr.io/image/mbbank-123456789-compact2.png?amount=' + total + '&addInfo=YOUniverse%20Store' }} 
+                  style={styles.qrImg as any} 
+                  resizeMode="contain" 
+                />
+              </View>
+
+              <Text style={styles.bankInfoText}>
+                • Tên tài khoản: YOUNIVERSE GROUP 3{"\n"}
+                • Số tài khoản: 123456789 - MB Bank{"\n"}
+                • Số tiền: {formatMoney(total)}
+              </Text>
+              
+              <View style={styles.alertBox}>
+                <Info color="#B45309" size={14} />
+                <Text style={styles.alertText}>
+                  Vui lòng chụp ảnh màn hình chuyển khoản thành công. Sau khi nhấn Xác Nhận Đặt Hàng, chúng mình sẽ đối soát và xử lý đơn hàng của bạn.
+                </Text>
+              </View>
+            </View>
+          )}
+
         </View>
       </ScrollView>
 
@@ -233,7 +326,7 @@ export default function CheckoutScreen() {
             <CheckCircle2 color={AppTheme.colors.green} size={64} style={styles.modalIcon} />
             <Text style={styles.modalTitle}>Đặt hàng thành công!</Text>
             <Text style={styles.modalText}>
-              Cảm ơn bạn đã mua sắm tại S'mood. Chúng mình sẽ liên hệ xác nhận đơn hàng sớm nhất có thể qua số điện thoại của bạn.
+              Cảm ơn bạn đã mua sắm tại YOUniverse. Chúng mình sẽ liên hệ xác nhận đơn hàng sớm nhất có thể qua số điện thoại của bạn.
             </Text>
             <TouchableOpacity 
               style={styles.modalBtn}
@@ -254,13 +347,13 @@ const styles = StyleSheet.create({
     backgroundColor: AppTheme.colors.backgroundLight,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 120,
   },
   content: {
     padding: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '900',
     color: AppTheme.colors.primaryGreen,
     marginBottom: 16,
@@ -393,5 +486,97 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: AppTheme.colors.white,
     letterSpacing: 1.0,
+  },
+  summaryBox: {
+    backgroundColor: 'rgba(28, 25, 23, 0.03)',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    marginBottom: 20,
+  },
+  summaryItemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  summaryItemLabel: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+  },
+  summaryItemVal: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: AppTheme.colors.darkText,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: AppTheme.colors.border,
+    marginVertical: 10,
+  },
+  priceLabel: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: AppTheme.colors.darkText,
+  },
+  priceVal: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: AppTheme.colors.accentYellow,
+  },
+  bankBox: {
+    backgroundColor: AppTheme.colors.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 16,
+  },
+  bankIcon: {
+    marginBottom: 8,
+  },
+  bankTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: AppTheme.colors.darkText,
+    marginBottom: 12,
+  },
+  qrContainer: {
+    width: 160,
+    height: 160,
+    backgroundColor: '#FAF9F6',
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    marginBottom: 12,
+  },
+  qrImg: {
+    width: '100%',
+    height: '100%',
+  },
+  bankInfoText: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+    lineHeight: 18,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  alertBox: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(230, 179, 8, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(230, 179, 8, 0.15)',
+    borderRadius: 12,
+    padding: 10,
+    gap: 8,
+  },
+  alertText: {
+    flex: 1,
+    fontSize: 10,
+    color: '#B45309',
+    lineHeight: 14,
   },
 });

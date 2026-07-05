@@ -4,12 +4,18 @@ import { useAuthStore } from '../src/store/useAuthStore';
 import { ActivityIndicator, View } from 'react-native';
 import { AppTheme } from '../src/config/theme';
 
+import { initializeApiBaseUrl } from '../src/services/api';
+
 export default function RootLayout() {
   const initializeAuth = useAuthStore((state) => state.initializeAuth);
   const isInitialized = useAuthStore((state) => state.isInitialized);
 
   useEffect(() => {
-    initializeAuth();
+    const initApp = async () => {
+      await initializeApiBaseUrl();
+      await initializeAuth();
+    };
+    initApp();
   }, [initializeAuth]);
 
   if (!isInitialized) {
@@ -67,7 +73,7 @@ export default function RootLayout() {
         name="about" 
         options={{ 
           headerShown: true, 
-          title: "Về S'mood",
+          title: "Về YOUniverse",
           headerTintColor: AppTheme.colors.darkText,
           headerStyle: { backgroundColor: AppTheme.colors.backgroundLight },
           headerTitleStyle: { fontWeight: 'bold' },
@@ -91,6 +97,13 @@ export default function RootLayout() {
           headerTintColor: AppTheme.colors.darkText,
           headerStyle: { backgroundColor: AppTheme.colors.backgroundLight },
           headerTitleStyle: { fontWeight: 'bold' },
+        }} 
+      />
+      <Stack.Screen 
+        name="order" 
+        options={{ 
+          headerShown: false,
+          title: 'Thiết kế vũ trụ',
         }} 
       />
     </Stack>
