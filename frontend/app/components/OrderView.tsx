@@ -60,8 +60,9 @@ export default function OrderView() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState('Nhận tại Cơ sở B UEH (279 Nguyễn Tri Phương, Q10, TP.HCM)');
   const [note, setNote] = useState('');
+  const [shippingMethod, setShippingMethod] = useState<'UEH' | 'OTHER'>('UEH');
 
   // Address suggestions, locating, and Google Maps states for Checkout
   const [checkoutSuggestions, setCheckoutSuggestions] = useState<Array<{ display_name: string }>>([]);
@@ -102,9 +103,17 @@ export default function OrderView() {
       if (user.name && !fullName) setFullName(user.name);
       if (user.phone && !phone) setPhone(user.phone);
       if (user.email && !email) setEmail(user.email);
-      if (user.address && !address) setAddress(user.address);
     }
-  }, [user, fullName, phone, email, address]);
+  }, [user, fullName, phone, email]);
+
+  // Sync address with shippingMethod choice
+  useEffect(() => {
+    if (shippingMethod === 'UEH') {
+      setAddress('Nhận tại Cơ sở B UEH (279 Nguyễn Tri Phương, Q10, TP.HCM)');
+    } else {
+      setAddress('Giao tận nơi (Xác nhận qua email)');
+    }
+  }, [shippingMethod]);
 
   const handleCheckoutAddressChange = async (value: string) => {
     setAddress(value);
@@ -1428,69 +1437,95 @@ export default function OrderView() {
                       required
                       className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:outline-none focus:shadow-[2px_2px_0_rgba(0,0,0,0.4)] transition-all" />
                   </div>
-                  <div className="space-y-1.5 relative">
-                    <div className="flex justify-between items-center">
-                      <label className="font-display text-[10px] font-black uppercase tracking-wider text-stone-600">{t.orderInvoiceAddress}</label>
+                  <div className="space-y-3 relative">
+                    <label className="font-display text-[10px] font-black uppercase tracking-wider text-stone-600">
+                      {language === 'vi' ? 'Phương thức nhận hàng *' : 'Delivery Method *'}
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* UEH Campus B Option */}
                       <button
                         type="button"
-                        onClick={handleCheckoutLocateMe}
-                        disabled={checkoutLocating}
-                        className="text-[9px] font-mono text-stone-600 hover:text-stone-900 font-bold uppercase tracking-wider hover:underline focus:outline-none flex items-center space-x-1.5 disabled:opacity-60 cursor-pointer"
+                        onClick={() => setShippingMethod('UEH')}
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-stone-900 transition-all text-left cursor-pointer ${
+                          shippingMethod === 'UEH'
+                            ? 'bg-amber-50 shadow-[2px_2px_0_rgba(0,0,0,1)]'
+                            : 'bg-white hover:bg-stone-50 shadow-[1px_1px_0_rgba(0,0,0,0.15)]'
+                        }`}
                       >
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="url(#googleMapsGradientCheckout)" />
-                          <circle cx="12" cy="9" r="3" fill="white" />
-                          <defs>
-                            <linearGradient id="googleMapsGradientCheckout" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#EA4335" />
-                              <stop offset="30%" stopColor="#FBBC05" />
-                              <stop offset="60%" stopColor="#34A853" />
-                              <stop offset="100%" stopColor="#4285F4" />
-                            </linearGradient>
-                          </defs>
-                        </svg>
-                        <span>{checkoutLocating ? (language === 'vi' ? 'Đang định vị...' : 'Locating...') : (language === 'vi' ? 'Định vị hiện tại' : 'Auto-Locate')}</span>
+                        <div className="flex items-center space-x-2.5">
+                          <span className="text-xl shrink-0">🏫</span>
+                          <div>
+                            <span className="font-display text-[11px] font-black text-stone-900 block uppercase tracking-wider">
+                              {language === 'vi' ? 'Cơ sở B UEH' : 'UEH Campus B'}
+                            </span>
+                            <span className="font-sans text-[9px] text-stone-500 block leading-tight mt-0.5">
+                              {language === 'vi' ? 'Nhận hàng trực tiếp' : 'Pick up in person'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex h-4 w-4 items-center justify-center rounded-full border border-stone-900 bg-white shrink-0">
+                          {shippingMethod === 'UEH' && <div className="h-2 w-2 rounded-full bg-stone-900" />}
+                        </div>
+                      </button>
+
+                      {/* Other Option */}
+                      <button
+                        type="button"
+                        onClick={() => setShippingMethod('OTHER')}
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl border-2 border-stone-900 transition-all text-left cursor-pointer ${
+                          shippingMethod === 'OTHER'
+                            ? 'bg-amber-50 shadow-[2px_2px_0_rgba(0,0,0,1)]'
+                            : 'bg-white hover:bg-stone-50 shadow-[1px_1px_0_rgba(0,0,0,0.15)]'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2.5">
+                          <span className="text-xl shrink-0">📦</span>
+                          <div>
+                            <span className="font-display text-[11px] font-black text-stone-900 block uppercase tracking-wider">
+                              {language === 'vi' ? 'Lựa chọn khác' : 'Other Option'}
+                            </span>
+                            <span className="font-sans text-[9px] text-stone-500 block leading-tight mt-0.5">
+                              {language === 'vi' ? 'Giao hàng tận nơi' : 'Home Delivery'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex h-4 w-4 items-center justify-center rounded-full border border-stone-900 bg-white shrink-0">
+                          {shippingMethod === 'OTHER' && <div className="h-2 w-2 rounded-full bg-stone-900" />}
+                        </div>
                       </button>
                     </div>
-                    
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={address}
-                        onChange={e => handleCheckoutAddressChange(e.target.value)}
-                        className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:outline-none focus:shadow-[2px_2px_0_rgba(0,0,0,0.4)] transition-all"
-                      />
 
-                      {/* Autocomplete Suggestions */}
-                      {checkoutSuggestions.length > 0 && (
-                        <div className="absolute z-20 w-full bg-white border border-stone-200 rounded-xl mt-1 shadow-lg max-h-40 overflow-y-auto text-xs font-sans text-left">
-                          {checkoutSuggestions.map((item, idx) => (
-                            <div
-                              key={idx}
-                              onClick={() => {
-                                setAddress(item.display_name);
-                                setCheckoutSuggestions([]);
-                              }}
-                              className="px-3 py-2 hover:bg-stone-50 cursor-pointer border-b border-stone-100 last:border-b-0 text-stone-700 truncate animate-fade-in"
-                            >
-                              {item.display_name}
-                            </div>
-                          ))}
+                    {/* Conditional Info Blocks */}
+                    {shippingMethod === 'UEH' ? (
+                      <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/60 space-y-2.5">
+                        <div className="flex items-start space-x-2 text-stone-800 text-xs leading-relaxed font-sans">
+                          <span className="text-sm shrink-0">📍</span>
+                          <div>
+                            <span className="font-bold block">Địa điểm nhận hàng:</span>
+                            <span>Cơ sở B UEH - 279 Nguyễn Tri Phương, Phường 5, Quận 10, TP. Hồ Chí Minh.</span>
+                          </div>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Google Map Preview on Checkout */}
-                    {address && (
-                      <div className="mt-2 rounded-xl overflow-hidden border border-stone-200 h-[120px] relative z-10">
-                        <iframe
-                          title="Google Map Checkout Preview"
-                          width="100%"
-                          height="100%"
-                          style={{ border: 0 }}
-                          src={`https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`}
-                          allowFullScreen
-                        />
+                        {/* Map Preview of Campus B */}
+                        <div className="rounded-xl overflow-hidden border border-stone-200 h-[120px] relative z-10">
+                          <iframe
+                            title="UEH Campus B Map"
+                            width="100%"
+                            height="100%"
+                            style={{ border: 0 }}
+                            src="https://www.google.com/maps?q=279+Ng%E1%BB%AFy+Tri+Ph%C6%B0%C6%A1ng,+Ph%C6%B0%E1%BB%9Dng+5,+Qu%E1%BA%ADn+10,+H%E1%BB%93+Ch%C3%AD+Minh&output=embed"
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-xl bg-stone-50 border border-stone-200/60">
+                        <div className="flex items-start space-x-2 text-stone-800 text-xs leading-relaxed font-sans">
+                          <span className="text-sm shrink-0">✉️</span>
+                          <div>
+                            <span className="font-bold block">Thông báo giao nhận:</span>
+                            <span>{language === 'vi' ? 'Chúng mình sẽ liên hệ qua email của bạn để xác nhận địa chỉ và chi phí giao hàng sau nhé.' : 'We will contact you via email to confirm your delivery address and shipping costs.'}</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

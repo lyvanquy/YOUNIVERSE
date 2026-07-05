@@ -22,7 +22,7 @@ type CheckoutIdentity = {
   sessionId?: string;
 };
 
-const SHIPPING_FEE = 30000;
+const SHIPPING_FEE = 0;
 const FREE_SHIPPING_SUBTOTAL = 500000;
 
 const checkoutCartInclude = {
