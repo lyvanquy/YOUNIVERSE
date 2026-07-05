@@ -261,9 +261,9 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
 
               {/* Hero title with gradient accent */}
               <h1 className="font-display text-4xl sm:text-5xl lg:text-[3.5rem] font-black tracking-tight text-white leading-[1.1] uppercase">
-                <span className="block">{language === 'vi' ? 'MỖI DẢI THIÊN HÀ' : 'UNSPOKEN DESIRES,'}</span>
+                <span className="block">{language === 'vi' ? 'MỖI VŨ TRỤ' : 'UNSPOKEN DESIRES,'}</span>
                 <span className="block mt-1 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,191,36,0.3)]">
-                  {language === 'vi' ? 'LÀ MỘT CÂU CHUYỆN' : 'BESPOKE'}
+                  {language === 'vi' ? 'LÀ MỘT CÂU CHUYỆN' : 'BESPOKEN'}
                 </span>
                 <span className="block mt-1">{language === 'vi' ? 'ĐƯỢC KỂ' : 'YOUniverse.'}</span>
               </h1>

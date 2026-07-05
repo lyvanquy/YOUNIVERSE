@@ -26,7 +26,7 @@ export default function OpenGraphImage() {
           YOUniverse
         </div>
         <div style={{ display: "flex", marginTop: 18, maxWidth: 900, fontSize: 38, lineHeight: 1.3, color: "#e7e5e4" }}>
-          Mỗi dải thiên hà là một câu chuyện được kể.
+          Mỗi vũ trụ là một câu chuyện được kể.
         </div>
         <div style={{ display: "flex", marginTop: 50, fontSize: 24, color: "#a8a29e" }}>
           Astra · Sirius · Polaris
