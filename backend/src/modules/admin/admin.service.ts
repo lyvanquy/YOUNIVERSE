@@ -972,3 +972,17 @@ export const confirmBankTransferPayment = async (orderId: string, adminUserId: s
 
   return result;
 };
+
+export const deleteOrder = async (orderId: string): Promise<void> => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+  });
+
+  if (!order) {
+    throw new AppError("Order not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  await prisma.order.delete({
+    where: { id: orderId },
+  });
+};

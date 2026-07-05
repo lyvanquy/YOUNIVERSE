@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CheckCircle, Save } from "lucide-react";
+import { ArrowLeft, CheckCircle, Save, Trash2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ErrorState, LoadingState } from "../components/PageState";
 import { OrderStatusBadge, PaymentStatusBadge } from "../components/StatusBadge";
@@ -13,11 +13,31 @@ import type { OrderDetail, OrderStatus } from "../types/api";
 export default function OrderDetailPage() {
   const { token } = useAuth();
   const { id } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<OrderStatus>("PENDING_PAYMENT");
   const [note, setNote] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const deleteOrderMutation = useMutation({
+    mutationFn: () =>
+      apiRequest(`/admin/orders/${id}`, {
+        method: "DELETE",
+        token,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      navigate("/orders");
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : "Không xóa được đơn hàng."),
+  });
+
+  const handleDelete = () => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa vĩnh viễn đơn hàng này khỏi hệ thống không? Hành động này không thể hoàn tác.")) {
+      deleteOrderMutation.mutate();
+    }
+  };
 
   const query = useQuery({
     queryKey: ["order", id],
@@ -75,7 +95,20 @@ export default function OrderDetailPage() {
           <h2>{order.orderCode}</h2>
           <p>{formatDate(order.createdAt)} · {order.customerName}</p>
         </div>
-        <Link className="button button--secondary" to="/orders"><ArrowLeft size={16} />Quay lại</Link>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="button"
+            style={{ backgroundColor: "#dc2626", borderColor: "#dc2626", color: "white" }}
+            type="button"
+            onClick={handleDelete}
+            disabled={deleteOrderMutation.isPending}
+          >
+            <Trash2 size={16} /> Xóa đơn hàng
+          </button>
+          <Link className="button button--secondary" to="/orders">
+            <ArrowLeft size={16} /> Quay lại
+          </Link>
+        </div>
       </div>
 
       {error && <div className="page-state page-state--error" style={{ minHeight: 0 }}>{error}</div>}

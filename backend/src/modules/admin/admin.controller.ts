@@ -203,3 +203,16 @@ export const confirmBankTransferPayment: RequestHandler = async (req, res, next)
     next(error);
   }
 };
+
+export const deleteOrder: RequestHandler = async (req, res, next) => {
+  try {
+    await adminService.deleteOrder(req.params.id);
+
+    sendSuccess(res, {
+      message: "Order deleted successfully",
+      data: { id: req.params.id },
+    });
+  } catch (error) {
+    next(error);
+  }
+};

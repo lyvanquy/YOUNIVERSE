@@ -52,6 +52,11 @@ router.post(
   validate({ params: idParamsSchema }),
   adminController.confirmBankTransferPayment,
 );
+router.delete(
+  "/orders/:id",
+  validate({ params: idParamsSchema }),
+  adminController.deleteOrder,
+);
 
 router.get("/inventory", validate({ query: inventoryListQuerySchema }), adminController.listInventory);
 router.patch(
