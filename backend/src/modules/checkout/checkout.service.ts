@@ -273,7 +273,42 @@ const buildCheckoutPreview = async (input: CheckoutInput, identity: CheckoutIden
     };
   });
 
-  const subtotalAmount = items.reduce((total, item) => total + item.totalPrice, 0);
+  const getCustomField = (customData: any, field: string): string | undefined => {
+    if (customData && typeof customData === "object" && !Array.isArray(customData)) {
+      return customData[field];
+    }
+    return undefined;
+  };
+
+  const hasAstra = items.some(item =>
+    item.productName.toLowerCase().includes("astra") ||
+    getCustomField(item.customData, "line") === "ASTRA"
+  );
+
+  const siriusCount = items.filter(item =>
+    item.productName.toLowerCase().includes("sirius") ||
+    getCustomField(item.customData, "line") === "SIRIUS"
+  ).length;
+
+  const polarisCount = items.filter(item =>
+    item.productName.toLowerCase().includes("polaris") ||
+    getCustomField(item.customData, "line") === "POLARIS"
+  ).length;
+
+  const hasSwap = items.some(item =>
+    getCustomField(item.customData, "type") === "swap"
+  );
+
+  let subtotalAmount = items.reduce((total, item) => total + item.totalPrice, 0);
+
+  if (items.length === 3 && hasAstra) {
+    if (siriusCount === 2 && hasSwap) {
+      subtotalAmount = 36000;
+    } else if (siriusCount === 1 && polarisCount === 1) {
+      subtotalAmount = 32000;
+    }
+  }
+
   const baseShippingFee = subtotalAmount >= FREE_SHIPPING_SUBTOTAL ? 0 : SHIPPING_FEE;
   const coupon = await validateCoupon(input.couponCode, subtotalAmount, identity.userId);
   const shippingFee = coupon?.freeShipping ? 0 : baseShippingFee;

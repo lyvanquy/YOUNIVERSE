@@ -160,7 +160,7 @@ export function MaterialShowcase({ language }: { language: 'vi' | 'en' }) {
         {/* Left — Material Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group">
           <img
-            src="/images/feedback-main.jpg"
+            src="/images/material-showcase.jpg"
             alt="Chất liệu co nhiệt thủ công của charm YOUniverse"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -238,7 +238,7 @@ export function AstraShowcase({ language }: { language: 'vi' | 'en' }) {
         {/* Left — Product Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group order-2 lg:order-1">
           <Image
-            src="/images/product-astra.jpg"
+            src="/images/product-astra.png"
             alt="Charm Astra cá nhân hóa tên riêng"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -370,7 +370,7 @@ export function SiriusShowcase({ language }: { language: 'vi' | 'en' }) {
         {/* Right — Product Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group">
           <Image
-            src="/images/product-sirius.jpg"
+            src="/images/product-sirius.png"
             alt="Charm Sirius thể hiện sở thích cá nhân"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
@@ -398,7 +398,7 @@ export function PolarisShowcase({ language }: { language: 'vi' | 'en' }) {
         {/* Left — Product Image */}
         <div className="relative rounded-[20px] overflow-hidden bg-[#f5f5f7] aspect-[4/3] group order-2 lg:order-1">
           <Image
-            src="/images/product-polaris.jpg"
+            src="/images/product-polaris.png"
             alt="Charm Polaris mang thông điệp truyền cảm hứng"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"

@@ -247,16 +247,9 @@ export default function OrderView() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  /* ── Computed ── */
-  const totalPrice = (() => {
-    let p = 0;
-    if (astraSystem) p += CHARM_PRODUCTS[0].price;
-    if (siriusConfirmed && siriusCharm) p += CHARM_PRODUCTS[1].price;
-    if (polarisTab === 'preset' && polarisPresetId) p += CHARM_PRODUCTS[2].price;
-    if (polarisTab === 'custom' && polarisCustomSealed && polarisCustomText) p += CHARM_PRODUCTS[2].price;
-    if (polarisTab === 'swap' && polarisSwapCharm) p += CHARM_PRODUCTS[1].price; // second sirius price
-    return p;
-  })();
+  const isSiriusSirius = polarisTab === 'swap';
+  const totalPrice = isSiriusSirius ? 36000 : 32000;
+  const originalPrice = isSiriusSirius ? 40000 : 36000;
 
   const selectedAstra = ASTRA_SYSTEMS.find(s => s.id === astraSystem);
   const selectedSirius = SIRIUS_CHARMS.find(c => c.id === siriusCharm);
@@ -268,12 +261,7 @@ export default function OrderView() {
     apiRequest<{ paymentSetting: ApiPaymentSetting }>('/settings/payment')
       .then((data) => {
         setPaymentSetting(data.paymentSetting);
-        if (!data.paymentSetting.bankTransferEnabled && data.paymentSetting.codEnabled) {
-          setPaymentProvider('COD');
-        }
-        if (!data.paymentSetting.codEnabled && data.paymentSetting.bankTransferEnabled) {
-          setPaymentProvider('BANK_TRANSFER');
-        }
+        setPaymentProvider('BANK_TRANSFER');
       })
       .catch((error) => {
         setOrderError(error instanceof Error ? error.message : 'Could not load payment settings.');
@@ -856,13 +844,13 @@ export default function OrderView() {
                       <input
                         type="text"
                         value={nickname}
-                        onChange={(e) => setNickname(e.target.value.slice(0, 8))}
-                        maxLength={8}
+                        onChange={(e) => setNickname(e.target.value.slice(0, 4))}
+                        maxLength={4}
                         placeholder={t.orderStep1EngraveInput}
                         className="w-full px-4 py-3 text-sm font-sans rounded-xl bg-white border-2 border-stone-900 shadow-[3px_3px_0_rgba(0,0,0,0.2)] focus:outline-none focus:shadow-[3px_3px_0_rgba(37,99,235,0.5)] transition-all text-center font-bold"
                       />
                       <p className="font-mono text-[10px] text-stone-500 text-center mt-1.5 font-bold">
-                        {nickname.length}/8
+                        {nickname.length}/4
                       </p>
                     </div>
                   )}
@@ -1210,6 +1198,14 @@ export default function OrderView() {
                   <p className="font-sans text-stone-700 text-sm leading-relaxed">
                     {t.orderStep3Tab3Desc2}
                   </p>
+                  <p className="font-sans text-amber-600 text-xs italic font-semibold flex items-center gap-1">
+                    <span>⚠️</span>
+                    <span>
+                      {language === 'vi'
+                        ? 'Nếu chọn charm này bạn sẽ tốn thêm 1 chút chi phí nhỏ, bạn cân nhắc nhé.'
+                        : 'Please note: choosing this charm will incur a small additional fee.'}
+                    </span>
+                  </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {remainingSiriusCharms.map((charm) => {
                       const isSelected = polarisSwapCharm === charm.id;
@@ -1329,7 +1325,6 @@ export default function OrderView() {
                         </p>
                       </div>
                     </div>
-                    <span className="font-sans text-sm text-stone-300">{formatPrice(CHARM_PRODUCTS[0].price)}</span>
                   </div>
                 )}
 
@@ -1347,7 +1342,6 @@ export default function OrderView() {
                         </p>
                       </div>
                     </div>
-                    <span className="font-sans text-sm text-stone-300">{formatPrice(CHARM_PRODUCTS[1].price)}</span>
                   </div>
                 )}
 
@@ -1365,7 +1359,6 @@ export default function OrderView() {
                         </p>
                       </div>
                     </div>
-                    <span className="font-sans text-sm text-stone-300">{formatPrice(CHARM_PRODUCTS[2].price)}</span>
                   </div>
                 )}
 
@@ -1380,7 +1373,6 @@ export default function OrderView() {
                         <p className="font-sans text-[10px] text-stone-400 italic">&ldquo;{polarisCustomText}&rdquo;</p>
                       </div>
                     </div>
-                    <span className="font-sans text-sm text-stone-300">{formatPrice(CHARM_PRODUCTS[2].price)}</span>
                   </div>
                 )}
 
@@ -1400,14 +1392,16 @@ export default function OrderView() {
                         </p>
                       </div>
                     </div>
-                    <span className="font-sans text-sm text-stone-300">{formatPrice(CHARM_PRODUCTS[1].price)}</span>
                   </div>
                 )}
 
                 {/* Total */}
                 <div className="flex items-center justify-between relative z-10 pt-2">
                   <span className="font-display text-sm font-bold text-white uppercase tracking-wider">{t.orderInvoiceTotal}</span>
-                  <span className="font-display text-2xl font-black text-amber-400">{formatPrice(totalPrice)}</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-sans text-sm text-stone-400 line-through font-bold">{formatPrice(originalPrice)}</span>
+                    <span className="font-display text-2xl font-black text-amber-400">{formatPrice(totalPrice)}</span>
+                  </div>
                 </div>
               </div>
 
@@ -1513,42 +1507,15 @@ export default function OrderView() {
                   {t.orderPaymentTitle}
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    disabled={paymentSettingLoading || paymentSetting?.codEnabled === false}
-                    onClick={() => setPaymentProvider('COD')}
-                    className={`rounded-2xl border-2 p-4 text-left transition-all ${
-                      paymentProvider === 'COD'
-                        ? 'border-stone-900 bg-emerald-50 shadow-[3px_3px_0_rgba(0,0,0,0.25)]'
-                        : 'border-stone-200 bg-white hover:border-stone-400'
-                    } disabled:cursor-not-allowed disabled:opacity-50`}
-                  >
-                    <p className="font-display text-xs font-black uppercase tracking-wider text-stone-900">
-                      {language === 'vi' ? 'Thanh toán khi nhận hàng' : 'Cash on delivery'}
-                    </p>
-                    <p className="mt-1 font-sans text-[11px] text-stone-500">
-                      {language === 'vi' ? 'Thanh toán tiền mặt khi bạn nhận sản phẩm.' : 'Pay in cash when your order arrives.'}
-                    </p>
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={paymentSettingLoading || paymentSetting?.bankTransferEnabled === false}
-                    onClick={() => setPaymentProvider('BANK_TRANSFER')}
-                    className={`rounded-2xl border-2 p-4 text-left transition-all ${
-                      paymentProvider === 'BANK_TRANSFER'
-                        ? 'border-stone-900 bg-amber-50 shadow-[3px_3px_0_rgba(0,0,0,0.25)]'
-                        : 'border-stone-200 bg-white hover:border-stone-400'
-                    } disabled:cursor-not-allowed disabled:opacity-50`}
-                  >
-                    <p className="font-display text-xs font-black uppercase tracking-wider text-stone-900">
-                      {language === 'vi' ? 'Chuyển khoản ngân hàng' : 'Bank transfer'}
-                    </p>
-                    <p className="mt-1 font-sans text-[11px] text-stone-500">
-                      {language === 'vi' ? 'Quét QR, chuyển khoản và tải ảnh bill.' : 'Scan QR, transfer, then upload your receipt.'}
-                    </p>
-                  </button>
+                <div
+                  className="w-full rounded-2xl border-2 p-4 text-left border-stone-900 bg-amber-50 shadow-[3px_3px_0_rgba(0,0,0,0.25)]"
+                >
+                  <p className="font-display text-xs font-black uppercase tracking-wider text-stone-900">
+                    {language === 'vi' ? 'Chuyển khoản ngân hàng' : 'Bank transfer'}
+                  </p>
+                  <p className="mt-1 font-sans text-[11px] text-stone-500">
+                    {language === 'vi' ? 'Quét QR, chuyển khoản và tải ảnh bill.' : 'Scan QR, transfer, then upload your receipt.'}
+                  </p>
                 </div>
 
                 {paymentUnavailable && (
