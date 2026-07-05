@@ -111,7 +111,7 @@ export default function ProductDetailScreen() {
             </View>
           ) : null}
           <Text style={styles.productName}>{product.name}</Text>
-          <Text style={styles.productPrice}>{formatMoney(Number(product.price))}</Text>
+          {/* <Text style={styles.productPrice}>{formatMoney(Number(product.price))}</Text> */}
           
           <View style={styles.divider} />
 

@@ -133,7 +133,7 @@ export default function ProductListScreen() {
                 <View style={styles.cardDetails}>
                   <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
                   <View style={styles.cardFooter}>
-                    <Text style={styles.cardPrice}>{formatMoney(Number(item.price))}</Text>
+                    {/* <Text style={styles.cardPrice}>{formatMoney(Number(item.price))}</Text> */}
                     <TouchableOpacity 
                       style={styles.quickAddBtn}
                       onPress={() => handleAddQuickToCart(item)}

@@ -32,6 +32,12 @@ export default function OrderView() {
   const router = useRouter();
   const t = translations[language];
 
+  useEffect(() => {
+    if (isAuthInitialized && !isAuthenticated) {
+      router.replace(`/login?returnTo=${encodeURIComponent('/order')}`);
+    }
+  }, [isAuthInitialized, isAuthenticated, router]);
+
   /* ── Step state ── */
   const [currentStep, setCurrentStep] = useState(1); // 1=Astra, 2=Sirius, 3=Polaris, 4=Invoice, 5=Success
 
@@ -551,6 +557,25 @@ export default function OrderView() {
     (paymentProvider === 'BANK_TRANSFER' && (paymentSetting?.bankTransferEnabled === false || !paymentReceipt));
 
   /* ═════════════════════ RENDER ═════════════════════ */
+
+  if (!isAuthInitialized || !isAuthenticated) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center" aria-live="polite">
+        <div className="flex flex-col items-center gap-4 text-stone-500">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-900 border-t-transparent" />
+          <p className="font-sans text-xs font-medium">
+            {!isAuthInitialized
+              ? language === 'vi'
+                ? 'Đang kiểm tra đăng nhập...'
+                : 'Checking your session...'
+              : language === 'vi'
+                ? 'Đang chuyển đến trang đăng nhập...'
+                : 'Redirecting to login...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (currentStep === 5) {
     /* ── SUCCESS SCREEN ── */

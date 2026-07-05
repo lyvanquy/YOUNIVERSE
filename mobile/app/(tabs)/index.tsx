@@ -155,7 +155,7 @@ function _buildProductCard(
       </View>
       <View style={styles.cardInfo}>
         <Text style={styles.cardName} numberOfLines={1}>{name}</Text>
-        <Text style={styles.cardPrice}>{price}</Text>
+        {/* <Text style={styles.cardPrice}>{price}</Text> */}
       </View>
     </TouchableOpacity>
   );

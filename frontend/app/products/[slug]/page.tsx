@@ -195,12 +195,7 @@ export default async function ProductDetailPage({
             {description}
           </p>
 
-          <div className="mt-7 flex items-baseline gap-3">
-            <span className="text-2xl font-bold text-stone-950">{formatPrice(currentPrice)}</span>
-            {product.salePrice !== null && (
-              <span className="text-sm text-stone-400 line-through">{formatPrice(product.price)}</span>
-            )}
-          </div>
+
 
           <p className={`mt-3 text-sm font-semibold ${inStock ? "text-emerald-700" : "text-rose-600"}`}>
             {inStock ? "Còn hàng" : "Tạm hết hàng"}
