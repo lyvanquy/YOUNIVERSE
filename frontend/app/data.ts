@@ -180,17 +180,17 @@ export const ASTRA_SYSTEMS: AstraSystem[] = [
     nameVi: 'Hệ Tinh Tú',
     descEn: 'Symbol of dreams, freedom, romance and the pursuit of wonder.',
     descVi: 'Biểu tượng của những ước mơ, sự tự do, lãng mạn và luôn tìm kiếm điều kỳ diệu.',
-    image: '/images/charm-stock-3.jpg',
+    image: '/images/charm-stock-3.png',
   },
 ];
 
 export const SIRIUS_CHARMS: SiriusCharm[] = [
   { id: 'dog', category: 'pet', emoji: '🐕', nameEn: 'Dog', nameVi: 'Chó', image: '/images/charm-stock-1.jpg' },
   { id: 'cat', category: 'pet', emoji: '🐈', nameEn: 'Cat', nameVi: 'Mèo', image: '/images/charm-stock-2.jpg' },
-  { id: 'hamster', category: 'pet', emoji: '🐹', nameEn: 'Hamster', nameVi: 'Hamster', image: '/images/charm-stock-3.jpg' },
+  { id: 'hamster', category: 'pet', emoji: '🐹', nameEn: 'Hamster', nameVi: 'Hamster', image: '/images/charm-stock-3.png' },
   { id: 'boba', category: 'drink', emoji: '🧋', nameEn: 'Bubble Tea', nameVi: 'Trà sữa', image: '/images/charm-stock-1.jpg' },
   { id: 'matcha', category: 'drink', emoji: '🍵', nameEn: 'Matcha Latte', nameVi: 'Matcha Latte', image: '/images/charm-stock-2.jpg' },
-  { id: 'coffee', category: 'drink', emoji: '☕', nameEn: 'Coffee', nameVi: 'Cà phê', image: '/images/charm-stock-3.jpg' },
+  { id: 'coffee', category: 'drink', emoji: '☕', nameEn: 'Coffee', nameVi: 'Cà phê', image: '/images/charm-stock-3.png' },
 ];
 
 export const POLARIS_QUOTES: PolarisQuote[] = [

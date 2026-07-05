@@ -829,14 +829,18 @@ export default function ProductsView({ initialProducts, initialError = null }: P
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 pt-4">
             
-            {products.map((prod) => {
-              const isAstra = prod.productLine === 'ASTRA';
-              const isSirius = prod.productLine === 'SIRIUS';
-              const currentPrice = prod.salePrice ?? prod.price;
-              const stockQuantity = prod.inventory?.quantity ?? 0;
-              const translatedBadge = isAstra ? t.charmAstraBadge : isSirius ? t.charmSiriusBadge : t.charmPolarisBadge;
-              const translatedTagline = isAstra ? t.charmAstraTagline : isSirius ? t.charmSiriusTagline : t.charmPolarisTagline;
-              const translatedDescription = isAstra ? t.charmAstraDesc : isSirius ? t.charmSiriusDesc : t.charmPolarisDesc;
+            {[...products]
+              .sort((a, b) => {
+                const order: Record<string, number> = { 'ASTRA': 1, 'SIRIUS': 2, 'POLARIS': 3 };
+                return (order[a.productLine] ?? 99) - (order[b.productLine] ?? 99);
+              })
+              .map((prod) => {
+                const isAstra = prod.productLine === 'ASTRA';
+                const isSirius = prod.productLine === 'SIRIUS';
+                const stockQuantity = prod.inventory?.quantity ?? 0;
+                const translatedBadge = isAstra ? t.charmAstraBadge : isSirius ? t.charmSiriusBadge : t.charmPolarisBadge;
+                const translatedTagline = isAstra ? t.charmAstraTagline : isSirius ? t.charmSiriusTagline : t.charmPolarisTagline;
+                const translatedDescription = isAstra ? t.charmAstraDesc : isSirius ? t.charmSiriusDesc : t.charmPolarisDesc;
 
               // Color accent per line
               const accentColor = isAstra ? 'text-blue-600' : isSirius ? 'text-amber-600' : 'text-rose-600';
@@ -906,14 +910,6 @@ export default function ProductsView({ initialProducts, initialError = null }: P
                         ? translatedDescription
                         : (prod.shortDescription || prod.description || translatedDescription)}
                     </p>
-
-                    {/* Price */}
-                    <div className="flex items-center gap-2 pt-1">
-                      <span className="font-sans text-sm font-bold text-stone-900">{formatPrice(currentPrice)}</span>
-                      {prod.salePrice && (
-                        <span className="font-sans text-xs text-stone-400 line-through">{formatPrice(prod.price)}</span>
-                      )}
-                    </div>
                   </div>
 
                   {/* Apple-style button pair */}

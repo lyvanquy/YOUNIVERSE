@@ -604,7 +604,7 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
                         ? '/images/charm-stock-1.jpg' 
                         : charm.id === 'sirius' 
                           ? '/images/charm-stock-2.jpg' 
-                          : '/images/charm-stock-3.jpg'
+                          : '/images/charm-stock-3.png'
                     } 
                     alt={`${charm.name} - charm cá nhân hóa YOUniverse`}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 md:group-hover:scale-110"

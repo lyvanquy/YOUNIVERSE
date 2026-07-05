@@ -651,7 +651,7 @@ export default function OrderView() {
 
           {/* Gallery — 3 charm stock photos */}
           <div className="relative z-10 flex items-center gap-4 md:gap-6 justify-center">
-            {['/images/charm-stock-1.jpg', '/images/charm-stock-2.jpg', '/images/charm-stock-3.jpg'].map((src, i) => (
+            {['/images/charm-stock-1.jpg', '/images/charm-stock-2.jpg', '/images/charm-stock-3.png'].map((src, i) => (
               <div
                 key={i}
                 className={`relative overflow-hidden border-2 transition-all duration-500 ${

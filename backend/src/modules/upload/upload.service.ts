@@ -9,7 +9,7 @@ import { HTTP_STATUS } from "../../common/errors/errorCodes";
 import { env } from "../../config/env";
 
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");
-const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_MB = 10;
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 type DetectedImage = {
