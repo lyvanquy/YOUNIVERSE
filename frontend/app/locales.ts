@@ -44,7 +44,7 @@ export const translations = {
     
     // Home View
     heroBadge: 'Welcome to YOUniverse',
-    heroTitle: 'A GALAXY TO HOLD, A STORY TO BE TOLD',
+    heroTitle: 'UNSPOKEN DESIRES, BESPOKEN YOUNIVERSE',
     heroTagline: 'We all crave to be understood, yet we hate to overexplain.',
     heroBtn1: 'Start Your Universe',
     heroBtn2: 'Our Story',
@@ -327,7 +327,7 @@ export const translations = {
     
     // Home View
     heroBadge: 'Chào mừng đến với YOUniverse',
-    heroTitle: 'MỖI DẢI THIÊN HÀ LÀ MỘT CÂU CHUYỆN ĐƯỢC KỂ',
+    heroTitle: 'MỖI VŨ TRỤ LÀ MỘT CÂU CHUYỆN ĐƯỢC KỂ',
     heroTagline: 'Chúng ta luôn khao khát được thấu hiểu, nhưng lại ngại ngần việc phải giải thích quá nhiều.',
     heroBtn1: 'Khởi Tạo Vũ Trụ Của Bạn',
     heroBtn2: 'Câu Chuyện Của Chúng Mình',

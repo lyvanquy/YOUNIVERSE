@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     default: "YOUniverse - Phụ kiện & Charm cá nhân hóa độc bản",
     template: "%s | YOUniverse",
   },
-  description: "A galaxy to hold, a story to be told. YOUniverse chuyên cung cấp các sản phẩm charm thủ công tinh tế giúp bạn khẳng định bản sắc cá nhân và giao tiếp thầm lặng.",
+  description: "Unspoken Desires, Bespoken YOUniverse. YOUniverse chuyên cung cấp các sản phẩm charm thủ công tinh tế giúp bạn khẳng định bản sắc cá nhân và giao tiếp thầm lặng.",
   keywords: ["YOUniverse", "charm ca nhan hoa", "phu kien ca nhan hoa", "moc khoa thu cong", "custom charm", "Astra", "Sirius", "Polaris", "UEH ISB"],
   authors: [{ name: "YOUniverse Team" }],
   creator: "YOUniverse",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "YOUniverse - Phụ kiện & Charm cá nhân hóa độc bản",
-    description: "A galaxy to hold, a story to be told. Tự thiết kế vũ trụ móc khóa của riêng bạn.",
+    description: "Unspoken Desires, Bespoken YOUniverse. Tự thiết kế vũ trụ móc khóa của riêng bạn.",
     url: "https://youniverse.io.vn",
     siteName: "YOUniverse",
     images: [

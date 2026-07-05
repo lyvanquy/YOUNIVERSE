@@ -31,7 +31,7 @@ export default function Footer() {
                   YOUniverse
                 </span>
                 <span className="text-[9px] font-mono tracking-widest text-stone-400 block uppercase">
-                  A galaxy to hold, a story to be told
+                  Unspoken Desires, Bespoken YOUniverse
                 </span>
               </div>
             </div>

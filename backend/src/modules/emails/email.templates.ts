@@ -1,7 +1,7 @@
 import { env } from "../../config/env";
 import type { EmailOrderData, OrderStatusEmailOptions, RenderedEmail } from "./email.types";
 
-const slogan = "A galaxy to hold, a story to be told";
+const slogan = "Unspoken Desires, Bespoken YOUniverse";
 
 const formatCurrency = (amount: number): string =>
   new Intl.NumberFormat("vi-VN", {
