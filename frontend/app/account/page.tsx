@@ -158,10 +158,11 @@ export default function AccountPage() {
 
   const fallbackToIpLocation = async () => {
     try {
-      const res = await fetch("https://ipapi.co/json/");
+      const res = await fetch("https://ipinfo.io/json");
       const data = await res.json();
       if (data && data.city) {
-        const locationStr = `${data.city}, ${data.region || ""}, ${data.country_name || "Vietnam"}`;
+        const countryName = data.country === "VN" ? "Vietnam" : (data.country || "Vietnam");
+        const locationStr = `${data.city}, ${data.region || ""}, ${countryName}`;
         setEditAddress(locationStr);
         setSuggestions([]);
       } else {
@@ -555,7 +556,7 @@ export default function AccountPage() {
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
-                        src={`https://maps.google.com/maps?q=${encodeURIComponent(editAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(editAddress)}&output=embed`}
                         allowFullScreen
                       />
                     </div>
@@ -598,7 +599,7 @@ export default function AccountPage() {
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
-                        src={`https://maps.google.com/maps?q=${encodeURIComponent(user.address || t.addressText)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(user.address || t.addressText)}&output=embed`}
                         allowFullScreen
                       />
                     </div>

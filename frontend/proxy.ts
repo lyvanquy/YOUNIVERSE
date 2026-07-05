@@ -10,7 +10,7 @@ export function proxy(request: NextRequest) {
     img-src 'self' blob: data: https: http:;
     font-src 'self' data:;
     connect-src 'self' https: http: ws: wss:;
-    frame-src 'self' https://accounts.google.com https://maps.google.com;
+    frame-src 'self' https://accounts.google.com https://maps.google.com https://www.google.com;
     worker-src 'self' blob:;
     object-src 'none';
     base-uri 'self';
