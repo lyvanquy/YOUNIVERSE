@@ -140,6 +140,7 @@ const verifyGoogleJwtSignature = async (credential: string): Promise<GoogleJwtPa
 };
 
 const verifyGoogleCredential = async (credential: string): Promise<GoogleJwtPayload> => {
+
   if (!env.GOOGLE_CLIENT_ID) {
     throw new AppError("Google login is not configured", HTTP_STATUS.INTERNAL_SERVER_ERROR);
   }
