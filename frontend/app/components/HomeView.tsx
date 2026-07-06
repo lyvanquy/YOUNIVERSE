@@ -611,29 +611,28 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
                   />
 
                   {/* Gradient overlay - stronger on hover/mobile to make text readable */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-85 md:opacity-60 md:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-black/80 opacity-85 md:opacity-60 md:group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                   {/* Decorative stars */}
                   <span className={`absolute top-4 right-4 ${textColors} text-sm animate-twinkle z-10`}>✦</span>
                   <span className={`absolute top-4 left-4 ${textColors} text-[10px] animate-twinkle duration-2000 z-10`}>✦</span>
 
-                  {/* Charm name always visible at bottom */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
-                    {/* Badge + Name - always visible */}
-                    <div className="transform translate-y-[-8px] md:translate-y-0 transition-all duration-500 md:group-hover:translate-y-[-8px]">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-                        <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-extrabold uppercase tracking-widest text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]`}>
-                          {translatedBadge}
-                        </span>
-                      </div>
-                      <h4 className="font-display text-2xl font-black text-white uppercase tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
-                        {charm.name}
-                      </h4>
+                  {/* Charm name + badge — top-left */}
+                  <div className="absolute top-0 left-0 right-0 p-5 z-10">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      <span className={`text-[10px] ${language === 'vi' ? 'font-sans' : 'font-mono'} font-extrabold uppercase tracking-widest text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]`}>
+                        {translatedBadge}
+                      </span>
                     </div>
+                    <h4 className="font-display text-2xl font-black text-white uppercase tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                      {charm.name}
+                    </h4>
+                  </div>
 
-                    {/* Hover-reveal content - slides up on desktop, always visible on mobile */}
-                    <div className="opacity-100 translate-y-0 md:opacity-0 md:translate-y-6 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-500 ease-out mt-2">
+                  {/* Hover-reveal content — bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+                    <div className="opacity-100 translate-y-0 md:opacity-0 md:translate-y-6 md:group-hover:opacity-100 md:group-hover:translate-y-0 transition-all duration-500 ease-out">
                       <p className={`${language === 'vi' ? 'font-sans' : 'font-mono'} text-xs italic font-bold leading-relaxed text-amber-300 mb-1 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]`}>
                         &ldquo;{translatedTagline}&rdquo;
                       </p>
@@ -676,11 +675,11 @@ export default function HomeView({ onAddCustomToCart }: HomeViewProps) {
             {[...Array(2)].map((_, setIdx) => (
               <div key={setIdx} className="flex gap-4 pr-4 shrink-0">
                 {[
-                  { src: '/images/photoshoot-2.jpg', w: 360, h: 300 },
                   { src: '/images/photoshoot-1.jpg', w: 220, h: 300 },
-                  { src: '/images/photoshoot-4.jpg', w: 400, h: 300 },
-                  { src: '/images/photoshoot-3.jpg', w: 280, h: 300 },
-                  { src: '/images/photoshoot-6.jpg', w: 340, h: 300 },
+                  { src: '/images/photoshoot-2.jpg', w: 360, h: 300 },
+                  { src: '/images/photoshoot-6.jpg', w: 280, h: 300 },
+                  { src: '/images/photoshoot-3.jpg', w: 400, h: 300 },
+                  { src: '/images/photoshoot-4.jpg', w: 340, h: 300 },
                   { src: '/images/photoshoot-11.jpg', w: 220, h: 300 },
                 ].map((photo, i) => (
                   <div key={i} className={`group/photo relative rounded-2xl overflow-hidden shrink-0 cursor-pointer shadow-md hover:shadow-[0_25px_60px_rgba(0,0,0,0.4)] hover:z-50 hover:scale-[1.08] transition-all duration-500 ease-out`} style={{ width: photo.w, height: photo.h }}>

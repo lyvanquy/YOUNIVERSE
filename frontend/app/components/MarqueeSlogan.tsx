@@ -24,27 +24,24 @@ export default function MarqueeSlogan({ href, variant = 'default' }: MarqueeSlog
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (tooltipRef.current) {
-      // Estimate tooltip width to prevent it from going off the screen edges
-      const estimatedTooltipHalfWidth = 120; // 240px total width / 2
-      const padding = 16; // Safety margin from screen edge
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
       
-      // Clamp the X coordinate within the viewport boundaries
-      const minX = estimatedTooltipHalfWidth + padding;
-      const maxX = window.innerWidth - (estimatedTooltipHalfWidth + padding);
-      const clampedX = Math.max(minX, Math.min(maxX, e.clientX));
-
-      tooltipRef.current.style.transform = `translate3d(${clampedX}px, ${e.clientY + 18}px, 0) translate3d(-50%, 0, 0)`;
+      tooltipRef.current.style.left = `${x}px`;
+      tooltipRef.current.style.top = `${y - 45}px`;
     }
   };
 
   return (
     <div
-      className="relative block w-full overflow-hidden border-y border-black bg-[#FAF6EE] py-5"
+      className="relative block w-full overflow-visible border-y border-black bg-[#FAF6EE] py-5"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onMouseMove={handleMouseMove}
+      onWheel={(e) => e.currentTarget.scrollLeft = 0}
     >
-      <div className="relative flex w-full overflow-hidden">
+      <div className="relative flex w-full overflow-clip">
         {isNewArrivals ? (
           /* NEW ARRIVALS variant — logo + large text */
           <Link
@@ -81,19 +78,15 @@ export default function MarqueeSlogan({ href, variant = 'default' }: MarqueeSlog
         )}
       </div>
 
-      {/* Premium custom tooltip that follows the mouse cursor (Desktop only) */}
+      {/* Tooltip follows cursor — absolute to container */}
       {isHovered && (
         <div
           ref={tooltipRef}
-          className="hidden md:flex fixed pointer-events-none bg-black text-white text-[10px] md:text-xs font-sans font-semibold px-4 py-2 rounded-full flex items-center gap-2 shadow-2xl border border-stone-800 z-[9999] whitespace-nowrap will-change-transform transform-gpu"
-          style={{
-            left: 0,
-            top: 0,
-            transform: 'translate3d(-999px, -999px, 0) translate3d(-50%, 0, 0)',
-          }}
+          className="hidden md:flex absolute pointer-events-none -translate-x-1/2 bg-black/90 backdrop-blur-sm text-amber-400 text-[11px] font-display font-bold uppercase tracking-wider px-5 py-2.5 rounded-full items-center gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.5)] border border-amber-400/20 z-[9999] whitespace-nowrap"
+          style={{ left: -999, top: -999 }}
         >
-          <span>{language === 'vi' ? 'Xem câu chuyện của chúng mình →' : 'Read Our Story →'}</span>
           <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-twinkle" />
+          <span>{language === 'vi' ? 'Xem câu chuyện →' : 'Read Our Story →'}</span>
         </div>
       )}
     </div>

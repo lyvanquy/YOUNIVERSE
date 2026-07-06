@@ -161,14 +161,14 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
           </Link>
 
           {/* Language Toggle - hidden on mobile, shown on desktop */}
-          <div className="hidden md:flex items-center rounded-full border border-stone-700/60 bg-stone-900/60 p-0.5" suppressHydrationWarning>
+          <div className="hidden md:flex items-center rounded-full border border-stone-700/40 bg-stone-800/40 backdrop-blur-sm p-[3px] gap-[2px]" suppressHydrationWarning>
             <button
               onClick={() => setLanguage('vi')}
               suppressHydrationWarning
-              className={`px-2.5 py-1 text-[10px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
+              className={`px-3 py-1.5 text-[10px] font-black tracking-widest rounded-full transition-all duration-400 cursor-pointer ${
                 language === 'vi'
-                  ? 'bg-white text-black shadow-sm shadow-white/10'
-                  : 'text-stone-400 hover:text-white'
+                  ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                  : 'text-stone-500 hover:text-stone-200'
               }`}
             >
               VI
@@ -176,10 +176,10 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
             <button
               onClick={() => setLanguage('en')}
               suppressHydrationWarning
-              className={`px-2.5 py-1 text-[10px] font-bold tracking-wider rounded-full transition-all duration-350 cursor-pointer ${
+              className={`px-3 py-1.5 text-[10px] font-black tracking-widest rounded-full transition-all duration-400 cursor-pointer ${
                 language === 'en'
-                  ? 'bg-white text-black shadow-sm shadow-white/10'
-                  : 'text-stone-400 hover:text-white'
+                  ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black shadow-[0_0_12px_rgba(251,191,36,0.3)]'
+                  : 'text-stone-500 hover:text-stone-200'
               }`}
             >
               EN
@@ -212,9 +212,11 @@ export default function Header({ cartCount, onOpenCart, initialSessionName }: He
             <Link
               href={`/login?returnTo=${encodeURIComponent(pathname)}`}
               id="header-login-btn-live"
-              className="group relative hidden sm:flex h-10 px-4 md:px-5 items-center justify-center rounded-full bg-white hover:bg-stone-100 text-black font-display text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:translate-y-[-1px] focus:outline-none cursor-pointer whitespace-nowrap"
+              className="group/login relative hidden sm:flex h-10 px-5 items-center justify-center gap-2 rounded-full border border-stone-600/60 bg-stone-900/80 backdrop-blur-sm text-stone-200 font-display text-[11px] font-black uppercase tracking-wider transition-all duration-400 hover:border-amber-400/50 hover:text-white hover:shadow-[0_0_20px_rgba(251,191,36,0.15)] hover:translate-y-[-1px] focus:outline-none cursor-pointer whitespace-nowrap overflow-hidden"
             >
-              {t.login}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover/login:translate-x-full transition-transform duration-700 ease-in-out" />
+              <User className="h-3.5 w-3.5 relative z-10 transition-transform duration-300 group-hover/login:scale-110" />
+              <span className="relative z-10">{t.login}</span>
             </Link>
           )}
 
