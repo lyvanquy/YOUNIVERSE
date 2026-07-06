@@ -300,7 +300,7 @@ export default function OrderScreen() {
       {/* App bar with back button and brand Logo */}
       <View style={styles.appBar}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ArrowLeft color={AppTheme.colors.darkText} size={22} />
+          <ArrowLeft color="#FFFFFF" size={22} />
         </TouchableOpacity>
         <Image
           source={{ uri: 'https://youniverse.io.vn/images/logo-youniverse-transparent.png' }}
@@ -993,13 +993,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 12,
-    backgroundColor: '#FAF9F6',
+    backgroundColor: '#1C1917', // Dark cosmic theme matching home screen header
     borderBottomWidth: 1,
-    borderBottomColor: AppTheme.colors.border,
+    borderBottomColor: '#2D2A26',
   },
   logoImage: {
-    width: 160,
-    height: 45,
+    width: 140,
+    height: 70, // perfect 2:1 aspect ratio to avoid squishing
   },
   heroSection: {
     borderRadius: 24,

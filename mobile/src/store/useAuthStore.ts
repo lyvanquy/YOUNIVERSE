@@ -20,13 +20,15 @@ interface AuthState {
   logout: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   updateProfile: (fullName: string, phone: string, address: string) => Promise<void>;
+  updateAvatar: (avatarUrl: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   isInitialized: false,
-
+  
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
     const { user, accessToken } = response.data;
@@ -93,6 +95,39 @@ export const useAuthStore = create<AuthState>((set) => ({
         avatarUrl: user.avatarUrl,
         address: user.address,
       }
+    });
+  },
+
+  updateAvatar: async (avatarUrl) => {
+    const response = await api.patch('/auth/me/avatar', { avatarUrl });
+    const { user } = response.data.data || response.data;
+    set({
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        address: user.address,
+      }
+    });
+  },
+
+  loginWithGoogle: async (credential) => {
+    const response = await api.post('/auth/google', { credential });
+    const { user, accessToken } = response.data;
+
+    await SecureStore.setItemAsync('auth_token', accessToken);
+    set({
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        address: user.address,
+      },
+      isAuthenticated: true,
     });
   },
 

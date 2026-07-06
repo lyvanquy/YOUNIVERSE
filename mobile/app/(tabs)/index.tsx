@@ -119,7 +119,7 @@ export default function HomeScreen() {
                   resizeMode="contain"
                 />
                 <TouchableOpacity onPress={() => setMenuOpen(false)} style={styles.drawerCloseBtn}>
-                  <X color={AppTheme.colors.darkText} size={24} />
+                  <X color="#FFFFFF" size={24} />
                 </TouchableOpacity>
               </View>
 
@@ -627,16 +627,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 12,
-    backgroundColor: AppTheme.colors.white,
+    backgroundColor: '#1C1917', // Dark cosmic theme matching frontend
     borderBottomWidth: 1,
-    borderBottomColor: AppTheme.colors.border,
+    borderBottomColor: '#2D2A26',
   },
   headerMenuBtn: {
     padding: 6,
   },
   logoImage: {
-    width: 200,
-    height: 55,
+    width: 140,
+    height: 70, // perfect 2:1 aspect ratio to avoid squishing
   },
   headerCartBtn: {
     padding: 6,
@@ -1141,11 +1141,11 @@ const styles = StyleSheet.create({
   drawerContent: {
     width: '70%',
     height: '100%',
-    backgroundColor: AppTheme.colors.white,
+    backgroundColor: '#1C1917', // Dark cosmic drawer matching frontend
     paddingTop: 40,
     paddingBottom: 24,
     borderRightWidth: 1,
-    borderRightColor: AppTheme.colors.border,
+    borderRightColor: '#2D2A26',
   },
   drawerHeader: {
     flexDirection: 'row',
@@ -1154,11 +1154,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: AppTheme.colors.border,
+    borderBottomColor: '#2D2A26',
   },
   drawerLogo: {
-    width: 150,
-    height: 42,
+    width: 120,
+    height: 60, // perfect 2:1 aspect ratio
   },
   drawerCloseBtn: {
     padding: 4,
@@ -1177,14 +1177,14 @@ const styles = StyleSheet.create({
   drawerItemText: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: AppTheme.colors.darkText,
+    color: '#E7E5E4', // light stone text
   },
   drawerItemActiveText: {
-    color: AppTheme.colors.primaryGreen,
+    color: AppTheme.colors.accentYellow, // active item is yellow matching frontend links hover
   },
   drawerDivider: {
     height: 1,
-    backgroundColor: AppTheme.colors.border,
+    backgroundColor: '#2D2A26',
     marginVertical: 16,
   },
   drawerLangRow: {
@@ -1195,15 +1195,15 @@ const styles = StyleSheet.create({
   drawerLangLabel: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: AppTheme.colors.textMuted,
+    color: '#A8A29E',
   },
   langPills: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderColor: AppTheme.colors.border,
+    borderColor: '#44403C',
     borderRadius: 100,
     padding: 2,
-    backgroundColor: AppTheme.colors.backgroundLight,
+    backgroundColor: '#272522',
   },
   langPill: {
     paddingHorizontal: 10,
@@ -1211,29 +1211,29 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   langPillActive: {
-    backgroundColor: AppTheme.colors.white,
+    backgroundColor: '#44403C',
   },
   langPillText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: AppTheme.colors.textMuted,
+    color: '#A8A29E',
   },
   langPillActiveText: {
-    color: AppTheme.colors.darkText,
+    color: '#FFFFFF',
   },
   drawerUserBox: {
-    backgroundColor: 'rgba(28, 25, 23, 0.03)',
+    backgroundColor: '#272522',
     borderRadius: 14,
     padding: 12,
   },
   drawerUserWelcome: {
     fontSize: 11,
-    color: AppTheme.colors.textMuted,
+    color: '#A8A29E',
   },
   drawerUserName: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: AppTheme.colors.darkText,
+    color: '#FFFFFF',
     marginTop: 2,
   },
   drawerLogoutBtn: {

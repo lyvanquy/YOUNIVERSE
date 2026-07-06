@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert, TextInput, ActivityIndicator, Modal, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User, LogOut, Info, BookOpen, MessageSquare, LogIn, ChevronRight, ShoppingBag, MapPin, Edit3, Check, X, Database, ShieldAlert } from 'lucide-react-native';
+import { User, LogOut, Info, BookOpen, MessageSquare, LogIn, ChevronRight, ShoppingBag, MapPin, Edit3, Check, X, Database, ShieldAlert, Camera } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppTheme } from '../../src/config/theme';
 import { useAuthStore } from '../../src/store/useAuthStore';
 import api, { DEFAULT_API_URL } from '../../src/services/api';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function AccountScreen() {
   const router = useRouter();
-  const { user, isAuthenticated, logout, updateProfile } = useAuthStore();
+  const { user, isAuthenticated, logout, updateProfile, updateAvatar } = useAuthStore();
 
   /* ── Order History States ── */
   const [orders, setOrders] = useState<any[]>([]);
@@ -21,6 +22,7 @@ export default function AccountScreen() {
   const [editPhone, setEditPhone] = useState('');
   const [editAddress, setEditAddress] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   /* ── Server Config States ── */
   const [showServerModal, setShowServerModal] = useState(false);
@@ -83,6 +85,60 @@ export default function AccountScreen() {
       Alert.alert('Thất bại', err.response?.data?.message || err.message || 'Không thể cập nhật hồ sơ.');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleSelectAvatar = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Quyền truy cập', 'Ứng dụng cần quyền truy cập thư viện ảnh để cập nhật avatar.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
+
+      const selectedImage = result.assets[0];
+      setAvatarUploading(true);
+
+      const formData = new FormData();
+      const filename = selectedImage.uri.split('/').pop() || 'avatar.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image/jpeg`;
+
+      formData.append('file', {
+        uri: selectedImage.uri,
+        name: filename,
+        type,
+      } as any);
+
+      const uploadResponse = await api.post('/upload/image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const uploadedUrl = uploadResponse.data.url;
+      if (!uploadedUrl) {
+        throw new Error('Không nhận được URL ảnh từ máy chủ.');
+      }
+
+      await updateAvatar(uploadedUrl);
+      Alert.alert('Thành công', 'Đã cập nhật ảnh đại diện mới.');
+    } catch (err: any) {
+      console.warn('Lỗi cập nhật avatar:', err);
+      Alert.alert('Thất bại', err.response?.data?.message || err.message || 'Không thể tải ảnh lên.');
+    } finally {
+      setAvatarUploading(false);
     }
   };
 
@@ -208,8 +264,23 @@ export default function AccountScreen() {
             /* Display Profile View */
             <View style={styles.profileContainer}>
               <View style={styles.profileRow}>
-                <View style={styles.avatarCircle}>
-                  <User color={AppTheme.colors.primaryGreen} size={36} />
+                <View style={styles.avatarContainer}>
+                  <TouchableOpacity style={styles.avatarTouch} onPress={handleSelectAvatar} disabled={avatarUploading}>
+                    {user.avatarUrl ? (
+                      <Image source={{ uri: user.avatarUrl }} style={styles.avatarImg} />
+                    ) : (
+                      <View style={styles.avatarCircle}>
+                        <User color={AppTheme.colors.primaryGreen} size={36} />
+                      </View>
+                    )}
+                    <View style={styles.cameraIconBadge}>
+                      {avatarUploading ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Camera color="#FFFFFF" size={10} />
+                      )}
+                    </View>
+                  </TouchableOpacity>
                 </View>
                 <View style={styles.profileText}>
                   <Text style={styles.profileName}>{user.fullName}</Text>
@@ -437,6 +508,36 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(28, 25, 23, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  avatarTouch: {
+    position: 'relative',
+  },
+  avatarImg: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FAF9F6',
+  },
+  cameraIconBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: '#0D5C3A',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   profileText: {
     marginLeft: 16,

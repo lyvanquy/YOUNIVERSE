@@ -1,19 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Eye, EyeOff, Globe, ArrowLeft } from 'lucide-react-native';
+import { Eye, EyeOff, Globe } from 'lucide-react-native';
 import { AppTheme } from '../src/config/theme';
 import { useAuthStore } from '../src/store/useAuthStore';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const loginWithGoogle = useAuthStore((state) => state.loginWithGoogle);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [obscurePassword, setObscurePassword] = useState(true);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Setup Google login auth session request
+  const [googleRequest, googleResponse, promptGoogleAsync] = Google.useIdTokenAuthRequest({
+    clientId: '416946845040-knj5710hjrll1547emrpfjova7tvifin.apps.googleusercontent.com',
+    scopes: ['openid', 'profile', 'email'],
+  });
+
+  useEffect(() => {
+    if (googleRequest?.redirectUri) {
+      console.log("👉 EXPO GOOGLE REDIRECT URI:", googleRequest.redirectUri);
+    }
+  }, [googleRequest]);
+
+  useEffect(() => {
+    if (googleResponse?.type === 'success' && googleResponse.authentication?.idToken) {
+      const idToken = googleResponse.authentication.idToken;
+      setIsLoading(true);
+      loginWithGoogle(idToken)
+        .then(() => {
+          Alert.alert('Thành công', 'Đăng nhập Google thành công!', [
+            { text: 'OK', onPress: () => router.replace('/(tabs)') }
+          ]);
+        })
+        .catch((err) => {
+          console.warn('Lỗi đăng nhập Google:', err);
+          Alert.alert('Thất bại', err.response?.data?.message || err.message || 'Đăng nhập bằng Google thất bại.');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [googleResponse]);
+
+  const handleGoogleLoginPress = async () => {
+    try {
+      await promptGoogleAsync();
+    } catch (error) {
+      console.warn('Lỗi mở trình duyệt Google:', error);
+      Alert.alert('Lỗi', 'Không thể mở trình duyệt đăng nhập Google.');
+    }
+  };
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -104,7 +150,11 @@ export default function LoginScreen() {
         </View>
 
         {/* Google sign-in */}
-        <TouchableOpacity style={styles.googleBtn} onPress={() => router.replace('/(tabs)')}>
+        <TouchableOpacity 
+          style={styles.googleBtn} 
+          onPress={handleGoogleLoginPress}
+          disabled={!googleRequest || isLoading}
+        >
           <Globe color="#EF4444" size={20} />
           <Text style={styles.googleBtnText}>Đăng nhập bằng Google</Text>
         </TouchableOpacity>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Alert, ActivityIndicator, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, Plus, HelpCircle } from 'lucide-react-native';
+import { Sparkles, Heart, Compass, Plus, HelpCircle, Search } from 'lucide-react-native';
 import { AppTheme } from '../../src/config/theme';
 import { useCartStore } from '../../src/store/useCartStore';
 import api from '../../src/services/api';
@@ -12,14 +12,15 @@ export default function ProductListScreen() {
   
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+
+  const scrollRef = useRef<ScrollView>(null);
+  const sectionPositions = useRef<Record<string, number>>({});
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
         const response = await api.get('/products');
-        // Phản hồi từ backend chứa envelope { success: true, message: '...', data: { items: [...] } }
         const items = response.data.data?.items || [];
         setProducts(items);
       } catch (error) {
@@ -31,12 +32,12 @@ export default function ProductListScreen() {
     fetchProducts();
   }, []);
 
-  // Tạo danh sách category động dựa trên sản phẩm trong DB
-  const categories = ["Tất cả", ...Array.from(new Set(products.map(p => p.category?.name).filter(Boolean)))];
-
-  const filteredProducts = selectedCategory === "Tất cả"
-    ? products
-    : products.filter((p) => p.category?.name === selectedCategory);
+  const handleScrollToSection = (sectionId: string) => {
+    const y = sectionPositions.current[sectionId];
+    if (scrollRef.current && y !== undefined) {
+      scrollRef.current.scrollTo({ y: y - 10, animated: true });
+    }
+  };
 
   const handleAddQuickToCart = (item: any) => {
     const imageUrl = getProductImageUrl(item);
@@ -59,13 +60,42 @@ export default function ProductListScreen() {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    // Chuyển relative path (/images/...) thành full URL trỏ về Backend host
     return `${api.defaults.baseURL?.replace('/api/v1', '')}${url}`;
   };
 
   const formatMoney = (amount: number) => {
     return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
   };
+
+  const astraVariants = [
+    { 
+      img: 'https://youniverse.io.vn/images/astra-mat-troi.jpg', 
+      name: 'Hệ Mặt Trời',
+      desc: 'Năng lượng rực rỡ, tỏa sáng như mặt trời — biểu tượng của sức mạnh và niềm tin.'
+    },
+    { 
+      img: 'https://youniverse.io.vn/images/astra-mat-trang.jpg', 
+      name: 'Hệ Mặt Trăng',
+      desc: 'Dịu dàng mà sâu lắng, ánh trăng dẫn lối qua những đêm tĩnh lặng nhất.'
+    },
+    { 
+      img: 'https://youniverse.io.vn/images/astra-tinh-tu.jpg', 
+      name: 'Hệ Tinh Tú',
+      desc: 'Vô vàn ngôi sao, mỗi ánh sáng là một giấc mơ đang chờ bạn chạm tới.'
+    },
+  ];
+
+  const siriusPets = [
+    { img: 'https://youniverse.io.vn/images/sirius-cho.jpg', name: 'Chó', emoji: '🐕' },
+    { img: 'https://youniverse.io.vn/images/sirius-meo.jpg', name: 'Mèo', emoji: '🐱' },
+    { img: 'https://youniverse.io.vn/images/sirius-hamster.jpg', name: 'Hamster', emoji: '🐹' },
+  ];
+
+  const siriusDrinks = [
+    { img: 'https://youniverse.io.vn/images/sirius-tra-sua.jpg', name: 'Trà Sữa', emoji: '🧋' },
+    { img: 'https://youniverse.io.vn/images/sirius-matcha.jpg', name: 'Matcha Latte', emoji: '🍵' },
+    { img: 'https://youniverse.io.vn/images/sirius-ca-phe.jpg', name: 'Cà Phê', emoji: '☕' },
+  ];
 
   return (
     <View style={styles.container}>
@@ -77,78 +107,190 @@ export default function ProductListScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Category Selection Scroll */}
-      <View style={styles.categoryContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
-          {categories.map((cat) => {
-            const isSelected = cat === selectedCategory;
-            return (
-              <TouchableOpacity
-                key={cat}
-                onPress={() => setSelectedCategory(cat)}
-                style={[styles.categoryBtn, isSelected && styles.categoryBtnActive]}
-              >
-                <Text style={[styles.categoryText, isSelected && styles.categoryTextActive]}>{cat}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View>
+      <ScrollView 
+        ref={scrollRef} 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 1. Header Banner */}
+        <View style={styles.bannerContainer}>
+          <Image 
+            source={{ uri: 'https://youniverse.io.vn/images/banner-products-new.png' }} 
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+        </View>
 
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={AppTheme.colors.accentYellow} />
-          <Text style={styles.loadingText}>Đang tải sản phẩm từ vũ trụ...</Text>
+        {/* 2. Navigation Jump Tabs */}
+        <View style={styles.navigationTabs}>
+          <TouchableOpacity 
+            style={[styles.navTab, styles.navTabAstra]}
+            onPress={() => handleScrollToSection('astra')}
+          >
+            <Sparkles color="#3B82F6" size={14} />
+            <Text style={styles.navTabText}>Astra</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.navTab, styles.navTabSirius]}
+            onPress={() => handleScrollToSection('sirius')}
+          >
+            <Heart color="#F59E0B" size={14} />
+            <Text style={styles.navTabText}>Sirius</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.navTab, styles.navTabPolaris]}
+            onPress={() => handleScrollToSection('polaris')}
+          >
+            <Compass color="#EF4444" size={14} />
+            <Text style={styles.navTabText}>Polaris</Text>
+          </TouchableOpacity>
         </View>
-      ) : products.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <HelpCircle color="#D6D3D1" size={50} />
-          <Text style={styles.emptyText}>Chưa có sản phẩm nào được kích hoạt.</Text>
-        </View>
-      ) : (
-        /* Products Grid */
-        <FlatList
-          data={filteredProducts}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          contentContainerStyle={styles.gridContent}
-          columnWrapperStyle={styles.gridRow}
-          renderItem={({ item }) => {
-            const imageUrl = getProductImageUrl(item);
-            return (
-              <TouchableOpacity 
-                style={styles.gridCard}
-                onPress={() => router.push(`/product/${item.slug}`)}
-              >
-                <View style={styles.cardImage}>
-                  {imageUrl ? (
-                    <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
-                  ) : (
-                    <HelpCircle color={AppTheme.colors.primaryGreen} size={42} opacity={0.3} />
-                  )}
-                  {item.badge ? (
-                    <View style={styles.cardBadge}>
-                      <Text style={styles.cardBadgeText}>{item.badge}</Text>
-                    </View>
-                  ) : null}
+
+        {/* 3. Charm Astra Section */}
+        <View 
+          style={styles.section}
+          onLayout={(e) => { sectionPositions.current['astra'] = e.nativeEvent.layout.y; }}
+        >
+          <Text style={styles.sectionTitle}>Charm Astra</Text>
+          <View style={styles.astraGrid}>
+            {astraVariants.map((item, index) => (
+              <View key={index} style={styles.astraCard}>
+                <Image source={{ uri: item.img }} style={styles.showcaseImage} />
+                <View style={styles.showcaseOverlay}>
+                  <View style={[styles.badgeLine, { backgroundColor: '#3B82F6' }]}>
+                    <Text style={styles.badgeLineText}>Astra</Text>
+                  </View>
+                  <Text style={styles.showcaseName}>{item.name}</Text>
+                  <Text style={styles.showcaseDesc} numberOfLines={2}>{item.desc}</Text>
                 </View>
-                <View style={styles.cardDetails}>
-                  <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-                  <View style={styles.cardFooter}>
-                    <Text style={styles.cardPrice}>{formatMoney(Number(item.price))}</Text>
-                    <TouchableOpacity 
-                      style={styles.quickAddBtn}
-                      onPress={() => handleAddQuickToCart(item)}
-                    >
-                      <Plus color={AppTheme.colors.white} size={14} />
-                    </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 4. Charm Sirius Section */}
+        <View 
+          style={styles.section}
+          onLayout={(e) => { sectionPositions.current['sirius'] = e.nativeEvent.layout.y; }}
+        >
+          <Text style={styles.sectionTitle}>Charm Sirius</Text>
+          
+          {/* Sub-category 1 */}
+          <Text style={styles.subCategoryTitle}>🐾 Những người bạn 4 chân</Text>
+          <View style={styles.siriusGrid}>
+            {siriusPets.map((item, index) => (
+              <View key={index} style={styles.siriusCard}>
+                <Image source={{ uri: item.img }} style={styles.siriusImage} />
+                <View style={styles.siriusOverlay}>
+                  <View style={[styles.badgeLine, { backgroundColor: '#F59E0B' }]}>
+                    <Text style={styles.badgeLineText}>Sirius</Text>
+                  </View>
+                  <View style={styles.siriusTitleRow}>
+                    <Text style={styles.siriusEmoji}>{item.emoji}</Text>
+                    <Text style={styles.siriusName}>{item.name}</Text>
                   </View>
                 </View>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      )}
+              </View>
+            ))}
+          </View>
+
+          {/* Sub-category 2 */}
+          <Text style={[styles.subCategoryTitle, { marginTop: 24 }]}>☕ Năng lượng ngọt ngào</Text>
+          <View style={styles.siriusGrid}>
+            {siriusDrinks.map((item, index) => (
+              <View key={index} style={styles.siriusCard}>
+                <Image source={{ uri: item.img }} style={styles.siriusImage} />
+                <View style={styles.siriusOverlay}>
+                  <View style={[styles.badgeLine, { backgroundColor: '#F59E0B' }]}>
+                    <Text style={styles.badgeLineText}>Sirius</Text>
+                  </View>
+                  <View style={styles.siriusTitleRow}>
+                    <Text style={styles.siriusEmoji}>{item.emoji}</Text>
+                    <Text style={styles.siriusName}>{item.name}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* 5. Charm Polaris Section */}
+        <View 
+          style={styles.section}
+          onLayout={(e) => { sectionPositions.current['polaris'] = e.nativeEvent.layout.y; }}
+        >
+          <Text style={styles.sectionTitle}>Charm Polaris</Text>
+          <View style={styles.polarisCard}>
+            <Image 
+              source={{ uri: 'https://youniverse.io.vn/images/polaris-quote.jpg' }} 
+              style={styles.polarisImage} 
+              resizeMode="cover"
+            />
+            <View style={styles.polarisContent}>
+              <View style={[styles.badgeLine, { backgroundColor: '#EF4444', alignSelf: 'flex-start', marginBottom: 12 }]}>
+                <Text style={styles.badgeLineText}>Polaris</Text>
+              </View>
+              <Text style={styles.polarisTitle}>Tự viết nên châm ngôn của riêng bạn</Text>
+              <Text style={styles.polarisDesc}>
+                Mỏ neo cảm xúc thu nhỏ khắc sâu triết lý hoặc tiếng lòng chân thực nhất của riêng bạn.
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* 6. Purchase Base Chains Section */}
+        <View 
+          style={styles.section}
+          onLayout={(e) => { sectionPositions.current['purchase'] = e.nativeEvent.layout.y; }}
+        >
+          <Text style={styles.sectionTitle}>Đặt Mua Base Chain</Text>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={AppTheme.colors.accentYellow} style={{ marginVertical: 30 }} />
+          ) : products.length === 0 ? (
+            <Text style={styles.emptyText}>Chưa có phôi vòng nào được kích hoạt.</Text>
+          ) : (
+            <View style={styles.productGrid}>
+              {products.map((item) => {
+                const imageUrl = getProductImageUrl(item);
+                return (
+                  <TouchableOpacity 
+                    key={item.id}
+                    style={styles.productCard}
+                    onPress={() => router.push(`/product/${item.slug}`)}
+                  >
+                    <View style={styles.productImgContainer}>
+                      {imageUrl ? (
+                        <Image source={{ uri: imageUrl }} style={styles.productImg} />
+                      ) : (
+                        <HelpCircle color="#A8A29E" size={32} />
+                      )}
+                      {item.badge ? (
+                        <View style={styles.badgeTag}>
+                          <Text style={styles.badgeTagText}>{item.badge}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    <View style={styles.productInfo}>
+                      <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+                      <View style={styles.productFooter}>
+                        <Text style={styles.productPrice}>{formatMoney(Number(item.price))}</Text>
+                        <TouchableOpacity 
+                          style={styles.addBtn}
+                          onPress={() => handleAddQuickToCart(item)}
+                        >
+                          <Plus color="#FFFFFF" size={14} />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -175,126 +317,267 @@ const styles = StyleSheet.create({
   searchBtn: {
     padding: 6,
   },
-  categoryContainer: {
-    height: 56,
-    marginBottom: 8,
+  scrollContent: {
+    paddingBottom: 40,
   },
-  categoryScroll: {
-    paddingHorizontal: 20,
+  bannerContainer: {
+    marginHorizontal: 16,
+    borderRadius: 24,
+    overflow: 'hidden',
+    height: 140,
+    marginBottom: 16,
+    backgroundColor: '#000000',
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  navigationTabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 24,
+    gap: 10,
+  },
+  navTab: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-  },
-  categoryBtn: {
-    marginRight: 10,
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 100,
+    justifyContent: 'center',
     backgroundColor: AppTheme.colors.white,
+    paddingVertical: 10,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
+    gap: 6,
   },
-  categoryBtnActive: {
-    backgroundColor: AppTheme.colors.primaryGreen,
-    borderColor: AppTheme.colors.primaryGreen,
+  navTabAstra: {
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  categoryText: {
+  navTabSirius: {
+    shadowColor: '#F59E0B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  navTabPolaris: {
+    shadowColor: '#EF4444',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  navTabText: {
     fontSize: 12,
     fontWeight: 'bold',
     color: AppTheme.colors.darkText,
   },
-  categoryTextActive: {
-    color: AppTheme.colors.white,
+  section: {
+    paddingHorizontal: 16,
+    marginBottom: 32,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: AppTheme.colors.darkText,
+    marginBottom: 16,
+    textTransform: 'uppercase',
   },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 13,
-    color: AppTheme.colors.textMuted,
+  astraGrid: {
+    gap: 16,
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  astraCard: {
+    height: 220,
+    borderRadius: 24,
+    overflow: 'hidden',
+    backgroundColor: '#1C1917',
+    position: 'relative',
   },
-  emptyText: {
-    marginTop: 12,
+  showcaseImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.65,
+  },
+  showcaseOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 20,
+  },
+  badgeLine: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 100,
+    marginBottom: 8,
+  },
+  badgeLineText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  showcaseName: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+  },
+  showcaseDesc: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.7)',
+    marginTop: 4,
+    lineHeight: 16,
+  },
+  subCategoryTitle: {
     fontSize: 14,
-    color: AppTheme.colors.textMuted,
+    fontWeight: 'bold',
+    color: AppTheme.colors.darkText,
+    marginBottom: 12,
+    paddingLeft: 2,
   },
-  gridContent: {
-    paddingHorizontal: 12,
-    paddingBottom: 24,
-  },
-  gridRow: {
+  siriusGrid: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 10,
   },
-  gridCard: {
-    flex: 0.48,
-    margin: 8,
+  siriusCard: {
+    flex: 1,
+    height: 140,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#1C1917',
+    position: 'relative',
+  },
+  siriusImage: {
+    width: '100%',
+    height: '100%',
+    opacity: 0.65,
+  },
+  siriusOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 12,
+  },
+  siriusTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  siriusEmoji: {
+    fontSize: 14,
+  },
+  siriusName: {
+    fontSize: 12,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textTransform: 'uppercase',
+  },
+  polarisCard: {
     backgroundColor: AppTheme.colors.white,
     borderRadius: 24,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: AppTheme.colors.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.01,
-    shadowRadius: 5,
-    elevation: 2,
+  },
+  polarisImage: {
+    width: '100%',
+    height: 180,
+  },
+  polarisContent: {
+    padding: 20,
+  },
+  polarisTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: AppTheme.colors.darkText,
+    lineHeight: 22,
+    marginBottom: 6,
+  },
+  polarisDesc: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+    lineHeight: 18,
+  },
+  productGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  productCard: {
+    width: '48%',
+    backgroundColor: AppTheme.colors.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    marginBottom: 16,
     overflow: 'hidden',
   },
-  cardImage: {
-    height: 130,
+  productImgContainer: {
+    height: 120,
     backgroundColor: '#FAF9F6',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
-  image: {
+  productImg: {
     width: '100%',
     height: '100%',
   },
-  cardBadge: {
+  badgeTag: {
     position: 'absolute',
-    top: 10,
-    left: 10,
+    top: 8,
+    left: 8,
     backgroundColor: AppTheme.colors.accentYellow,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 100,
   },
-  cardBadgeText: {
-    fontSize: 9,
-    fontWeight: '900',
+  badgeTagText: {
+    fontSize: 8,
+    fontWeight: 'bold',
     color: AppTheme.colors.primaryGreen,
   },
-  cardDetails: {
+  productInfo: {
     padding: 12,
   },
-  cardName: {
-    fontSize: 14,
+  productName: {
+    fontSize: 13,
     fontWeight: 'bold',
     color: AppTheme.colors.darkText,
     marginBottom: 6,
   },
-  cardFooter: {
+  productFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  cardPrice: {
-    fontSize: 13,
+  productPrice: {
+    fontSize: 12,
     fontWeight: '900',
     color: AppTheme.colors.primaryGreen,
   },
-  quickAddBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+  addBtn: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: AppTheme.colors.primaryGreen,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
