@@ -80,3 +80,24 @@ export type PublicProductListQuery = z.infer<typeof publicProductListQuerySchema
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
+
+export const variantIdParamsSchema = z.object({
+  id: z.string().trim().min(1),
+  variantId: z.string().trim().min(1),
+});
+
+export const createVariantSchema = z.object({
+  name: z.string().trim().min(1, "Name is required"),
+  sku: optionalText,
+  price: money.optional().nullable(),
+  stock: nonNegativeInt.default(0),
+  imageUrl: optionalText,
+  imageAlt: optionalText,
+  description: optionalText,
+  group: optionalText,
+  groupEmoji: optionalText,
+  sortOrder: nonNegativeInt.default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const updateVariantSchema = createVariantSchema.partial();

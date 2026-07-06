@@ -253,50 +253,171 @@ const seedCoupons = async () => {
   }
 };
 
-const astraVariants = [
+const allVariants = [
+  // ── Charm Astra (3 hệ) ──
   {
+    productSlug: "charm-astra",
     sku: "ASTRA-SUN",
     name: "Hệ Mặt Trời (The Sun)",
     stock: 30,
+    imageUrl: "/images/astra-mat-troi.jpg",
+    imageAlt: "Charm Astra Hệ Mặt Trời",
+    description: "Năng lượng rực rỡ, tỏa sáng như mặt trời — biểu tượng của sức mạnh và niềm tin.",
+    group: null,
+    groupEmoji: null,
+    sortOrder: 0,
   },
   {
+    productSlug: "charm-astra",
     sku: "ASTRA-MOON",
     name: "Hệ Mặt Trăng (The Moon)",
     stock: 30,
+    imageUrl: "/images/astra-mat-trang.jpg",
+    imageAlt: "Charm Astra Hệ Mặt Trăng",
+    description: "Dịu dàng mà sâu lắng, ánh trăng dẫn lối qua những đêm tĩnh lặng nhất.",
+    group: null,
+    groupEmoji: null,
+    sortOrder: 1,
   },
   {
+    productSlug: "charm-astra",
     sku: "ASTRA-STAR",
     name: "Hệ Tinh Tú (The Star)",
     stock: 30,
+    imageUrl: "/images/astra-tinh-tu.jpg",
+    imageAlt: "Charm Astra Hệ Tinh Tú",
+    description: "Vô vàn ngôi sao, mỗi ánh sáng là một giấc mơ đang chờ bạn chạm tới.",
+    group: null,
+    groupEmoji: null,
+    sortOrder: 2,
+  },
+  // ── Charm Sirius — Nhóm Pet ──
+  {
+    productSlug: "charm-sirius",
+    sku: "SIRIUS-DOG",
+    name: "Chó",
+    stock: 30,
+    imageUrl: "/images/sirius-cho.jpg",
+    imageAlt: "Charm Sirius Chó",
+    description: null,
+    group: "Những người bạn 4 chân",
+    groupEmoji: "🐾",
+    sortOrder: 0,
+  },
+  {
+    productSlug: "charm-sirius",
+    sku: "SIRIUS-CAT",
+    name: "Mèo",
+    stock: 30,
+    imageUrl: "/images/sirius-meo.jpg",
+    imageAlt: "Charm Sirius Mèo",
+    description: null,
+    group: "Những người bạn 4 chân",
+    groupEmoji: "🐾",
+    sortOrder: 1,
+  },
+  {
+    productSlug: "charm-sirius",
+    sku: "SIRIUS-HAMSTER",
+    name: "Hamster",
+    stock: 30,
+    imageUrl: "/images/sirius-hamster.jpg",
+    imageAlt: "Charm Sirius Hamster",
+    description: null,
+    group: "Những người bạn 4 chân",
+    groupEmoji: "🐾",
+    sortOrder: 2,
+  },
+  // ── Charm Sirius — Nhóm Drink ──
+  {
+    productSlug: "charm-sirius",
+    sku: "SIRIUS-BOBA",
+    name: "Trà Sữa",
+    stock: 30,
+    imageUrl: "/images/sirius-tra-sua.jpg",
+    imageAlt: "Charm Sirius Trà Sữa",
+    description: null,
+    group: "Năng lượng ngọt ngào",
+    groupEmoji: "☕",
+    sortOrder: 3,
+  },
+  {
+    productSlug: "charm-sirius",
+    sku: "SIRIUS-MATCHA",
+    name: "Matcha Latte",
+    stock: 30,
+    imageUrl: "/images/sirius-matcha.jpg",
+    imageAlt: "Charm Sirius Matcha Latte",
+    description: null,
+    group: "Năng lượng ngọt ngào",
+    groupEmoji: "☕",
+    sortOrder: 4,
+  },
+  {
+    productSlug: "charm-sirius",
+    sku: "SIRIUS-COFFEE",
+    name: "Cà Phê",
+    stock: 30,
+    imageUrl: "/images/sirius-ca-phe.jpg",
+    imageAlt: "Charm Sirius Cà Phê",
+    description: null,
+    group: "Năng lượng ngọt ngào",
+    groupEmoji: "☕",
+    sortOrder: 5,
   },
 ] as const;
 
-const seedAstraVariants = async () => {
-  const astraProduct = await prisma.product.findUnique({
-    where: { slug: "charm-astra" },
-  });
+const productSortOrders: Record<string, number> = {
+  "charm-astra": 0,
+  "charm-sirius": 1,
+  "charm-polaris": 2,
+};
 
-  if (!astraProduct) {
-    console.warn("[seed] Charm Astra product not found, skipping variants.");
-    return;
+const seedAllVariants = async () => {
+  // Set sortOrder for products
+  for (const [slug, sortOrder] of Object.entries(productSortOrders)) {
+    await prisma.product.updateMany({
+      where: { slug },
+      data: { sortOrder },
+    });
   }
 
-  for (const variant of astraVariants) {
-    const existing = await prisma.productVariant.findUnique({
-      where: { sku: variant.sku },
+  // Upsert all variants
+  for (const variant of allVariants) {
+    const product = await prisma.product.findUnique({
+      where: { slug: variant.productSlug },
     });
 
-    if (!existing) {
-      await prisma.productVariant.create({
-        data: {
-          productId: astraProduct.id,
-          name: variant.name,
-          sku: variant.sku,
-          stock: variant.stock,
-          isActive: true,
-        },
-      });
+    if (!product) {
+      console.warn(`[seed] Product ${variant.productSlug} not found, skipping variant ${variant.sku}.`);
+      continue;
     }
+
+    await prisma.productVariant.upsert({
+      where: { sku: variant.sku },
+      create: {
+        productId: product.id,
+        name: variant.name,
+        sku: variant.sku,
+        stock: variant.stock,
+        isActive: true,
+        imageUrl: variant.imageUrl,
+        imageAlt: variant.imageAlt,
+        description: variant.description,
+        group: variant.group,
+        groupEmoji: variant.groupEmoji,
+        sortOrder: variant.sortOrder,
+      },
+      update: {
+        name: variant.name,
+        imageUrl: variant.imageUrl,
+        imageAlt: variant.imageAlt,
+        description: variant.description,
+        group: variant.group,
+        groupEmoji: variant.groupEmoji,
+        sortOrder: variant.sortOrder,
+      },
+    });
   }
 };
 
@@ -305,7 +426,7 @@ const main = async () => {
   await seedCategories();
   await seedProducts();
   await seedCoupons();
-  await seedAstraVariants();
+  await seedAllVariants();
 
   console.info("Database seed completed.");
 };
@@ -319,3 +440,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

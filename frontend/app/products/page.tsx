@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import JsonLd from "../components/JsonLd";
 import ProductsView from "../components/ProductsView";
-import { apiRequest, type ProductListData } from "../lib/api";
+import { apiRequest, type ShowcaseData, type ShowcaseProduct } from "../lib/api";
 
 export const metadata: Metadata = {
   title: "Charm cá nhân hóa Astra, Sirius & Polaris",
@@ -34,15 +34,15 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function ProductsPage() {
-  let products: ProductListData["items"] = [];
+  let showcaseProducts: ShowcaseProduct[] = [];
   let initialError: string | null = null;
 
   try {
-    const data = await apiRequest<ProductListData>(
-      "/products?page=1&limit=50&sort=newest",
-      { next: { revalidate: 300, tags: ["products"] } },
+    const data = await apiRequest<ShowcaseData>(
+      "/products/showcase",
+      { next: { revalidate: 300, tags: ["products", "showcase"] } },
     );
-    products = data.items;
+    showcaseProducts = data.items;
   } catch {
     initialError = "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.";
   }
@@ -51,7 +51,7 @@ export default async function ProductsPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Sản phẩm charm cá nhân hóa YOUniverse",
-    itemListElement: products.map((product, index) => ({
+    itemListElement: showcaseProducts.map((product, index) => ({
       "@type": "ListItem",
       position: index + 1,
       url: `https://youniverse.io.vn/products/${encodeURIComponent(product.slug)}`,
@@ -61,8 +61,9 @@ export default async function ProductsPage() {
 
   return (
     <>
-      {products.length > 0 && <JsonLd id="product-list-structured-data" data={itemList} />}
-      <ProductsView initialProducts={products} initialError={initialError} />
+      {showcaseProducts.length > 0 && <JsonLd id="product-list-structured-data" data={itemList} />}
+      <ProductsView showcaseProducts={showcaseProducts} initialError={initialError} />
     </>
   );
 }
+

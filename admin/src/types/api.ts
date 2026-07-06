@@ -52,9 +52,11 @@ export type Product = {
   status: ProductStatus;
   isFeatured: boolean;
   allowCustomize: boolean;
+  sortOrder: number;
   metaTitle: string | null;
   metaDescription: string | null;
   images: Array<{ id?: string; url: string; alt: string | null; sortOrder?: number; isPrimary: boolean }>;
+  variants: ProductVariant[];
   inventory: {
     quantity: number;
     reservedQuantity?: number;
@@ -63,6 +65,23 @@ export type Product = {
   } | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type ProductVariant = {
+  id: string;
+  name: string;
+  sku: string | null;
+  price: number | null;
+  stock: number;
+  isActive: boolean;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  description: string | null;
+  group: string | null;
+  groupEmoji: string | null;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ProductListData = {

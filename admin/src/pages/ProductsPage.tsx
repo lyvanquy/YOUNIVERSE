@@ -146,6 +146,7 @@ export default function ProductsPage() {
                   <th>Sản phẩm</th>
                   <th>Dòng</th>
                   <th>Giá</th>
+                  <th>Biến thể</th>
                   <th>Tồn kho</th>
                   <th>Trạng thái</th>
                   <th style={{ textAlign: "right" }}>Thao tác</th>
@@ -201,6 +202,13 @@ export default function ProductsPage() {
                           {formatCurrency(product.price)}
                         </div>
                       )}
+                    </td>
+
+                    {/* Variants count */}
+                    <td>
+                      <span style={{ fontSize: 12, color: "var(--muted)" }}>
+                        {product.variants?.length ?? 0}
+                      </span>
                     </td>
 
                     {/* Stock */}

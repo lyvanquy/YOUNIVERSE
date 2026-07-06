@@ -1,41 +1,28 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { Sparkles, Heart, Compass, Search, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { Sparkles, Heart, Compass, Search, Quote } from 'lucide-react';
 import { useYouniverseApp } from '../YouniverseApp';
-import { translations } from '../locales';
-import { apiRequest, buildQuery, productLineToApi, type ApiProduct, type ProductListData } from '../lib/api';
+import type { ShowcaseProduct, ShowcaseVariant } from '../lib/api';
 
 interface ProductsViewProps {
-  initialProducts: ApiProduct[];
+  showcaseProducts: ShowcaseProduct[];
   initialError?: string | null;
 }
 
-type ProductLineFilter = 'all' | 'astra' | 'sirius' | 'polaris';
 type ProductLine = 'ASTRA' | 'SIRIUS' | 'POLARIS';
-type SortBy = 'newest' | 'price-asc' | 'price-desc';
 
-const sortToApi: Record<SortBy, string> = {
-  newest: 'newest',
-  'price-asc': 'price-low-high',
-  'price-desc': 'price-high-low',
+const LINE_COLORS: Record<ProductLine, { badge: string; badgeBg: string }> = {
+  ASTRA: { badge: 'bg-blue-600/90', badgeBg: 'bg-blue-600' },
+  SIRIUS: { badge: 'bg-amber-500/90', badgeBg: 'bg-amber-500' },
+  POLARIS: { badge: 'bg-rose-500/90', badgeBg: 'bg-rose-500' },
 };
 
-const lineFallbackImages: Record<ProductLine, string> = {
-  ASTRA: '/images/astra-core.png',
-  SIRIUS: '/images/sirius-core.png',
-  POLARIS: '/images/polaris-core.png',
+const LINE_NAV: Record<ProductLine, { iconName: string; iconColor: string; hoverBg: string; hoverShadow: string }> = {
+  ASTRA: { iconName: 'sparkles', iconColor: 'text-blue-500', hoverBg: 'hover:bg-blue-600', hoverShadow: 'hover:shadow-[0_4px_20px_rgba(59,130,246,0.35)]' },
+  SIRIUS: { iconName: 'heart', iconColor: 'text-amber-500', hoverBg: 'hover:bg-amber-500', hoverShadow: 'hover:shadow-[0_4px_20px_rgba(245,158,11,0.35)]' },
+  POLARIS: { iconName: 'compass', iconColor: 'text-rose-500', hoverBg: 'hover:bg-rose-500', hoverShadow: 'hover:shadow-[0_4px_20px_rgba(244,63,94,0.35)]' },
 };
-
-/* ─── Charm Sections Config ─── */
-/* Add a new entry here → nav tab + section header auto-generated */
-const CHARM_SECTIONS = [
-  { id: 'charm-astra', label: 'Charm Astra', iconName: 'sparkles' as const, iconColor: 'text-blue-500', hoverBg: 'hover:bg-blue-600', hoverShadow: 'hover:shadow-[0_4px_20px_rgba(59,130,246,0.35)]' },
-  { id: 'charm-sirius', label: 'Charm Sirius', iconName: 'heart' as const, iconColor: 'text-amber-500', hoverBg: 'hover:bg-amber-500', hoverShadow: 'hover:shadow-[0_4px_20px_rgba(245,158,11,0.35)]' },
-  { id: 'charm-polaris', label: 'Charm Polaris', iconName: 'compass' as const, iconColor: 'text-rose-500', hoverBg: 'hover:bg-rose-500', hoverShadow: 'hover:shadow-[0_4px_20px_rgba(244,63,94,0.35)]' },
-];
 
 const sectionIcon = (name: string, className: string) => {
   if (name === 'sparkles') return <Sparkles className={className} />;
@@ -44,31 +31,7 @@ const sectionIcon = (name: string, className: string) => {
   return null;
 };
 
-const formatPrice = (value: number) =>
-  new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
-  }).format(value);
 
-function ProductVisual({ product }: { product: ApiProduct }) {
-  const [imageFailed, setImageFailed] = useState(false);
-  const primaryImage = product.images.find((image) => image.isPrimary) ?? product.images[0];
-  const imageUrl = imageFailed ? lineFallbackImages[product.productLine] : primaryImage?.url ?? lineFallbackImages[product.productLine];
-  
-  return (
-    <img
-      src={imageUrl}
-      alt={primaryImage?.alt ?? product.name}
-      width={800}
-      height={600}
-      loading="lazy"
-      decoding="async"
-      onError={() => setImageFailed(true)}
-      className="absolute inset-0 h-full w-full object-cover opacity-100 transition-transform duration-500 ease-out group-hover:scale-105"
-    />
-  );
-}
 
 /* ─── Testimonial Carousel ─── */
 interface Testimonial {
@@ -597,64 +560,130 @@ export function Visual4Steps({ language }: { language: 'vi' | 'en' }) {
   );
 }
 
-export default function ProductsView({ initialProducts, initialError = null }: ProductsViewProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLine, setSelectedLine] = useState<ProductLineFilter>('all');
-  const [sortBy, setSortBy] = useState<SortBy>('newest');
-  const [sortOpen, setSortOpen] = useState(false);
-  const [products, setProducts] = useState<ApiProduct[]>(initialProducts);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(initialError);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const isFirstRender = useRef(true);
+/* ─── Dynamic Variant Card ─── */
+function VariantCard({ variant, productLine }: { variant: ShowcaseVariant; productLine: ProductLine }) {
+  const colors = LINE_COLORS[productLine] ?? LINE_COLORS.ASTRA;
+  return (
+    <div className="group/card relative rounded-[24px] overflow-hidden bg-stone-900 cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+      <div className="aspect-square overflow-hidden">
+        {variant.imageUrl ? (
+          <img
+            src={variant.imageUrl}
+            alt={variant.imageAlt ?? variant.name}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full bg-stone-800 flex items-center justify-center">
+            <span className="text-stone-500 text-sm">No image</span>
+          </div>
+        )}
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-5">
+        <h3 className="font-display text-lg font-black text-white uppercase tracking-wide">{variant.name}</h3>
+        {variant.description && (
+          <p className="font-sans text-white/70 text-[11px] leading-relaxed mt-1 line-clamp-2 opacity-0 translate-y-2 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-400">
+            {variant.description}
+          </p>
+        )}
+      </div>
+      <div className={`absolute top-3 left-3 ${colors.badge} backdrop-blur-sm rounded-full px-3 py-1`}>
+        <span className="text-[9px] font-display font-bold uppercase tracking-wider text-white">
+          {productLine.charAt(0) + productLine.slice(1).toLowerCase()}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Dynamic Product Section ─── */
+function DynamicProductSection({ product, isFirst }: { product: ShowcaseProduct; isFirst: boolean }) {
+  const sectionId = product.slug;
+  const productLine = product.productLine as ProductLine;
+  const variants = product.variants ?? [];
+
+  // Group variants by group field
+  const groups = new Map<string | null, ShowcaseVariant[]>();
+  for (const v of variants) {
+    const key = v.group;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(v);
+  }
+
+  const hasGroups = groups.size > 1 || (groups.size === 1 && !groups.has(null));
+
+  return (
+    <div
+      id={sectionId}
+      className={`space-y-8 ${isFirst ? 'pt-4' : 'pt-8 border-t border-stone-200/60'} scroll-mt-24`}
+    >
+      {/* Section Header */}
+      <div className={`space-y-3 ${!isFirst ? 'pt-8' : ''}`}>
+        <h2 className="font-display text-3xl md:text-4xl font-black text-stone-900 uppercase tracking-tight">
+          {product.name}
+        </h2>
+      </div>
+
+      {variants.length > 0 ? (
+        // Has variants → render grid cards
+        hasGroups ? (
+          // Multiple groups → sub-category layout
+          Array.from(groups.entries()).map(([groupName, groupVariants]) => (
+            <div key={groupName ?? 'ungrouped'} className="space-y-4">
+              {groupName && (
+                <div className="flex items-center gap-3 pl-1">
+                  {groupVariants[0]?.groupEmoji && (
+                    <span className="text-xl">{groupVariants[0].groupEmoji}</span>
+                  )}
+                  <h3 className="font-display text-lg font-extrabold text-stone-800 uppercase tracking-wide">
+                    {groupName}
+                  </h3>
+                </div>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {groupVariants.map((v) => (
+                  <VariantCard key={v.id} variant={v} productLine={productLine} />
+                ))}
+              </div>
+            </div>
+          ))
+        ) : (
+          // No groups → flat grid
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {variants.map((v) => (
+              <VariantCard key={v.id} variant={v} productLine={productLine} />
+            ))}
+          </div>
+        )
+      ) : (
+        // No variants → single image + text layout (Polaris-style)
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="rounded-[24px] overflow-hidden shadow-md">
+            <img
+              src={product.images[0]?.url ?? '/images/placeholder.jpg'}
+              alt={product.images[0]?.alt ?? product.name}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div className="flex flex-col justify-center space-y-4">
+            <h3 className="font-display text-2xl md:text-3xl font-black text-stone-900 uppercase tracking-tight leading-tight">
+              {product.shortDescription}
+            </h3>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ProductsView({ showcaseProducts, initialError = null }: ProductsViewProps) {
   const { language } = useYouniverseApp();
-  const t = translations[language];
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    const controller = new AbortController();
-
-    const loadProducts = async () => {
-      try {
-        const data = await apiRequest<ProductListData>(
-          `/products${buildQuery({
-            page: 1,
-            limit: 50,
-            search: searchQuery,
-            line: productLineToApi(selectedLine),
-            sort: sortToApi[sortBy],
-          })}`,
-          { signal: controller.signal },
-        );
-
-        setProducts(data.items);
-      } catch (err) {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        setProducts([]);
-        setError(err instanceof Error ? err.message : 'Could not load products');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const timer = window.setTimeout(loadProducts, 250);
-    return () => {
-      controller.abort();
-      window.clearTimeout(timer);
-    };
-  }, [searchQuery, selectedLine, sortBy, refreshKey]);
 
   return (
     <div className="pb-24 space-y-16 bg-neutral-50/30" id="products-view">
       
-      {/* 1. Header Banner of Our products */}
+      {/* 1. Header Banner */}
       <section className="relative overflow-hidden h-48 sm:h-64 cursor-default rounded-3xl mx-auto max-w-7xl mt-6 shadow-sm">
         <img 
           src="/images/banner-products-new.png" 
@@ -663,7 +692,7 @@ export default function ProductsView({ initialProducts, initialError = null }: P
         />
       </section>
 
-      {/* 2. Main Product Catalog Section with Filters */}
+      {/* 2. Product Showcase Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Headline */}
@@ -674,181 +703,37 @@ export default function ProductsView({ initialProducts, initialError = null }: P
           <div className="h-1 w-16 bg-amber-500 mx-auto mt-3 rounded" />
         </div>
 
-        {/* Navigation Tabs — auto-generated from CHARM_SECTIONS */}
+        {/* Navigation Tabs — auto-generated from showcase data */}
         <div className="bg-white/80 backdrop-blur-md border border-stone-200/60 rounded-2xl p-2.5 shadow-lg shadow-stone-200/30 flex items-center justify-center gap-2.5 flex-wrap">
-          {CHARM_SECTIONS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => document.getElementById(tab.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-              className={`group flex items-center space-x-2 px-6 py-2.5 rounded-xl text-[11px] font-bold font-display tracking-wider uppercase transition-all duration-300 cursor-pointer bg-stone-50 text-stone-600 hover:text-white hover:-translate-y-0.5 active:translate-y-0 ${tab.hoverBg} ${tab.hoverShadow}`}
-            >
-              {sectionIcon(tab.iconName, `h-3.5 w-3.5 ${tab.iconColor} group-hover:text-white transition-colors duration-300`)}
-              <span>{tab.label}</span>
-            </button>
-          ))}
+          {showcaseProducts.map((product) => {
+            const nav = LINE_NAV[product.productLine as ProductLine] ?? LINE_NAV.ASTRA;
+            return (
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => document.getElementById(product.slug)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className={`group flex items-center space-x-2 px-6 py-2.5 rounded-xl text-[11px] font-bold font-display tracking-wider uppercase transition-all duration-300 cursor-pointer bg-stone-50 text-stone-600 hover:text-white hover:-translate-y-0.5 active:translate-y-0 ${nav.hoverBg} ${nav.hoverShadow}`}
+              >
+                {sectionIcon(nav.iconName, `h-3.5 w-3.5 ${nav.iconColor} group-hover:text-white transition-colors duration-300`)}
+                <span>{product.name}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* ═══ CHARM ASTRA SHOWCASE ═══ */}
-        <div id="charm-astra" className="space-y-8 pt-4 scroll-mt-24">
-          
-          {/* Section Header — Astra */}
-          <div className="space-y-3">
-            <h2 className="font-display text-3xl md:text-4xl font-black text-stone-900 uppercase tracking-tight">
-              Charm Astra
-            </h2>
-          </div>
+        {/* Error state */}
+        {initialError && (
+          <div className="text-center text-red-500 py-8">{initialError}</div>
+        )}
 
-          {/* Astra 3-card grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              { 
-                img: '/images/astra-mat-troi.jpg', 
-                name: language === 'vi' ? 'Hệ Mặt Trời' : 'Solar System',
-                desc: language === 'vi' ? 'Năng lượng rực rỡ, tỏa sáng như mặt trời — biểu tượng của sức mạnh và niềm tin.' : 'Radiant energy, shining like the sun — a symbol of strength and belief.'
-              },
-              { 
-                img: '/images/astra-mat-trang.jpg', 
-                name: language === 'vi' ? 'Hệ Mặt Trăng' : 'Lunar System',
-                desc: language === 'vi' ? 'Dịu dàng mà sâu lắng, ánh trăng dẫn lối qua những đêm tĩnh lặng nhất.' : 'Gentle yet profound, moonlight guides through the quietest nights.'
-              },
-              { 
-                img: '/images/astra-tinh-tu.jpg', 
-                name: language === 'vi' ? 'Hệ Tinh Tú' : 'Star System',
-                desc: language === 'vi' ? 'Vô vàn ngôi sao, mỗi ánh sáng là một giấc mơ đang chờ bạn chạm tới.' : 'Countless stars, each light is a dream waiting for you to reach.'
-              },
-            ].map((variant, i) => (
-              <div key={i} className="group/card relative rounded-[24px] overflow-hidden bg-stone-900 cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                {/* Image */}
-                <div className="aspect-square overflow-hidden">
-                  <img 
-                    src={variant.img} 
-                    alt={variant.name} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110" 
-                    loading="lazy"
-                  />
-                </div>
-                {/* Info overlay */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-5">
-                  <h3 className="font-display text-lg font-black text-white uppercase tracking-wide">{variant.name}</h3>
-                  <p className="font-sans text-white/70 text-[11px] leading-relaxed mt-1 line-clamp-2 opacity-0 translate-y-2 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-400">{variant.desc}</p>
-                </div>
-                {/* Top badge */}
-                <div className="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-sm rounded-full px-3 py-1">
-                  <span className="text-[9px] font-display font-bold uppercase tracking-wider text-white">Astra</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-
-        {/* ═══ CHARM SIRIUS SHOWCASE ═══ */}
-        <div id="charm-sirius" className="space-y-8 pt-8 border-t border-stone-200/60 scroll-mt-24">
-          
-          {/* Section Header — Sirius */}
-          <div className="space-y-3 pt-8">
-            <h2 className="font-display text-3xl md:text-4xl font-black text-stone-900 uppercase tracking-tight">
-              Charm Sirius
-            </h2>
-          </div>
-
-          {/* Sub-category 1: Những người bạn 4 chân */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 pl-1">
-              <span className="text-xl">🐾</span>
-              <h3 className="font-display text-lg font-extrabold text-stone-800 uppercase tracking-wide">
-                {language === 'vi' ? 'Những người bạn 4 chân' : 'Four-legged Friends'}
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {[
-                { img: '/images/sirius-cho.jpg', name: language === 'vi' ? 'Chó' : 'Dog', emoji: '🐕' },
-                { img: '/images/sirius-meo.jpg', name: language === 'vi' ? 'Mèo' : 'Cat', emoji: '🐱' },
-                { img: '/images/sirius-hamster.jpg', name: 'Hamster', emoji: '🐹' },
-              ].map((pet, i) => (
-                <div key={i} className="group/card relative rounded-[24px] overflow-hidden bg-stone-900 cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                  <div className="aspect-square overflow-hidden">
-                    <img src={pet.img} alt={pet.name} className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110" loading="lazy" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{pet.emoji}</span>
-                      <h4 className="font-display text-xl font-black text-white uppercase tracking-wide">{pet.name}</h4>
-                    </div>
-                  </div>
-                  <div className="absolute top-3 left-3 bg-amber-500/90 backdrop-blur-sm rounded-full px-3 py-1">
-                    <span className="text-[9px] font-display font-bold uppercase tracking-wider text-white">Sirius</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Sub-category 2: Năng lượng ngọt ngào */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 pl-1">
-              <span className="text-xl">☕</span>
-              <h3 className="font-display text-lg font-extrabold text-stone-800 uppercase tracking-wide">
-                {language === 'vi' ? 'Năng lượng ngọt ngào' : 'Sweet Energy'}
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {[
-                { img: '/images/sirius-tra-sua.jpg', name: language === 'vi' ? 'Trà Sữa' : 'Bubble Tea', emoji: '🧋' },
-                { img: '/images/sirius-matcha.jpg', name: 'Matcha Latte', emoji: '🍵' },
-                { img: '/images/sirius-ca-phe.jpg', name: language === 'vi' ? 'Cà Phê' : 'Coffee', emoji: '☕' },
-              ].map((drink, i) => (
-                <div key={i} className="group/card relative rounded-[24px] overflow-hidden bg-stone-900 cursor-pointer shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                  <div className="aspect-square overflow-hidden">
-                    <img src={drink.img} alt={drink.name} className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110" loading="lazy" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{drink.emoji}</span>
-                      <h4 className="font-display text-xl font-black text-white uppercase tracking-wide">{drink.name}</h4>
-                    </div>
-                  </div>
-                  <div className="absolute top-3 left-3 bg-amber-500/90 backdrop-blur-sm rounded-full px-3 py-1">
-                    <span className="text-[9px] font-display font-bold uppercase tracking-wider text-white">Sirius</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-
-        {/* ═══ CHARM POLARIS SHOWCASE ═══ */}
-        <div id="charm-polaris" className="space-y-8 pt-8 border-t border-stone-200/60 scroll-mt-24">
-          
-          {/* Section Header — Polaris */}
-          <div className="space-y-3 pt-8">
-            <h2 className="font-display text-3xl md:text-4xl font-black text-stone-900 uppercase tracking-tight">
-              Charm Polaris
-            </h2>
-          </div>
-
-          {/* Split layout: image left + text right */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Image */}
-            <div className="rounded-[24px] overflow-hidden shadow-md">
-              <img 
-                src="/images/polaris-quote.jpg" 
-                alt="Charm Polaris - Tự viết nên châm ngôn" 
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            {/* Text */}
-            <div className="flex flex-col justify-center space-y-4">
-              <h3 className="font-display text-2xl md:text-3xl font-black text-stone-900 uppercase tracking-tight leading-tight">
-                {language === 'vi' ? 'Tự viết nên châm ngôn của riêng bạn' : 'Write your own motto'}
-              </h3>
-            </div>
-          </div>
-
-        </div>
+        {/* Dynamic showcase sections */}
+        {showcaseProducts.map((product, index) => (
+          <DynamicProductSection
+            key={product.id}
+            product={product}
+            isFirst={index === 0}
+          />
+        ))}
 
       </section>
 

@@ -126,3 +126,69 @@ export const archiveProduct: RequestHandler = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getShowcase: RequestHandler = async (_req, res, next) => {
+  try {
+    const items = await productService.getShowcaseData();
+
+    sendSuccess(res, {
+      message: "OK",
+      data: { items },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listVariants: RequestHandler = async (req, res, next) => {
+  try {
+    const variants = await productService.listVariants(req.params.id);
+
+    sendSuccess(res, {
+      message: "OK",
+      data: { variants },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createVariant: RequestHandler = async (req, res, next) => {
+  try {
+    const variant = await productService.createVariant(req.params.id, req.body);
+
+    sendSuccess(res, {
+      statusCode: HTTP_STATUS.CREATED,
+      message: "Variant created",
+      data: { variant },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateVariant: RequestHandler = async (req, res, next) => {
+  try {
+    const variant = await productService.updateVariant(req.params.id, req.params.variantId, req.body);
+
+    sendSuccess(res, {
+      message: "Variant updated",
+      data: { variant },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteVariant: RequestHandler = async (req, res, next) => {
+  try {
+    await productService.deleteVariant(req.params.id, req.params.variantId);
+
+    sendSuccess(res, {
+      message: "Variant deleted",
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

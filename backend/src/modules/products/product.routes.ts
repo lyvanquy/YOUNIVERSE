@@ -8,6 +8,7 @@ const router = Router();
 
 router.get("/", validate({ query: publicProductListQuerySchema }), productController.listPublicProducts);
 router.get("/featured", productController.listFeaturedProducts);
+router.get("/showcase", productController.getShowcase);
 router.get("/:slug", validate({ params: productSlugParamsSchema }), productController.getPublicProductBySlug);
 
 export default router;

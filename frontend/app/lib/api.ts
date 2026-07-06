@@ -202,3 +202,25 @@ export const productLineToApi = (line: "all" | "astra" | "sirius" | "polaris") =
   if (line === "all") return undefined;
   return line.toUpperCase();
 };
+
+export type ShowcaseVariant = {
+  id: string;
+  name: string;
+  sku: string | null;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  description: string | null;
+  group: string | null;
+  groupEmoji: string | null;
+  sortOrder: number;
+  isActive: boolean;
+};
+
+export type ShowcaseProduct = ApiProduct & {
+  variants: ShowcaseVariant[];
+  sortOrder: number;
+};
+
+export type ShowcaseData = {
+  items: ShowcaseProduct[];
+};

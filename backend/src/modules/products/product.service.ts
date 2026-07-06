@@ -19,6 +19,11 @@ const productInclude = {
     },
   },
   inventory: true,
+  variants: {
+    orderBy: {
+      sortOrder: "asc",
+    },
+  },
 } satisfies Prisma.ProductInclude;
 
 type ProductWithRelations = Prisma.ProductGetPayload<{
@@ -26,6 +31,21 @@ type ProductWithRelations = Prisma.ProductGetPayload<{
 }>;
 
 const toMoney = (value: Prisma.Decimal | null): number | null => (value === null ? null : value.toNumber());
+
+const toVariantDto = (variant: ProductWithRelations["variants"][number]) => ({
+  id: variant.id,
+  name: variant.name,
+  sku: variant.sku,
+  price: variant.price ? variant.price.toNumber() : null,
+  stock: variant.stock,
+  isActive: variant.isActive,
+  imageUrl: variant.imageUrl,
+  imageAlt: variant.imageAlt,
+  description: variant.description,
+  group: variant.group,
+  groupEmoji: variant.groupEmoji,
+  sortOrder: variant.sortOrder,
+});
 
 const toProductDto = (product: ProductWithRelations) => ({
   id: product.id,
@@ -49,6 +69,7 @@ const toProductDto = (product: ProductWithRelations) => ({
   status: product.status,
   isFeatured: product.isFeatured,
   allowCustomize: product.allowCustomize,
+  sortOrder: product.sortOrder,
   metaTitle: product.metaTitle,
   metaDescription: product.metaDescription,
   images: product.images.map((image) => ({
@@ -58,6 +79,7 @@ const toProductDto = (product: ProductWithRelations) => ({
     sortOrder: image.sortOrder,
     isPrimary: image.isPrimary,
   })),
+  variants: product.variants.map(toVariantDto),
   inventory: product.inventory
     ? {
         quantity: product.inventory.quantity,
@@ -452,4 +474,144 @@ export const archiveProduct = async (id: string) => {
   });
 
   return toProductDto(product);
+};
+
+/* ─── Showcase API (public) ─── */
+
+export const getShowcaseData = async () => {
+  const products = await prisma.product.findMany({
+    where: { status: ProductStatus.ACTIVE },
+    include: productInclude,
+    orderBy: { sortOrder: "asc" },
+  });
+
+  return products.map(toProductDto);
+};
+
+/* ─── Variant CRUD (admin) ─── */
+
+export const listVariants = async (productId: string) => {
+  await getAdminProductById(productId);
+
+  const variants = await prisma.productVariant.findMany({
+    where: { productId },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  return variants.map((v) => ({
+    id: v.id,
+    name: v.name,
+    sku: v.sku,
+    price: v.price ? v.price.toNumber() : null,
+    stock: v.stock,
+    isActive: v.isActive,
+    imageUrl: v.imageUrl,
+    imageAlt: v.imageAlt,
+    description: v.description,
+    group: v.group,
+    groupEmoji: v.groupEmoji,
+    sortOrder: v.sortOrder,
+    createdAt: v.createdAt,
+    updatedAt: v.updatedAt,
+  }));
+};
+
+export const createVariant = async (productId: string, input: {
+  name: string;
+  sku?: string | null;
+  price?: number | null;
+  stock?: number;
+  imageUrl?: string | null;
+  imageAlt?: string | null;
+  description?: string | null;
+  group?: string | null;
+  groupEmoji?: string | null;
+  sortOrder?: number;
+  isActive?: boolean;
+}) => {
+  await getAdminProductById(productId);
+
+  try {
+    return await prisma.productVariant.create({
+      data: {
+        productId,
+        name: input.name,
+        sku: input.sku ?? null,
+        price: input.price ?? null,
+        stock: input.stock ?? 0,
+        imageUrl: input.imageUrl ?? null,
+        imageAlt: input.imageAlt ?? null,
+        description: input.description ?? null,
+        group: input.group ?? null,
+        groupEmoji: input.groupEmoji ?? null,
+        sortOrder: input.sortOrder ?? 0,
+        isActive: input.isActive ?? true,
+      },
+    });
+  } catch (error) {
+    mapPrismaError(error);
+    throw error;
+  }
+};
+
+export const updateVariant = async (productId: string, variantId: string, input: {
+  name?: string;
+  sku?: string | null;
+  price?: number | null;
+  stock?: number;
+  imageUrl?: string | null;
+  imageAlt?: string | null;
+  description?: string | null;
+  group?: string | null;
+  groupEmoji?: string | null;
+  sortOrder?: number;
+  isActive?: boolean;
+}) => {
+  await getAdminProductById(productId);
+
+  const existing = await prisma.productVariant.findFirst({
+    where: { id: variantId, productId },
+  });
+
+  if (!existing) {
+    throw new AppError("Variant not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  try {
+    return await prisma.productVariant.update({
+      where: { id: variantId },
+      data: {
+        name: input.name,
+        sku: input.sku,
+        price: input.price,
+        stock: input.stock,
+        imageUrl: input.imageUrl,
+        imageAlt: input.imageAlt,
+        description: input.description,
+        group: input.group,
+        groupEmoji: input.groupEmoji,
+        sortOrder: input.sortOrder,
+        isActive: input.isActive,
+      },
+    });
+  } catch (error) {
+    mapPrismaError(error);
+    throw error;
+  }
+};
+
+export const deleteVariant = async (productId: string, variantId: string) => {
+  await getAdminProductById(productId);
+
+  const existing = await prisma.productVariant.findFirst({
+    where: { id: variantId, productId },
+  });
+
+  if (!existing) {
+    throw new AppError("Variant not found", HTTP_STATUS.NOT_FOUND);
+  }
+
+  await prisma.productVariant.delete({
+    where: { id: variantId },
+  });
 };

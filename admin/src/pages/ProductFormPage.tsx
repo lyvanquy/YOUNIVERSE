@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ErrorState, LoadingState } from "../components/PageState";
+import VariantManager from "../components/VariantManager";
 import { useAuth } from "../features/auth/AuthProvider";
 import { apiRequest } from "../lib/api";
 import type { Product, ProductLine, ProductStatus } from "../types/api";
@@ -27,6 +28,7 @@ type ProductForm = {
   metaDescription: string;
   imageUrl: string;
   imageAlt: string;
+  sortOrder: string;
 };
 
 const initialForm: ProductForm = {
@@ -48,6 +50,7 @@ const initialForm: ProductForm = {
   metaDescription: "",
   imageUrl: "",
   imageAlt: "",
+  sortOrder: "0",
 };
 
 export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
@@ -86,6 +89,7 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
       metaDescription: product.metaDescription ?? "",
       imageUrl: product.images[0]?.url ?? "",
       imageAlt: product.images[0]?.alt ?? product.name,
+      sortOrder: String(product.sortOrder ?? 0),
     });
   }, [productQuery.data]);
 
@@ -137,6 +141,7 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
       status: form.status,
       isFeatured: form.isFeatured,
       allowCustomize: form.allowCustomize,
+      sortOrder: Number(form.sortOrder),
       metaTitle: form.metaTitle || null,
       metaDescription: form.metaDescription || null,
     });
@@ -197,6 +202,10 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
             <label><input type="checkbox" checked={form.isFeatured} onChange={(e) => update("isFeatured", e.target.checked)} /> Sản phẩm nổi bật</label>
             <label><input type="checkbox" checked={form.allowCustomize} onChange={(e) => update("allowCustomize", e.target.checked)} /> Cho phép tùy biến (Custom)</label>
           </div>
+          <div className="field">
+            <label>Thứ tự hiển thị (sortOrder)</label>
+            <input className="input" type="number" value={form.sortOrder} onChange={(e) => update("sortOrder", e.target.value)} min={0} />
+          </div>
         </section>
 
         <aside className="card page tai-tho-card">
@@ -213,6 +222,10 @@ export default function ProductFormPage({ mode }: { mode: "create" | "edit" }) {
           <div className="field"><label>Mô tả SEO (Meta Description)</label><textarea className="textarea" value={form.metaDescription} onChange={(e) => update("metaDescription", e.target.value)} /></div>
         </aside>
       </div>
+
+      {mode === "edit" && id && (
+        <VariantManager productId={id} />
+      )}
     </form>
   );
 }
