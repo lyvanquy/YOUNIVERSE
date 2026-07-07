@@ -22,7 +22,8 @@ export default function LoginScreen() {
 
   // Setup Google login auth session request
   const [googleRequest, googleResponse, promptGoogleAsync] = Google.useIdTokenAuthRequest({
-    clientId: '416946845040-knj5710hjrll1547emrpfjova7tvifin.apps.googleusercontent.com',
+    androidClientId: '416946845040-1m9hsqukdibb4utg5ks8m7imh7gst35o.apps.googleusercontent.com',
+    webClientId: '416946845040-knj5710hjrll1547emrpfjova7tvifin.apps.googleusercontent.com',
     scopes: ['openid', 'profile', 'email'],
   });
 

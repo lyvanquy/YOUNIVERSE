@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nebutak.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -25,6 +26,12 @@
     "plugins": [
       "expo-router",
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "37786c41-8549-46a9-b777-dd7fe7b114b4"
+      }
+    }
   }
 }
