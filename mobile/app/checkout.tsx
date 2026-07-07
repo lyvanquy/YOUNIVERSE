@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Wallet, QrCode, CheckCircle2, Info, Landmark } from 'lucide-react-native';
+import { Wallet, QrCode, CheckCircle2, Info, Landmark, Upload } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { AppTheme } from '../src/config/theme';
 import { useCartStore } from '../src/store/useCartStore';
 import { useAuthStore } from '../src/store/useAuthStore';
@@ -22,10 +23,75 @@ export default function CheckoutScreen() {
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [note, setNote] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'QR'>('COD');
-  
+  const [paymentMethod, setPaymentMethod] = useState<'COD' | 'QR'>('QR');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const [paymentSetting, setPaymentSetting] = useState<any>(null);
+  const [isLoadingPaymentSetting, setIsLoadingPaymentSetting] = useState(false);
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPaymentSettings = async () => {
+      setIsLoadingPaymentSetting(true);
+      try {
+        const response = await api.get('/settings/payment');
+        const setting = response.data.data?.paymentSetting || response.data.paymentSetting;
+        setPaymentSetting(setting);
+        if (setting) {
+          if (setting.bankTransferEnabled && !setting.codEnabled) {
+            setPaymentMethod('QR');
+          } else if (!setting.bankTransferEnabled && setting.codEnabled) {
+            setPaymentMethod('COD');
+          }
+        }
+      } catch (err) {
+        console.warn("Lỗi tải cấu hình thanh toán:", err);
+      } finally {
+        setIsLoadingPaymentSetting(false);
+      }
+    };
+    fetchPaymentSettings();
+  }, []);
+
+  const fetchAddressSuggestions = async (text: string) => {
+    if (text.trim().length < 3) {
+      setAddressSuggestions([]);
+      return;
+    }
+    setIsSearchingAddress(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&limit=5&countrycodes=vn`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setAddressSuggestions(data);
+      }
+    } catch (e) {
+      console.warn("Lỗi tìm kiếm gợi ý địa chỉ:", e);
+    } finally {
+      setIsSearchingAddress(false);
+    }
+  };
+
+  const handleSelectReceipt = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Quyền truy cập', 'Ứng dụng cần quyền truy cập thư viện ảnh để tải lên minh chứng.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setReceiptImage(result.assets[0].uri);
+    }
+  };
 
   // Pre-populate fields with logged-in user profile details
   useEffect(() => {
@@ -54,6 +120,11 @@ export default function CheckoutScreen() {
 
     if (items.length === 0) {
       Alert.alert('Lỗi', 'Giỏ hàng của bạn đang trống.');
+      return;
+    }
+
+    if (paymentMethod === 'QR' && !receiptImage) {
+      Alert.alert('Lỗi', 'Vui lòng chọn hoặc chụp ảnh minh chứng chuyển khoản.');
       return;
     }
 
@@ -102,7 +173,7 @@ export default function CheckoutScreen() {
 
       // 4. Gọi API thanh toán tạo đơn hàng chính thức
       const paymentProvider = paymentMethod === 'COD' ? 'COD' : 'BANK_TRANSFER';
-      await api.post('/checkout/create-order', {
+      const orderResponse = await api.post('/checkout/create-order', {
         cartId,
         customer: {
           fullName: name.trim(),
@@ -122,6 +193,42 @@ export default function CheckoutScreen() {
           'x-session-id': sessionId,
         }
       });
+
+      const orderData = orderResponse.data.data?.order || orderResponse.data.order;
+      const orderId = orderData?.id || orderResponse.data.data?.orderId || orderResponse.data.orderId;
+
+      // 5. Tải lên ảnh minh chứng chuyển khoản nếu dùng QR (BANK_TRANSFER)
+      if (paymentMethod === 'QR' && receiptImage && orderId) {
+        const formData = new FormData();
+        const uriParts = receiptImage.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+        formData.append('file', {
+          uri: receiptImage,
+          name: `receipt_${Date.now()}.${fileType}`,
+          type: `image/${fileType}`,
+        } as any);
+
+        const uploadResponse = await api.post('/upload/image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-session-id': sessionId,
+          },
+        });
+
+        const uploadedUrl = uploadResponse.data.data?.url || uploadResponse.data.url;
+        if (!uploadedUrl) {
+          throw new Error('Không thể tải ảnh minh chứng chuyển khoản lên máy chủ.');
+        }
+
+        await api.post('/payments/receipt', {
+          orderId,
+          receiptUrl: uploadedUrl,
+        }, {
+          headers: {
+            'x-session-id': sessionId,
+          }
+        });
+      }
 
       // Hiển thị modal đặt hàng thành công
       setIsSuccessModalVisible(true);
@@ -184,9 +291,30 @@ export default function CheckoutScreen() {
             style={styles.input}
             placeholder="Số nhà, tên đường, phường/xã..."
             value={address}
-            onChangeText={setAddress}
+            onChangeText={(text) => {
+              setAddress(text);
+              fetchAddressSuggestions(text);
+            }}
             editable={!isSubmitting}
           />
+          {addressSuggestions.length > 0 && (
+            <View style={styles.suggestionsContainer}>
+              {addressSuggestions.map((item, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.suggestionItem}
+                  onPress={() => {
+                    setAddress(item.display_name);
+                    setAddressSuggestions([]);
+                  }}
+                >
+                  <Text style={styles.suggestionText} numberOfLines={1}>
+                    {item.display_name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
 
           {/* Notes */}
           <Text style={styles.label}>Ghi chú giao hàng</Text>
@@ -241,36 +369,42 @@ export default function CheckoutScreen() {
           </View>
 
           {/* Payment selector */}
-          <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Phương thức thanh toán</Text>
+          {(!paymentSetting || paymentSetting.codEnabled || paymentSetting.bankTransferEnabled) && (
+            <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Phương thức thanh toán</Text>
+          )}
 
-          <TouchableOpacity 
-            style={[styles.paymentTile, paymentMethod === 'COD' && styles.paymentTileActive]}
-            onPress={() => !isSubmitting && setPaymentMethod('COD')}
-            disabled={isSubmitting}
-          >
-            <Wallet color={paymentMethod === 'COD' ? AppTheme.colors.primaryGreen : AppTheme.colors.textMuted} size={24} />
-            <View style={styles.paymentInfo}>
-              <Text style={styles.paymentName}>Thanh toán khi nhận hàng (COD)</Text>
-              <Text style={styles.paymentDesc}>Thanh toán bằng tiền mặt khi shipper giao hàng.</Text>
-            </View>
-            <View style={[styles.radio, paymentMethod === 'COD' && styles.radioActive]} />
-          </TouchableOpacity>
+          {(!paymentSetting || paymentSetting.codEnabled) && (
+            <TouchableOpacity 
+              style={[styles.paymentTile, paymentMethod === 'COD' && styles.paymentTileActive]}
+              onPress={() => !isSubmitting && setPaymentMethod('COD')}
+              disabled={isSubmitting}
+            >
+              <Wallet color={paymentMethod === 'COD' ? AppTheme.colors.primaryGreen : AppTheme.colors.textMuted} size={24} />
+              <View style={styles.paymentInfo}>
+                <Text style={styles.paymentName}>Thanh toán khi nhận hàng (COD)</Text>
+                <Text style={styles.paymentDesc}>Thanh toán bằng tiền mặt khi shipper giao hàng.</Text>
+              </View>
+              <View style={[styles.radio, paymentMethod === 'COD' && styles.radioActive]} />
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity 
-            style={[styles.paymentTile, paymentMethod === 'QR' && styles.paymentTileActive]}
-            onPress={() => !isSubmitting && setPaymentMethod('QR')}
-            disabled={isSubmitting}
-          >
-            <QrCode color={paymentMethod === 'QR' ? AppTheme.colors.primaryGreen : AppTheme.colors.textMuted} size={24} />
-            <View style={styles.paymentInfo}>
-              <Text style={styles.paymentName}>Quét mã QR chuyển khoản</Text>
-              <Text style={styles.paymentDesc}>Quét mã QR ngân hàng để hoàn tất thanh toán nhanh.</Text>
-            </View>
-            <View style={[styles.radio, paymentMethod === 'QR' && styles.radioActive]} />
-          </TouchableOpacity>
+          {(!paymentSetting || paymentSetting.bankTransferEnabled) && (
+            <TouchableOpacity 
+              style={[styles.paymentTile, paymentMethod === 'QR' && styles.paymentTileActive]}
+              onPress={() => !isSubmitting && setPaymentMethod('QR')}
+              disabled={isSubmitting}
+            >
+              <QrCode color={paymentMethod === 'QR' ? AppTheme.colors.primaryGreen : AppTheme.colors.textMuted} size={24} />
+              <View style={styles.paymentInfo}>
+                <Text style={styles.paymentName}>Quét mã QR chuyển khoản</Text>
+                <Text style={styles.paymentDesc}>Quét mã QR ngân hàng để hoàn tất thanh toán nhanh.</Text>
+              </View>
+              <View style={[styles.radio, paymentMethod === 'QR' && styles.radioActive]} />
+            </TouchableOpacity>
+          )}
 
           {/* QR details */}
-          {paymentMethod === 'QR' && (
+          {paymentMethod === 'QR' && (!paymentSetting || paymentSetting.bankTransferEnabled) && (
             <View style={styles.bankBox}>
               <Landmark color={AppTheme.colors.primaryGreen} size={30} style={styles.bankIcon} />
               <Text style={styles.bankTitle}>Quét QR Chuyển Khoản Ngân Hàng</Text>
@@ -278,16 +412,22 @@ export default function CheckoutScreen() {
               {/* VietQR dynamic QR image */}
               <View style={styles.qrContainer}>
                 <Image 
-                  source={{ uri: 'https://img.vietqr.io/image/mbbank-123456789-compact2.png?amount=' + total + '&addInfo=YOUniverse%20Store' }} 
+                  source={{ 
+                    uri: paymentSetting?.bankTransferQrImageUrl || 
+                         `https://img.vietqr.io/image/${paymentSetting?.bankName || 'mbbank'}-${paymentSetting?.bankAccountNumber || '123456789'}-compact2.png?amount=${total}&addInfo=YOUniverse%20Store`
+                  }} 
                   style={styles.qrImg as any} 
                   resizeMode="contain" 
                 />
               </View>
 
               <Text style={styles.bankInfoText}>
-                • Tên tài khoản: YOUNIVERSE GROUP 3{"\n"}
-                • Số tài khoản: 123456789 - MB Bank{"\n"}
+                • Ngân hàng: {paymentSetting?.bankName || 'MB Bank'}{"\n"}
+                • Tên tài khoản: {paymentSetting?.bankAccountName || 'YOUNIVERSE GROUP 3'}{"\n"}
+                • Số tài khoản: {paymentSetting?.bankAccountNumber || '123456789'}{"\n"}
+                {paymentSetting?.bankBranch ? `• Chi nhánh: ${paymentSetting.bankBranch}\n` : ''}
                 • Số tiền: {formatMoney(total)}
+                {paymentSetting?.bankTransferNote ? `\n• Nội dung chuyển khoản: ${paymentSetting.bankTransferNote}` : ''}
               </Text>
               
               <View style={styles.alertBox}>
@@ -296,6 +436,28 @@ export default function CheckoutScreen() {
                   Vui lòng chụp ảnh màn hình chuyển khoản thành công. Sau khi nhấn Xác Nhận Đặt Hàng, chúng mình sẽ đối soát và xử lý đơn hàng của bạn.
                 </Text>
               </View>
+
+              {/* Receipt Image Picker */}
+              <Text style={styles.uploadLabel}>Minh chứng chuyển khoản *</Text>
+              <TouchableOpacity 
+                style={styles.uploadReceiptBtn} 
+                onPress={handleSelectReceipt}
+              >
+                {receiptImage ? (
+                  <View style={styles.uploadedReceiptContainer}>
+                    <Image source={{ uri: receiptImage }} style={styles.receiptPreviewImg} />
+                    <View style={styles.changeReceiptOverlay}>
+                      <Upload color="#FFFFFF" size={16} />
+                      <Text style={styles.changeReceiptText}>Đổi ảnh khác</Text>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.uploadPlaceholder}>
+                    <Upload color={AppTheme.colors.textMuted} size={24} style={styles.uploadIcon} />
+                    <Text style={styles.uploadPlaceholderText}>Chọn ảnh chụp màn hình chuyển khoản</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
             </View>
           )}
 
@@ -580,5 +742,85 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#B45309',
     lineHeight: 14,
+  },
+  suggestionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    borderRadius: 12,
+    marginTop: -8,
+    marginBottom: 16,
+    maxHeight: 150,
+    overflow: 'hidden',
+    zIndex: 1000,
+    elevation: 5,
+  },
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F4',
+  },
+  suggestionText: {
+    fontSize: 12.5,
+    color: '#44403C',
+  },
+  uploadLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: AppTheme.colors.darkText,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  uploadReceiptBtn: {
+    borderWidth: 1.5,
+    borderColor: AppTheme.colors.border,
+    borderStyle: 'dashed',
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#FAF9F6',
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  uploadedReceiptContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  receiptPreviewImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  changeReceiptOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+  },
+  changeReceiptText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  uploadPlaceholder: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  uploadIcon: {
+    marginBottom: 8,
+  },
+  uploadPlaceholderText: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+    textAlign: 'center',
   },
 });

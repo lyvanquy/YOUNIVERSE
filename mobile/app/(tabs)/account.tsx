@@ -24,6 +24,28 @@ export default function AccountScreen() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
 
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+
+  const fetchAddressSuggestions = async (text: string) => {
+    if (text.trim().length < 3) {
+      setAddressSuggestions([]);
+      return;
+    }
+    setIsSearchingAddress(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&limit=5&countrycodes=vn`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setAddressSuggestions(data);
+      }
+    } catch (e) {
+      console.warn("Lỗi tìm kiếm gợi ý địa chỉ:", e);
+    } finally {
+      setIsSearchingAddress(false);
+    }
+  };
+
   /* ── Server Config States ── */
   const [showServerModal, setShowServerModal] = useState(false);
   const [currentApiUrl, setCurrentApiUrl] = useState(DEFAULT_API_URL);
@@ -228,11 +250,32 @@ export default function AccountScreen() {
               <TextInput
                 style={[styles.input, styles.textArea]}
                 value={editAddress}
-                onChangeText={setEditAddress}
+                onChangeText={(text) => {
+                  setEditAddress(text);
+                  fetchAddressSuggestions(text);
+                }}
                 placeholder="Nhập địa chỉ nhà riêng hoặc cơ sở UEH..."
                 multiline
                 numberOfLines={2}
               />
+              {addressSuggestions.length > 0 && (
+                <View style={styles.suggestionsContainer}>
+                  {addressSuggestions.map((item, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={styles.suggestionItem}
+                      onPress={() => {
+                        setEditAddress(item.display_name);
+                        setAddressSuggestions([]);
+                      }}
+                    >
+                      <Text style={styles.suggestionText} numberOfLines={1}>
+                        {item.display_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
 
               <View style={styles.editActionsRow}>
                 <TouchableOpacity 
@@ -902,5 +945,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
     color: AppTheme.colors.white,
+  },
+  suggestionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    borderRadius: 12,
+    marginTop: -16,
+    marginBottom: 16,
+    maxHeight: 150,
+    overflow: 'hidden',
+    zIndex: 1000,
+    elevation: 5,
+  },
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F4',
+  },
+  suggestionText: {
+    fontSize: 12.5,
+    color: '#44403C',
   },
 });

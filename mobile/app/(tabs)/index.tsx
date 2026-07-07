@@ -582,7 +582,7 @@ function _buildProductCard(
     >
       <View style={styles.cardImageContainer}>
         {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.cardImage} resizeMode="cover" />
+          <Image source={{ uri: imageUrl }} style={styles.cardImage} resizeMode="contain" />
         ) : (
           <HelpCircle color={AppTheme.colors.primaryGreen} size={42} opacity={0.3} />
         )}

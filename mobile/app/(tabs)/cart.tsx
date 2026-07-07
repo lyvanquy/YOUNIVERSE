@@ -54,7 +54,7 @@ export default function CartScreen() {
               <View key={item.slug} style={styles.itemCard}>
                 <View style={styles.itemImage}>
                   {item.image ? (
-                    <Image source={{ uri: item.image }} style={styles.image as any} resizeMode="cover" />
+                    <Image source={{ uri: item.image }} style={styles.image as any} resizeMode="contain" />
                   ) : (
                     <HelpCircle color={AppTheme.colors.primaryGreen} size={30} opacity={0.3} />
                   )}

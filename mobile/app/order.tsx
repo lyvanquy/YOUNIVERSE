@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator, Image, Modal, ImageBackground } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Sparkles, Heart, Compass, ChevronRight, Check, Plus, ShoppingBag, Info, ShieldAlert, ArrowLeft, Landmark } from 'lucide-react-native';
+import { Sparkles, Heart, Compass, ChevronRight, Check, Plus, ShoppingBag, Info, ShieldAlert, ArrowLeft, Landmark, Upload } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { AppTheme } from '../src/config/theme';
 import { useAuthStore } from '../src/store/useAuthStore';
 import api from '../src/services/api';
@@ -87,10 +88,76 @@ export default function OrderScreen() {
   const [note, setNote] = useState('');
   const [shippingMethod, setShippingMethod] = useState<'UEH' | 'OTHER'>('UEH');
   const [paymentProvider, setPaymentProvider] = useState<'COD' | 'BANK_TRANSFER'>('BANK_TRANSFER');
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+
+  const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false);
+  const [paymentSetting, setPaymentSetting] = useState<any>(null);
+  const [isLoadingPaymentSetting, setIsLoadingPaymentSetting] = useState(false);
+
+  useEffect(() => {
+    const fetchPaymentSettings = async () => {
+      setIsLoadingPaymentSetting(true);
+      try {
+        const response = await api.get('/settings/payment');
+        const setting = response.data.data?.paymentSetting || response.data.paymentSetting;
+        setPaymentSetting(setting);
+        if (setting) {
+          if (setting.bankTransferEnabled && !setting.codEnabled) {
+            setPaymentProvider('BANK_TRANSFER');
+          } else if (!setting.bankTransferEnabled && setting.codEnabled) {
+            setPaymentProvider('COD');
+          }
+        }
+      } catch (err) {
+        console.warn("Lỗi tải cấu hình thanh toán:", err);
+      } finally {
+        setIsLoadingPaymentSetting(false);
+      }
+    };
+    fetchPaymentSettings();
+  }, []);
+
+  const fetchAddressSuggestions = async (text: string) => {
+    if (text.trim().length < 3) {
+      setAddressSuggestions([]);
+      return;
+    }
+    setIsSearchingAddress(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&limit=5&countrycodes=vn`);
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setAddressSuggestions(data);
+      }
+    } catch (e) {
+      console.warn("Lỗi tìm kiếm gợi ý địa chỉ:", e);
+    } finally {
+      setIsSearchingAddress(false);
+    }
+  };
 
   /* ── Loading and API integration states ── */
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdOrderCode, setCreatedOrderCode] = useState<string | null>(null);
+
+  const handleSelectReceipt = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Quyền truy cập', 'Ứng dụng cần quyền truy cập thư viện ảnh để tải lên minh chứng.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setReceiptImage(result.assets[0].uri);
+    }
+  };
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
@@ -158,6 +225,11 @@ export default function OrderScreen() {
   const handleConfirmOrder = async () => {
     if (!fullName.trim() || !phone.trim() || !email.trim() || !address.trim()) {
       Alert.alert('Lỗi', 'Vui lòng điền đầy đủ các thông tin giao hàng bắt buộc (*)');
+      return;
+    }
+
+    if (paymentProvider === 'BANK_TRANSFER' && !receiptImage) {
+      Alert.alert('Lỗi', 'Vui lòng chọn hoặc chụp ảnh minh chứng chuyển khoản.');
       return;
     }
 
@@ -268,7 +340,42 @@ export default function OrderScreen() {
       });
 
       const orderData = response.data.data?.order || response.data.order;
-      setCreatedOrderCode(orderData?.orderCode || response.data.data?.orderCode);
+      const orderId = orderData?.id || response.data.data?.orderId || response.data.orderId;
+      setCreatedOrderCode(orderData?.orderCode || response.data.data?.orderCode || response.data.orderCode);
+
+      // 7. Gửi ảnh minh chứng chuyển khoản nếu thanh toán bằng chuyển khoản
+      if (paymentProvider === 'BANK_TRANSFER' && receiptImage && orderId) {
+        const formData = new FormData();
+        const uriParts = receiptImage.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+        formData.append('file', {
+          uri: receiptImage,
+          name: `receipt_${Date.now()}.${fileType}`,
+          type: `image/${fileType}`,
+        } as any);
+
+        const uploadResponse = await api.post('/upload/image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-session-id': sessionId,
+          },
+        });
+
+        const uploadedUrl = uploadResponse.data.data?.url || uploadResponse.data.url;
+        if (!uploadedUrl) {
+          throw new Error('Không thể tải ảnh minh chứng chuyển khoản lên máy chủ.');
+        }
+
+        await api.post('/payments/receipt', {
+          orderId,
+          receiptUrl: uploadedUrl,
+        }, {
+          headers: {
+            'x-session-id': sessionId,
+          }
+        });
+      }
+
       setCurrentStep(5);
     } catch (err: any) {
       console.warn("Lỗi đặt hàng chế tác:", err);
@@ -428,7 +535,7 @@ export default function OrderScreen() {
                       onPress={() => { setAstraSystem(sys.id); setEngraveChoice(null); setNickname(''); }}
                       style={[styles.astraCard, isSelected && styles.astraCardSelected]}
                     >
-                      <Image source={{ uri: sys.image }} style={styles.astraCardImg as any} resizeMode="cover" />
+                      <Image source={{ uri: sys.image }} style={styles.astraCardImg as any} resizeMode="contain" />
                       <Text style={styles.astraCardTitle}>{sys.emoji} {sys.nameVi}</Text>
                       <Text style={styles.astraCardDesc}>{sys.descVi}</Text>
                       {isSelected && (
@@ -452,7 +559,7 @@ export default function OrderScreen() {
                     <View style={styles.compareBox}>
                       <View style={styles.compareImgWrapper}>
                         {selectedAstra?.image ? (
-                          <Image source={{ uri: selectedAstra.image }} style={styles.compareImg as any} resizeMode="cover" />
+                          <Image source={{ uri: selectedAstra.image }} style={styles.compareImg as any} resizeMode="contain" />
                         ) : null}
                       </View>
                       <Text style={styles.compareLabel}>NGUYÊN BẢN</Text>
@@ -461,7 +568,7 @@ export default function OrderScreen() {
                     <View style={styles.compareBox}>
                       <View style={[styles.compareImgWrapper, styles.compareImgWrapperActive]}>
                         {selectedAstra?.image ? (
-                          <Image source={{ uri: selectedAstra.image }} style={styles.compareImg as any} resizeMode="cover" />
+                          <Image source={{ uri: selectedAstra.image }} style={styles.compareImg as any} resizeMode="contain" />
                         ) : null}
                         <View style={styles.engraveTextOverlay}>
                           <Text style={styles.engraveTextContent}>
@@ -570,7 +677,7 @@ export default function OrderScreen() {
                           style={[styles.charmCard, isSelected && styles.charmCardSelected]}
                           onPress={() => { setSiriusCharm(c.id); setSiriusConfirmed(true); }}
                         >
-                          <Image source={{ uri: c.image }} style={styles.charmCardImg as any} resizeMode="cover" />
+                          <Image source={{ uri: c.image }} style={styles.charmCardImg as any} resizeMode="contain" />
                           <View style={styles.charmInfoRow}>
                             <Text style={styles.charmCardTitle}>{c.emoji} {c.nameVi}</Text>
                             {isSelected && (
@@ -711,7 +818,7 @@ export default function OrderScreen() {
                           style={[styles.charmCard, isSelected && styles.charmCardSelected]}
                           onPress={() => setPolarisSwapCharm(c.id)}
                         >
-                          <Image source={{ uri: c.image }} style={styles.charmCardImg as any} resizeMode="cover" />
+                          <Image source={{ uri: c.image }} style={styles.charmCardImg as any} resizeMode="contain" />
                           <View style={styles.charmInfoRow}>
                             <Text style={styles.charmCardTitle}>{c.emoji} {c.nameVi}</Text>
                             {isSelected && (
@@ -844,8 +951,29 @@ export default function OrderScreen() {
                       style={styles.input}
                       placeholder="Số nhà, tên đường, phường, quận, thành phố..."
                       value={address}
-                      onChangeText={setAddress}
+                      onChangeText={(text) => {
+                        setAddress(text);
+                        fetchAddressSuggestions(text);
+                      }}
                     />
+                    {addressSuggestions.length > 0 && (
+                      <View style={styles.suggestionsContainer}>
+                        {addressSuggestions.map((item, idx) => (
+                          <TouchableOpacity
+                            key={idx}
+                            style={styles.suggestionItem}
+                            onPress={() => {
+                              setAddress(item.display_name);
+                              setAddressSuggestions([]);
+                            }}
+                          >
+                            <Text style={styles.suggestionText} numberOfLines={1}>
+                              {item.display_name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    )}
                   </View>
                 )}
 
@@ -860,29 +988,35 @@ export default function OrderScreen() {
                 />
 
                 {/* Payment selection */}
-                <Text style={styles.formSectionTitle}>Phương thức thanh toán</Text>
+                {(!paymentSetting || paymentSetting.codEnabled || paymentSetting.bankTransferEnabled) && (
+                  <Text style={styles.formSectionTitle}>Phương thức thanh toán</Text>
+                )}
                 <View style={styles.shippingMethodRow}>
-                  <TouchableOpacity
-                    style={[styles.shippingBtn, paymentProvider === 'BANK_TRANSFER' && styles.shippingBtnActive]}
-                    onPress={() => setPaymentProvider('BANK_TRANSFER')}
-                  >
-                    <Text style={[styles.shippingBtnText, paymentProvider === 'BANK_TRANSFER' && styles.shippingBtnTextActive]}>
-                      Chuyển khoản QR
-                    </Text>
-                  </TouchableOpacity>
+                  {(!paymentSetting || paymentSetting.bankTransferEnabled) && (
+                    <TouchableOpacity
+                      style={[styles.shippingBtn, paymentProvider === 'BANK_TRANSFER' && styles.shippingBtnActive]}
+                      onPress={() => setPaymentProvider('BANK_TRANSFER')}
+                    >
+                      <Text style={[styles.shippingBtnText, paymentProvider === 'BANK_TRANSFER' && styles.shippingBtnTextActive]}>
+                        Chuyển khoản QR
+                      </Text>
+                    </TouchableOpacity>
+                  )}
 
-                  <TouchableOpacity
-                    style={[styles.shippingBtn, paymentProvider === 'COD' && styles.shippingBtnActive]}
-                    onPress={() => setPaymentProvider('COD')}
-                  >
-                    <Text style={[styles.shippingBtnText, paymentProvider === 'COD' && styles.shippingBtnTextActive]}>
-                      COD khi nhận hàng
-                    </Text>
-                  </TouchableOpacity>
+                  {(!paymentSetting || paymentSetting.codEnabled) && (
+                    <TouchableOpacity
+                      style={[styles.shippingBtn, paymentProvider === 'COD' && styles.shippingBtnActive]}
+                      onPress={() => setPaymentProvider('COD')}
+                    >
+                      <Text style={[styles.shippingBtnText, paymentProvider === 'COD' && styles.shippingBtnTextActive]}>
+                        COD khi nhận hàng
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 {/* QR details */}
-                {paymentProvider === 'BANK_TRANSFER' && (
+                {paymentProvider === 'BANK_TRANSFER' && (!paymentSetting || paymentSetting.bankTransferEnabled) && (
                   <View style={styles.bankBox}>
                     <Landmark color={AppTheme.colors.primaryGreen} size={30} style={styles.bankIcon} />
                     <Text style={styles.bankTitle}>Quét QR Chuyển Khoản Ngân Hàng</Text>
@@ -890,16 +1024,22 @@ export default function OrderScreen() {
                     {/* Mock QR image */}
                     <View style={styles.qrContainer}>
                       <Image 
-                        source={{ uri: 'https://img.vietqr.io/image/mbbank-123456789-compact2.png?amount=' + totalPrice + '&addInfo=YOUniverse%20Mobile' }} 
+                        source={{ 
+                          uri: paymentSetting?.bankTransferQrImageUrl || 
+                               `https://img.vietqr.io/image/${paymentSetting?.bankName || 'mbbank'}-${paymentSetting?.bankAccountNumber || '123456789'}-compact2.png?amount=${totalPrice}&addInfo=YOUniverse%20Mobile`
+                        }} 
                         style={styles.qrImg as any} 
                         resizeMode="contain" 
                       />
                     </View>
 
                     <Text style={styles.bankInfoText}>
-                      • Tên tài khoản: YOUNIVERSE GROUP 3{"\n"}
-                      • Số tài khoản: 123456789 - MB Bank{"\n"}
+                      • Ngân hàng: {paymentSetting?.bankName || 'MB Bank'}{"\n"}
+                      • Tên tài khoản: {paymentSetting?.bankAccountName || 'YOUNIVERSE GROUP 3'}{"\n"}
+                      • Số tài khoản: {paymentSetting?.bankAccountNumber || '123456789'}{"\n"}
+                      {paymentSetting?.bankBranch ? `• Chi nhánh: ${paymentSetting.bankBranch}\n` : ''}
                       • Số tiền: {formatMoney(totalPrice)}
+                      {paymentSetting?.bankTransferNote ? `\n• Nội dung chuyển khoản: ${paymentSetting.bankTransferNote}` : ''}
                     </Text>
                     <View style={styles.alertBox}>
                       <Info color="#B45309" size={14} />
@@ -907,6 +1047,28 @@ export default function OrderScreen() {
                         Vui lòng chụp ảnh màn hình chuyển khoản thành công. Sau khi ấn Đặt Hàng, đại diện ISB Event Team sẽ liên hệ xác nhận qua Zalo/Email.
                       </Text>
                     </View>
+
+                    {/* Receipt Image Picker */}
+                    <Text style={styles.uploadLabel}>Minh chứng chuyển khoản *</Text>
+                    <TouchableOpacity 
+                      style={styles.uploadReceiptBtn} 
+                      onPress={handleSelectReceipt}
+                    >
+                      {receiptImage ? (
+                        <View style={styles.uploadedReceiptContainer}>
+                          <Image source={{ uri: receiptImage }} style={styles.receiptPreviewImg} />
+                          <View style={styles.changeReceiptOverlay}>
+                            <Upload color="#FFFFFF" size={16} />
+                            <Text style={styles.changeReceiptText}>Đổi ảnh khác</Text>
+                          </View>
+                        </View>
+                      ) : (
+                        <View style={styles.uploadPlaceholder}>
+                          <Upload color={AppTheme.colors.textMuted} size={24} style={styles.uploadIcon} />
+                          <Text style={styles.uploadPlaceholderText}>Chọn ảnh chụp màn hình chuyển khoản</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
                   </View>
                 )}
               </View>
@@ -1836,5 +1998,84 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontStyle: 'italic',
     color: '#047857',
+  },
+  uploadLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: AppTheme.colors.darkText,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  uploadReceiptBtn: {
+    borderWidth: 1.5,
+    borderColor: AppTheme.colors.border,
+    borderStyle: 'dashed',
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#FAF9F6',
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  uploadedReceiptContainer: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+  },
+  receiptPreviewImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  changeReceiptOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    paddingVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+  },
+  changeReceiptText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  uploadPlaceholder: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  uploadIcon: {
+    marginBottom: 8,
+  },
+  uploadPlaceholderText: {
+    fontSize: 12,
+    color: AppTheme.colors.textMuted,
+    textAlign: 'center',
+  },
+  suggestionsContainer: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    borderRadius: 12,
+    marginTop: -8,
+    marginBottom: 16,
+    maxHeight: 150,
+    overflow: 'hidden',
+    zIndex: 1000,
+    elevation: 5,
+  },
+  suggestionItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F4',
+  },
+  suggestionText: {
+    fontSize: 12.5,
+    color: '#44403C',
   },
 });
