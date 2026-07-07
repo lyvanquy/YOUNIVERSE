@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ZoomIn, Minus, Plus, HelpCircle, Sparkles, X } from 'lucide-react-native';
 import { AppTheme } from '../../src/config/theme';
 import { useCartStore } from '../../src/store/useCartStore';
@@ -10,6 +11,7 @@ export default function ProductDetailScreen() {
   const { slug } = useLocalSearchParams();
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
+  const insets = useSafeAreaInsets();
 
   const [product, setProduct] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,7 +137,7 @@ export default function ProductDetailScreen() {
       </ScrollView>
 
       {/* 4. Sticky Bottom Action Selector */}
-      <View style={styles.bottomStickyBar}>
+      <View style={[styles.bottomStickyBar, { paddingBottom: insets.bottom || 16 }]}>
         <TouchableOpacity 
           style={styles.customizeBtn}
           onPress={() => router.push(`/order?product=${slug}`)}
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppTheme.colors.backgroundLight,
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 140,
   },
   imageArea: {
     height: 280,
@@ -191,6 +193,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    resizeMode: 'contain',
   },
   zoomButton: {
     position: 'absolute',
@@ -362,6 +365,7 @@ const styles = StyleSheet.create({
   zoomedImage: {
     width: '100%',
     height: '100%',
+    resizeMode: 'contain',
   },
   closeZoomBtn: {
     position: 'absolute',

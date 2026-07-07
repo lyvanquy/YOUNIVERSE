@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   
   login: async (email, password) => {
     const response = await api.post('/auth/login', { email, password });
-    const { user, accessToken } = response.data;
+    const { user, accessToken } = response.data.data || response.data;
     
     await SecureStore.setItemAsync('auth_token', accessToken);
     set({
@@ -55,7 +55,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       password,
       confirmPassword: password,
     });
-    const { user, accessToken } = response.data;
+    const { user, accessToken } = response.data.data || response.data;
 
     await SecureStore.setItemAsync('auth_token', accessToken);
     set({
@@ -115,7 +115,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   loginWithGoogle: async (credential) => {
     const response = await api.post('/auth/google', { credential });
-    const { user, accessToken } = response.data;
+    const { user, accessToken } = response.data.data || response.data;
 
     await SecureStore.setItemAsync('auth_token', accessToken);
     set({
@@ -136,7 +136,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const token = await SecureStore.getItemAsync('auth_token');
       if (token) {
         const response = await api.get('/auth/me');
-        const { user } = response.data;
+        const { user } = response.data.data || response.data;
         set({
           user: {
             id: user.id,

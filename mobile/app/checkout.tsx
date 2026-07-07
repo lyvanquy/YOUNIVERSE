@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Alert, Modal, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Wallet, QrCode, CheckCircle2, Info, Landmark } from 'lucide-react-native';
 import { AppTheme } from '../src/config/theme';
 import { useCartStore } from '../src/store/useCartStore';
@@ -9,6 +10,7 @@ import api from '../src/services/api';
 
 export default function CheckoutScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const clearCart = useCartStore((state) => state.clearCart);
   const items = useCartStore((state) => state.items);
   const appliedCoupon = useCartStore((state) => state.appliedCoupon);
@@ -301,7 +303,7 @@ export default function CheckoutScreen() {
       </ScrollView>
 
       {/* Action Footer */}
-      <View style={styles.actionFooter}>
+      <View style={[styles.actionFooter, { paddingBottom: insets.bottom || 20 }]}>
         <TouchableOpacity 
           style={styles.orderBtn}
           onPress={handleOrder}
@@ -347,7 +349,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppTheme.colors.backgroundLight,
   },
   scrollContent: {
-    paddingBottom: 120,
+    paddingBottom: 150,
   },
   content: {
     padding: 20,

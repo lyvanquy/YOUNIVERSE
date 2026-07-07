@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, ImageBackground, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Sparkles, Heart, Compass, Plus, HelpCircle, Search } from 'lucide-react-native';
+import { Sparkles, Heart, Compass, Plus, HelpCircle, Search, X } from 'lucide-react-native';
 import { AppTheme } from '../../src/config/theme';
 import { useCartStore } from '../../src/store/useCartStore';
 import api from '../../src/services/api';
@@ -12,23 +12,27 @@ export default function ProductListScreen() {
   
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   const scrollRef = useRef<ScrollView>(null);
   const sectionPositions = useRef<Record<string, number>>({});
 
+  const fetchProducts = async (queryText = '') => {
+    try {
+      setIsLoading(true);
+      const url = queryText ? `/products?search=${encodeURIComponent(queryText)}` : '/products';
+      const response = await api.get(url);
+      const items = response.data.data?.items || [];
+      setProducts(items);
+    } catch (error) {
+      console.warn("Không thể tải danh sách sản phẩm từ API:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get('/products');
-        const items = response.data.data?.items || [];
-        setProducts(items);
-      } catch (error) {
-        console.warn("Không thể tải danh sách sản phẩm từ API:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchProducts();
   }, []);
 
@@ -101,10 +105,46 @@ export default function ProductListScreen() {
     <View style={styles.container}>
       {/* AppBar */}
       <View style={styles.appBar}>
-        <Text style={styles.appBarTitle}>Sản phẩm YOUniverse</Text>
-        <TouchableOpacity style={styles.searchBtn}>
-          <Search color={AppTheme.colors.darkText} size={22} />
-        </TouchableOpacity>
+        {isSearchActive ? (
+          <View style={styles.searchBarContainer}>
+            <Search color={AppTheme.colors.textMuted} size={18} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Tìm kiếm phôi vòng..."
+              placeholderTextColor={AppTheme.colors.textMuted}
+              value={searchQuery}
+              onChangeText={(text) => {
+                setSearchQuery(text);
+                if (text === '') {
+                  fetchProducts('');
+                }
+              }}
+              onSubmitEditing={() => fetchProducts(searchQuery)}
+              returnKeyType="search"
+              autoFocus
+            />
+            <TouchableOpacity 
+              style={styles.clearBtn} 
+              onPress={() => {
+                setSearchQuery('');
+                fetchProducts('');
+                setIsSearchActive(false);
+              }}
+            >
+              <X color={AppTheme.colors.darkText} size={20} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <Text style={styles.appBarTitle}>Sản phẩm YOUniverse</Text>
+            <TouchableOpacity 
+              style={styles.searchBtn} 
+              onPress={() => setIsSearchActive(true)}
+            >
+              <Search color={AppTheme.colors.darkText} size={22} />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
 
       <ScrollView 
@@ -316,6 +356,29 @@ const styles = StyleSheet.create({
   },
   searchBtn: {
     padding: 6,
+  },
+  searchBarContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF9F6',
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: AppTheme.colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: AppTheme.colors.darkText,
+    padding: 0,
+  },
+  clearBtn: {
+    padding: 4,
   },
   scrollContent: {
     paddingBottom: 40,
@@ -532,6 +595,7 @@ const styles = StyleSheet.create({
   productImg: {
     width: '100%',
     height: '100%',
+    resizeMode: 'contain',
   },
   badgeTag: {
     position: 'absolute',

@@ -127,7 +127,7 @@ export default function AccountScreen() {
         },
       });
 
-      const uploadedUrl = uploadResponse.data.url;
+      const uploadedUrl = uploadResponse.data.data?.url || uploadResponse.data.url;
       if (!uploadedUrl) {
         throw new Error('Không nhận được URL ảnh từ máy chủ.');
       }
