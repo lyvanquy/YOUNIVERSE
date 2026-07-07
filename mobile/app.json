@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "YOUniverse",
     "slug": "mobile",
     "scheme": "youniverse",
     "version": "1.0.0",
@@ -12,13 +12,13 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.nebutak.mobile"
+      "package": "com.youniverse.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
